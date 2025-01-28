@@ -109,7 +109,7 @@ fun SplashScreenPage(navController: NavHostController) {
 suspend fun loadProgress(updateProgress: (Float) -> Unit) {
     for (i in 1..100) {
         updateProgress(i.toFloat() / 100)
-        delay(1/** 20 for original**/) // Milliseconds to Load
+        delay(20/** 20 for original**/) // Milliseconds to Load
     }
 }
 
