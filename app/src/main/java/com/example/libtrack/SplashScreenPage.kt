@@ -101,8 +101,6 @@ fun SplashScreenPage(navController: NavHostController) {
             )
         }
     }
-
-
 }
 
 // Iterate the progress value
