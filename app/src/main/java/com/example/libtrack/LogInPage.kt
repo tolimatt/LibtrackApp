@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextDecoration
@@ -120,7 +122,30 @@ fun LogIn(navController: NavHostController) {
             value = studentIdTS.value,
             onValueChange = { if (it.length <= 14) studentIdTS.value = it },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if (studentIdTS.value == "00-0000-000000" && libCardTS.value == "0"){
+                        isStudentId = true
+                        isLibCard = true
+                        navController.navigate(Pages.Home_Page)
+                    } else if (studentIdTS.value == ""){
+                        isStudentId = false
+                        isLibCard = true
+                        if (libCardTS.value == ""){
+                            isLibCard = false
+                        }
+                    } else if (libCardTS.value == ""){
+                        isLibCard = false
+                        isStudentId = true
+                    }else {
+                        isLibCard = true
+                        isStudentId = true
+                        navController.navigate(Pages.Splash_Screen)
+                    }
+                }
             ),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.Transparent,
@@ -170,7 +195,30 @@ fun LogIn(navController: NavHostController) {
             value = libCardTS.value,
             onValueChange = {libCardTS.value = it },
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Number
+                keyboardType = KeyboardType.Number,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {
+                    if (studentIdTS.value == "00-0000-000000" && libCardTS.value == "0"){
+                        isStudentId = true
+                        isLibCard = true
+                        navController.navigate(Pages.Home_Page)
+                    } else if (studentIdTS.value == ""){
+                        isStudentId = false
+                        isLibCard = true
+                        if (libCardTS.value == ""){
+                            isLibCard = false
+                        }
+                    } else if (libCardTS.value == ""){
+                        isLibCard = false
+                        isStudentId = true
+                    }else {
+                        isLibCard = true
+                        isStudentId = true
+                        navController.navigate(Pages.Splash_Screen)
+                    }
+                }
             ),
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.Transparent,
@@ -243,11 +291,21 @@ fun LogIn(navController: NavHostController) {
         Button(
             onClick = {
                 if (studentIdTS.value == "00-0000-000000" && libCardTS.value == "0"){
+                    isStudentId = true
+                    isLibCard = true
                     navController.navigate(Pages.Home_Page)
-                } else if (studentIdTS.value == "" || libCardTS.value == ""){
+                } else if (studentIdTS.value == ""){
                     isStudentId = false
+                    isLibCard = true
+                    if (libCardTS.value == ""){
+                        isLibCard = false
+                    }
+                } else if (libCardTS.value == ""){
                     isLibCard = false
-                } else {
+                    isStudentId = true
+                }else {
+                    isLibCard = true
+                    isStudentId = true
                     navController.navigate(Pages.Splash_Screen)
                 }
             },
