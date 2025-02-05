@@ -19,7 +19,6 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -45,13 +44,12 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LogIn(navController: NavHostController) {
 
     // For text fields / Text State
-    val studentIdTS = remember { mutableStateOf("") }
-    val passwordTS = remember { mutableStateOf("") }
+    var studentIdTS by remember { mutableStateOf("") }
+    var passwordTS by remember { mutableStateOf("") }
 
     // For error handling / Booleans
     var isStudentId by remember { mutableStateOf(true) }
@@ -61,6 +59,7 @@ fun LogIn(navController: NavHostController) {
     Scaffold(
         modifier = Modifier.fillMaxSize()
     ) {paddingValues ->
+
         Column (
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -68,6 +67,7 @@ fun LogIn(navController: NavHostController) {
                 .padding(paddingValues)
                 .fillMaxSize()
         ){
+
             // Logo
             Image(
                 painter = painterResource(id = R.drawable.load),
@@ -79,7 +79,7 @@ fun LogIn(navController: NavHostController) {
 
             Spacer(
                 modifier = Modifier
-                    .height(60.dp)
+                    .height(50.dp)
             )
 
             // Title
@@ -123,7 +123,7 @@ fun LogIn(navController: NavHostController) {
                 color = Color(0xFF727D83)
             )
 
-            // Student ID
+            // ------------------------------------------------------------ STUDENT ID ------------------------------------------------------------
             TextField(
                 modifier = Modifier
                     .border(
@@ -132,26 +132,41 @@ fun LogIn(navController: NavHostController) {
                         shape = RoundedCornerShape(12.dp)
                     )
                     .width(350.dp),
-                value = studentIdTS.value,
-                onValueChange = { if (it.length <= 14) studentIdTS.value = it },
+                value = studentIdTS,
+                onValueChange = { if (it.length <= 14) studentIdTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Done
                 ),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
+                ),
+                placeholder = {
+                    Text(
+                        text = "Enter Student ID",
+                        fontWeight = FontWeight(400))
+                },
+                singleLine = true,
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        if (studentIdTS.value == "00-0000-000000" && passwordTS.value == "0"){
+                        if (studentIdTS == "00-0000-000000" && passwordTS == "0"){
                             isStudentId = true
                             isPassword = true
                             navController.navigate(Pages.Home_Page)
-                        } else if (studentIdTS.value == ""){
+                        } else if (studentIdTS == ""){
                             isStudentId = false
                             isPassword = true
                             isRegistered = true
-                            if (passwordTS.value == ""){
+                            if (passwordTS == ""){
                                 isPassword = false
                             }
-                        } else if (passwordTS.value == ""){
+                        } else if (passwordTS == ""){
                             isPassword = false
                             isStudentId = true
                             isRegistered = true
@@ -162,20 +177,6 @@ fun LogIn(navController: NavHostController) {
                         }
                     }
                 ),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
-                ),
-                textStyle = TextStyle(
-                    fontSize = 17.sp
-                ),
-                placeholder = {
-                    Text(
-                        text = "Enter Student ID",
-                        fontWeight = FontWeight(400))
-                },
-                singleLine = true
             )
 
             if (!isStudentId){
@@ -222,7 +223,7 @@ fun LogIn(navController: NavHostController) {
                 color = Color(0xFF727D83)
             )
 
-            // Password
+            // ------------------------------------------------------------ PASSWORD ------------------------------------------------------------
             TextField(
                 modifier = Modifier
                     .border(
@@ -231,40 +232,17 @@ fun LogIn(navController: NavHostController) {
                         shape = RoundedCornerShape(12.dp)
                     )
                     .width(350.dp),
-                value = passwordTS.value,
-                onValueChange = {passwordTS.value = it },
+                value = passwordTS,
+                onValueChange = {passwordTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
                     imeAction = ImeAction.Done
                 ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        if (studentIdTS.value == "00-0000-000000" && passwordTS.value == "0"){
-                            isStudentId = true
-                            isPassword = true
-                            navController.navigate(Pages.Home_Page)
-                        } else if (studentIdTS.value == ""){
-                            isStudentId = false
-                            isPassword = true
-                            isRegistered = true
-                            if (passwordTS.value == ""){
-                                isPassword = false
-                            }
-                        } else if (passwordTS.value == ""){
-                            isPassword = false
-                            isStudentId = true
-                            isRegistered = true
-                        }else {
-                            isStudentId = true
-                            isPassword = true
-                            isRegistered = false
-                        }
-                    }
-                ),
-                colors = TextFieldDefaults.textFieldColors(
-                    containerColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
                 ),
                 textStyle = TextStyle(
                     fontSize = 20.sp
@@ -275,7 +253,31 @@ fun LogIn(navController: NavHostController) {
                         fontWeight = FontWeight(400))
                 },
                 visualTransformation = PasswordVisualTransformation(),
-                singleLine = true
+                singleLine = true,
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (studentIdTS == "00-0000-000000" && passwordTS == "0"){
+                            isStudentId = true
+                            isPassword = true
+                            navController.navigate(Pages.Home_Page)
+                        } else if (studentIdTS == ""){
+                            isStudentId = false
+                            isPassword = true
+                            isRegistered = true
+                            if (passwordTS == ""){
+                                isPassword = false
+                            }
+                        } else if (passwordTS == ""){
+                            isPassword = false
+                            isStudentId = true
+                            isRegistered = true
+                        }else {
+                            isStudentId = true
+                            isPassword = true
+                            isRegistered = false
+                        }
+                    }
+                ),
             )
 
             if (!isPassword){
@@ -328,7 +330,7 @@ fun LogIn(navController: NavHostController) {
                 Text(
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(Pages.Sign_Up)
+                            navController.navigate(Pages.Sign_Up_Page1)
                         },
                     text = "Register!",
                     style = TextStyle(
@@ -342,24 +344,24 @@ fun LogIn(navController: NavHostController) {
 
             Spacer(
                 modifier = Modifier
-                    .height(180.dp)
+                    .height(100.dp)
             )
 
-            // Login Button
+            // ------------------------------------------------------------ LOGIN BUTTON ------------------------------------------------------------
             Button(
                 onClick = {
-                    if (studentIdTS.value == "00-0000-000000" && passwordTS.value == "0"){
+                    if (studentIdTS == "00-0000-000000" && passwordTS == "0"){
                         isStudentId = true
                         isPassword = true
                         navController.navigate(Pages.Home_Page)
-                    } else if (studentIdTS.value == ""){
+                    } else if (studentIdTS == ""){
                         isStudentId = false
                         isPassword = true
                         isRegistered = true
-                        if (passwordTS.value == ""){
+                        if (passwordTS == ""){
                             isPassword = false
                         }
-                    } else if (passwordTS.value == ""){
+                    } else if (passwordTS == ""){
                         isPassword = false
                         isStudentId = true
                         isRegistered = true
@@ -377,6 +379,7 @@ fun LogIn(navController: NavHostController) {
                     contentColor = Color.White
                 )
             ) {
+
                 Text(
                     text = "Login",
                     style = TextStyle(
