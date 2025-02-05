@@ -15,8 +15,24 @@ fun Navigation() {
         composable(Pages.Log_In, enterTransition = { slideInVertically { 2000000 } }) {
             LogIn(navController)
         }
-        composable(Pages.Sign_Up) {
-            SignUp(navController)
+        composable(Pages.Sign_Up_Page1) {
+            Page1_SU(navController)
+        }
+        composable(Pages.Sign_Up_Page2+"/{firstname}") { backStackEntry ->
+            val firstname = backStackEntry.arguments?.getString("firstname") ?: ""
+            val lastname = backStackEntry.arguments?.getString("lastname") ?: ""
+            val studentId = backStackEntry.arguments?.getString("studentId") ?: ""
+            val password = backStackEntry.arguments?.getString("password") ?: ""
+
+            Page2_SU(
+                navController = navController,
+                firstname = firstname,
+                lastname = lastname,
+                studentId = studentId,
+                password = password)
+        }
+        composable(Pages.Sign_Up_Complete) {
+            Complete_SU(navController)
         }
         composable(Pages.Splash_Screen) {
             SplashScreenPage(navController)
