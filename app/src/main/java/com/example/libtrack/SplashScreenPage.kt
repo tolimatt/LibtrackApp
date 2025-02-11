@@ -64,34 +64,16 @@ fun SplashScreenPage(navController: NavHostController) {
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.load),
+            painter = painterResource(id = R.drawable.logo),
             contentDescription = "Logo Loading",
             modifier = Modifier
-                .size(100.dp)
+                .size(230.dp)
                 .clip(CircleShape)
         )
+
         Spacer(
             modifier = Modifier
-                .height(15.dp)
-        )
-        Text(
-            text = "LibTrack",
-            style =  TextStyle(
-                color = Color.Black,
-                fontSize = 30.sp,
-                fontWeight = FontWeight(600),
-                fontFamily = FontFamily.Default,
-                shadow = Shadow(
-                    color = Color.Gray,
-                    offset = Offset(1.0f, 3.0f),
-                    blurRadius = 5f
-                )
-            ),
-            modifier = Modifier
-        )
-        Spacer(
-            modifier = Modifier
-                .height(150.dp)
+                .height(90.dp)
         )
 
         if (loading) {
@@ -107,7 +89,7 @@ fun SplashScreenPage(navController: NavHostController) {
 suspend fun loadProgress(updateProgress: (Float) -> Unit) {
     for (i in 1..100) {
         updateProgress(i.toFloat() / 100)
-        delay(20/** 20 for original**/) // Milliseconds to Load
+        delay(1/** 20 for original**/) // Milliseconds to Load
     }
 }
 

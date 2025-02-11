@@ -23,7 +23,6 @@ fun Navigation() {
             val lastname = backStackEntry.arguments?.getString("lastname") ?: ""
             val studentId = backStackEntry.arguments?.getString("studentId") ?: ""
             val password = backStackEntry.arguments?.getString("password") ?: ""
-
             Page2_SU(
                 navController = navController,
                 firstname = firstname,
@@ -33,6 +32,18 @@ fun Navigation() {
         }
         composable(Pages.Sign_Up_Complete) {
             Complete_SU(navController)
+        }
+        composable(Pages.Forgot_Password_Page1) {
+            Page1_FP(navController)
+        }
+        composable(Pages.Forgot_Password_Page2) {
+            Page2_FP(navController)
+        }
+        composable(Pages.Forgot_Password_Page3) {
+            Page3_FP(navController)
+        }
+        composable(Pages.Forgot_Password_Complete) {
+            Complete_FP(navController)
         }
         composable(Pages.Splash_Screen) {
             SplashScreenPage(navController)

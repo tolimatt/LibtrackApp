@@ -1,5 +1,6 @@
 package com.example.libtrack
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -13,6 +14,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -44,14 +47,17 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 
@@ -100,8 +106,6 @@ fun Page1_SU(navHostController: NavHostController){
         ) {
 
             Text(
-                modifier = Modifier.offset(
-                    (0).dp, (-35).dp),
                 text = "Create an Account",
                 style = TextStyle(
                     color = Color.Black,
@@ -110,9 +114,12 @@ fun Page1_SU(navHostController: NavHostController){
                 )
             )
 
+            Spacer(
+                modifier = Modifier
+                    .height(10.dp)
+            )
+
             Text(
-                modifier = Modifier.offset(
-                    (0).dp, (-25).dp),
                 text = "Step 1",
                 style = TextStyle(
                     color = Color.Black,
@@ -122,7 +129,21 @@ fun Page1_SU(navHostController: NavHostController){
             )
 
             Spacer(
-                modifier = Modifier.height(5.dp)
+                modifier = Modifier
+                    .height(15.dp)
+            )
+
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Welcome! Please fill in your details to create an account. Ensure that your student ID and password are correct before proceeding.",
+                style = TextStyle(
+                    color = Color(0xFF727D83),
+                    fontSize = 14.sp,
+                )
+            )
+
+            Spacer(
+                modifier = Modifier.height(15.dp)
             )
 
             // ------------------------------------------------------------ FIRST NAME ------------------------------------------------------------
@@ -143,7 +164,8 @@ fun Page1_SU(navHostController: NavHostController){
                         color = if(!isCompletePage1) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
+                    .width(350.dp)
+                    .height(55.dp),
                 value = firstNameTS,
                 onValueChange = { firstNameTS = it },
                 colors = TextFieldDefaults.colors(
@@ -183,7 +205,8 @@ fun Page1_SU(navHostController: NavHostController){
                         color = if(!isCompletePage1) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
+                    .width(350.dp)
+                    .height(55.dp),
                 value = lastNameTS,
                 onValueChange = { lastNameTS = it  },
                 colors = TextFieldDefaults.colors(
@@ -223,7 +246,8 @@ fun Page1_SU(navHostController: NavHostController){
                         color = if(!isCompletePage1) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
+                    .width(350.dp)
+                    .height(55.dp),
                 value = studentIdTS,
                 onValueChange = { if (it.length <= 14) studentIdTS = it  },
                 colors = TextFieldDefaults.colors(
@@ -267,7 +291,8 @@ fun Page1_SU(navHostController: NavHostController){
                         color = if(!isCompletePage1 || !isPasswordMatch || !isPasswordLength) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
+                    .width(350.dp)
+                    .height(55.dp),
                 value = passwordTS,
                 onValueChange = { passwordTS = it },
                 colors = TextFieldDefaults.colors(
@@ -321,7 +346,8 @@ fun Page1_SU(navHostController: NavHostController){
                         color = if(!isCompletePage1 || !isPasswordMatch || !isPasswordLength) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
+                    .width(350.dp)
+                    .height(55.dp),
                 value = confirmPasswordTS,
                 onValueChange = { confirmPasswordTS = it },
                 colors = TextFieldDefaults.colors(
@@ -347,7 +373,7 @@ fun Page1_SU(navHostController: NavHostController){
             if (!isCompletePage1){
                 Text(
                     modifier = Modifier.offset(
-                        (0).dp, 20.dp
+                        (0).dp, 15.dp
                     ),
                     text ="Fill up all the requirements.",
                     fontSize = 16.sp,
@@ -365,7 +391,7 @@ fun Page1_SU(navHostController: NavHostController){
             if (!isPasswordMatch || !isPasswordLength){
                 Text(
                     modifier = Modifier.offset(
-                        (0).dp, 20.dp
+                        (0).dp, 15.dp
                     ),
                     text ="Invalid Password.",
                     fontSize = 16.sp,
@@ -382,7 +408,7 @@ fun Page1_SU(navHostController: NavHostController){
             }
 
             Spacer(
-                modifier = Modifier.height(45.dp)
+                modifier = Modifier.height(35.dp)
             )
 
             val firstname = firstNameTS
@@ -392,7 +418,9 @@ fun Page1_SU(navHostController: NavHostController){
 
             Button(
                 onClick = {
-                    if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12) {
+                    navHostController.navigate("Page2_SU/${firstname} ${lastname}${studentId}${password}")
+
+                    /*if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12) {
                         isCompletePage1 = true
                         isPasswordMatch = true
                         navHostController.navigate("Page2_SU/${firstname} ${lastname}${studentId}${password} ")
@@ -408,7 +436,7 @@ fun Page1_SU(navHostController: NavHostController){
                         isPasswordLength = false
                         isPasswordMatch = true
                         isCompletePage1 = true
-                    }
+                    }*/
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -511,8 +539,6 @@ fun Page2_SU(
         ) {
 
             Text(
-                modifier = Modifier.offset(
-                    (0).dp, (-30).dp),
                 text = "Create an Account",
                 style = TextStyle(
                     color = Color.Black,
@@ -522,12 +548,10 @@ fun Page2_SU(
             )
 
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(10.dp)
             )
 
             Text(
-                modifier = Modifier.offset(
-                    (0).dp, (-38).dp),
                 text = "Step 2",
                 style = TextStyle(
                     color = Color.Black,
@@ -537,7 +561,20 @@ fun Page2_SU(
             )
 
             Spacer(
-                modifier = Modifier.height(20.dp)
+                modifier = Modifier.height(15.dp)
+            )
+
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Almost there! Please provide your email, contact details, and academic information to complete your account setup",
+                style = TextStyle(
+                    color = Color(0xFF727D83),
+                    fontSize = 14.sp,
+                )
+            )
+
+            Spacer(
+                modifier = Modifier.height(25.dp)
             )
 
             // ------------------------------------------------------------ DROP DOWN MENUS ------------------------------------------------------------
@@ -848,7 +885,9 @@ fun Page2_SU(
 
             Button(
                 onClick = {
-                    if(allCompletedPage2){
+
+                    navController.navigate(Pages.Sign_Up_Complete)
+                    /*if(allCompletedPage2){
                         navController.navigate(Pages.Sign_Up_Complete)
                         // Get all values of firstName, lastName, studentId, password, yearLevel, program, schoolEmail, contactNumb
                         // Insert to DB
@@ -858,7 +897,7 @@ fun Page2_SU(
                     } else {
                         isCompletePage2 = false
                         isValidSchoolEmail = true
-                    }
+                    }*/
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -932,8 +971,21 @@ fun Complete_SU(navController: NavHostController){
                 .fillMaxSize()
         ) {
 
+            Image(
+                painter = painterResource(id = R.drawable.success),
+                contentDescription = "Success",
+                modifier = Modifier
+                    .size(70.dp)
+                    .clip(CircleShape)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(20.dp)
+            )
+
             Text(
-                text = "CONGRATULATIONS!!!",
+                text = "Sign-Up Successful!",
                 style = TextStyle(
                     color = Color.Black,
                     fontSize = 28.sp,
@@ -946,11 +998,12 @@ fun Complete_SU(navController: NavHostController){
             )
 
             Text(
-                text = "Account Created Successfully!",
+                textAlign = TextAlign.Center,
+                text = "Welcome to the LibTrack! Your account has been successfully created. Enjoy exploring our collection.",
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 23.sp,
-                    fontWeight = FontWeight(700)
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight(400)
                 )
             )
 
@@ -967,9 +1020,20 @@ fun Complete_SU(navController: NavHostController){
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF72AF7B),
+                    contentColor = Color.White
+                )
             ) {
                 Text(
-                    text = "Return to Login Page"
+                    text = "Back to Login",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily.Default
+                    )
                 )
             }
         }
