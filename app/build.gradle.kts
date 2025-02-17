@@ -65,4 +65,18 @@ dependencies {
     implementation(libs.converter.scalars)
     implementation(libs.okhttp)
 
+    implementation (libs.gson)
+
+    implementation (libs.kotlinx.coroutines.android)
+
+    implementation(libs.androidx.lifecycle.runtime.ktx.v240)
+    implementation(libs.androidx.activity.compose.v131)
+
+    implementation (libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.activity.compose.v160)
+
+    implementation (libs.converter.gson) // Or latest version
+    implementation (libs.logging.interceptor) // For logging (optional, but recommended)
+
+
 }

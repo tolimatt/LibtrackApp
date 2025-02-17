@@ -1,5 +1,8 @@
 package com.example.libtrack
 
+import android.content.Context
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,6 +36,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -41,11 +46,29 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.POST
+import java.io.IOException
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
+
 
 
 @Composable
 fun LogIn(navController: NavHostController) {
+    // Context and View Model
+    val context = LocalContext.current
+    val loginViewModel = remember { LoginViewModel(context) } // Initialize ViewModel here
 
     // For text fields / Text State
     var studentIdTS by remember { mutableStateOf("") }
@@ -55,6 +78,14 @@ fun LogIn(navController: NavHostController) {
     var isStudentId by remember { mutableStateOf(true) }
     var isPassword by remember { mutableStateOf(true) }
     var isRegistered by remember { mutableStateOf(true) }
+
+
+    LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
+        loginViewModel.navigationEvent.collect { route ->
+            navController.navigate(route)
+        }
+    }
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -136,7 +167,7 @@ fun LogIn(navController: NavHostController) {
                     value = studentIdTS,
                     onValueChange = { if (it.length <= 14) studentIdTS = it },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Number,
+                        //keyboardType = KeyboardType.Number, ============================================================================
                         imeAction = ImeAction.Done
                     ),
                     colors = TextFieldDefaults.colors(
@@ -200,7 +231,7 @@ fun LogIn(navController: NavHostController) {
                         text ="Invalid Student ID.",
                         modifier = Modifier
                             .offset(
-                                (-114).dp, 5.dp),
+                                (-111).dp, 5.dp),
                         style = TextStyle(
                             color = Color.Red,
                             fontSize = 13.sp,
@@ -301,7 +332,7 @@ fun LogIn(navController: NavHostController) {
                         text ="Invalid Password.",
                         modifier = Modifier
                             .offset(
-                                (-114).dp, 5.dp),
+                                (-112).dp, 5.dp),
                         style = TextStyle(
                             color = Color.Red,
                             fontSize = 13.sp,
@@ -370,11 +401,7 @@ fun LogIn(navController: NavHostController) {
                 // ------------------------------------------------------------ LOGIN BUTTON ------------------------------------------------------------
                 Button(
                     onClick = {
-                        if (studentIdTS == "00-0000-000000" && passwordTS == "0"){
-                            isStudentId = true
-                            isPassword = true
-                            navController.navigate(Pages.Home_Page)
-                        } else if (studentIdTS == ""){
+                        if (studentIdTS == ""){
                             isStudentId = false
                             isPassword = true
                             isRegistered = true
@@ -385,10 +412,15 @@ fun LogIn(navController: NavHostController) {
                             isPassword = false
                             isStudentId = true
                             isRegistered = true
-                        }else {
-                            isStudentId = true
+                        } else if ( isRegistered){
                             isPassword = true
+                            isStudentId = true
                             isRegistered = false
+                        } else {
+                            isPassword = true
+                            isStudentId = true
+                            isRegistered = true
+                            loginViewModel.loginUser(studentIdTS, passwordTS)
                         }
                     },
                     modifier = Modifier
@@ -413,6 +445,85 @@ fun LogIn(navController: NavHostController) {
             }
         }
     }
+}
 
 
+class LoginViewModel(private val context: Context) : androidx.lifecycle.ViewModel() {
+    private var loginStatus = MutableStateFlow("")
+
+    private val _navigationEvent = MutableSharedFlow<String>() // Use SharedFlow
+    val navigationEvent = _navigationEvent.asSharedFlow()
+
+
+    fun loginUser(studentid: String, password: String) {
+        val loginData = LoginData(studentid, password)
+        val json = Gson().toJson(loginData)
+        Log.d("Request Body", json)
+
+        viewModelScope.launch {
+            try {
+                val response = RetrofitLogin.api.login(loginData)
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    val status = apiResponse?.status ?: "Unknown status"
+                    val message = apiResponse?.message
+
+                    loginStatus.value = status
+
+                    if (status == "success") {
+                        Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
+                        _navigationEvent.emit(Pages.Home_Page) // Emit navigation event
+
+                    } else if (message != null) {
+                        loginStatus.value = message
+                    }
+
+                    Log.d("Server Response", status)
+                } else {
+                    loginStatus.value = "Error: ${response.code()} - ${response.message()}"
+                    Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
+                }
+            } catch (e: IOException) {
+                loginStatus.value = "Network Error: ${e.message}"
+                Log.e("Network Error", e.message.toString())
+            } catch (e: Exception) {
+                loginStatus.value = "Request failed: ${e.message}"
+                Log.e("Request Error", e.message.toString())
+            }
+        }
+    }
+}
+
+
+data class ApiResponseLogin(
+    val status: String,
+    val message: String? = null
+)
+
+data class LoginData(
+    val studentid: String,
+    val password: String
+)
+
+interface LoginServer {
+    @POST("libTrack/login.php")
+    suspend fun login(@Body loginData: LoginData): Response<ApiResponseLogin>
+}
+
+object RetrofitLogin {
+    private const val BASE_URL = "http://192.168.1.59/" // IPV4 Address of the connection
+
+    val api: LoginServer by lazy {
+        val gson = GsonBuilder().setLenient().create()
+        val client = OkHttpClient.Builder().build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(client)
+            .build()
+
+        retrofit.create(LoginServer::class.java)
+    }
 }

@@ -1,5 +1,7 @@
 package com.example.libtrack
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -15,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -50,6 +53,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -60,6 +64,18 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
+import okhttp3.OkHttpClient
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.POST
+import java.io.IOException
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -470,6 +486,9 @@ fun Page2_SU(
     password: String
     ){
 
+    val context = LocalContext.current
+    val signupViewModel = remember { SignupViewModel(context) } // Initialize ViewModel
+
     var schoolEmailTS by rememberSaveable { mutableStateOf("") }
     val validSchoolEmail = schoolEmailTS.contains("@") && schoolEmailTS.contains(".")
     var contactNumbTS by rememberSaveable { mutableStateOf("") }
@@ -481,23 +500,30 @@ fun Page2_SU(
         "Senior (4th Year)",
         "Super Senior (5th Year)")
     val listProgramCourse = listOf(
-        "BS in Accountancy",
-        "BS in Hospitality Management",
-        "BS in Tourism Management",
-        "BS in Pharmacy",
-        "BS in Computer Engineering",
-        "BS in Accountancy",
-        "BS in Accountancy",
-        "BS in Accountancy",
-        "BS in Accountancy",
-        "BS in Accountancy",
-        "BS in Information Technology",
-        "BS in Medical Technology",
-        "BS in Nursing")
+        "Associate in Computer Technology",
+        "BA Political Science",
+        "BS Accountancy",
+        "BS Accounting Information System",
+        "BS Architecture",
+        "BS Business Admin Financial Management",
+        "BS Business Admin Marketing Management",
+        "BS Civil Engineering",
+        "BS Computer Engineering",
+        "BS Criminology",
+        "BS Electrical Engineering",
+        "BS Hospitality Management",
+        "BS Information Technology",
+        "BS Management Accounting",
+        "BS Mechanical Engineering",
+        "BS Medical Laboratory",
+        "BS Nursing",
+        "BS Pharmacy",
+        "BS Psychology",
+        "BS Tourism Management",)
 
 
-    var selectedProgram by remember { mutableStateOf<String?>(null) }
-    var selectedYearLevel by remember { mutableStateOf<String?>(null) }
+    var selectedProgram by rememberSaveable { mutableStateOf("") }
+    var selectedYearLevel by rememberSaveable { mutableStateOf("") }
 
     var isYearLevelExpanded by remember { mutableStateOf(false) }
     var isProgramExpanded by remember { mutableStateOf(false) }
@@ -886,7 +912,7 @@ fun Page2_SU(
             Button(
                 onClick = {
 
-                    navController.navigate(Pages.Sign_Up_Complete)
+                    signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS)
                     /*if(allCompletedPage2){
                         navController.navigate(Pages.Sign_Up_Complete)
                         // Get all values of firstName, lastName, studentId, password, yearLevel, program, schoolEmail, contactNumb
@@ -920,7 +946,7 @@ fun Page2_SU(
                     onDismissRequest = { isShowDialog = false },
                     title = {
                         Text(
-                            text = "Terms and Conditions",
+                            text = "Terms and Conditions for Using LibTrack",
                             style = TextStyle(
                                 color = Color.Black,
                                 fontSize = 23.sp,
@@ -929,12 +955,24 @@ fun Page2_SU(
                         )
                     },
                     text = {
-                        Text(
-                            text = "By registering, you agree to our Terms and Conditions: \n \n" +
-                                    "1. Sharing Your Data. \n" +
-                                    "2. Using the data gathered to improve your user experience. \n" +
-                                    "3. Philippines' Republic Act No. 10173 and Republic Act No. 8293."
-                        )
+                        LazyColumn {
+                            items(1){
+                                Text(
+                                    text = "Welcome to LibTracker! By accessing or using LibTracker the \"Service\", you agree to be bound by these Terms and Conditions \"Terms\". Please read them carefully before using the Service. If you do not agree to these Terms, you may not use LibTracker.\n" +
+                                            "By using LibTracker, you confirm that you are at least a bonded PHINMA - University of Pangasinan student to enter into this agreement. If you are using the Service on behalf of an organization, you represent that you have the authority to bind that organization to these Terms.\n" +
+                                            "LibTracker is a library management and tracking tool designed to help users organize, monitor, and manage library resources.\n" +
+                                            "You agree to:\n\n" +
+                                            "- Use LibTracker only for lawful purposes and in compliance with all applicable laws and regulations.\n\n" +
+                                            "- Provide accurate and complete information when creating an account or using the Service.\n\n" +
+                                            "- Maintain the confidentiality of your account credentials and be responsible for all activities under your account.\n\n" +
+                                            "- Not use the Service to infringe on the intellectual property rights of others or engage in any harmful, abusive, or fraudulent activities.\n\n" +
+                                            "Your use of LibTracker is subject to our Privacy Policy, which explains how we collect, use, and protect your personal information. By using the Service, you consent to the practices described in the Privacy Policy.\n" +
+                                            "By using LibTracker, you acknowledge that you have read, understood, and agree to these Terms and Conditions. Thank you for choosing LibTracker!"
+                                )
+                            }
+
+                        }
+
                     },
                     confirmButton = {
                         Button(
@@ -1041,4 +1079,89 @@ fun Complete_SU(navController: NavHostController){
 }
 
 
+class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewModel() {
+    var connectedStatus = MutableStateFlow("Not connected") // Status in ViewModel
 
+    fun signupUser(
+        firstname: String,
+        lastname: String,
+        studentid: String,
+        password: String,
+        yearlevel: String,
+        program: String,
+        schoolemail: String,
+        contactnumber: String) {
+
+        val userData = UserData(
+            firstname,
+            lastname,
+            studentid,
+            password,
+            yearlevel,
+            program,
+            schoolemail,
+            contactnumber)
+
+        val json = Gson().toJson(userData)
+        Log.d("Request Body", json)
+
+        viewModelScope.launch {
+            try {
+                val response = RetrofitSignup.api.signup(userData)
+
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    val status = apiResponse?.status ?: "Unknown status"
+                    connectedStatus.value = "Connected: $status" // Update status in ViewModel
+                    Log.d("Server Response", status)
+                } else {
+                    connectedStatus.value = "Error: ${response.code()} - ${response.message()}" // Update status
+                    Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
+                }
+            } catch (e: IOException) {
+                connectedStatus.value = "Network Error: ${e.message}" // Update status
+                Log.e("Network Error", e.message.toString())
+            } catch (e: Exception) {
+                connectedStatus.value = "Request failed: ${e.message}" // Update status
+                Log.e("Request Error", e.message.toString())
+            }
+        }
+    }
+}
+
+data class ApiResponseSignup(
+    val status: String
+)
+
+data class UserData(
+    val firstname: String,
+    val lastname: String,
+    val studentid: String,
+    val password: String,
+    val yearlevel: String,
+    val program: String,
+    val schoolemail: String,
+    val contactnumber: String
+)
+
+interface SignupServer {
+    @POST("libTrack/signup.php")
+    suspend fun signup(@Body userData: UserData): Response<ApiResponseSignup>
+}
+
+object RetrofitSignup {
+    private const val BASE_URL = "http://192.168.1.59/" // IPV4 Address of the connection
+
+    val api: SignupServer by lazy {
+        val gson = GsonBuilder().setLenient().create()
+        val client = OkHttpClient.Builder().build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .client(client)
+            .build()
+
+        retrofit.create(SignupServer::class.java)
+    }
+}

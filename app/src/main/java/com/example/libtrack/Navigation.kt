@@ -1,5 +1,6 @@
 package com.example.libtrack
 
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
@@ -48,7 +49,7 @@ fun Navigation() {
         composable(Pages.Splash_Screen) {
             SplashScreenPage(navController)
         }
-        composable(Pages.Home_Page) {
+        composable(Pages.Home_Page, enterTransition = { slideInHorizontally { 2000000 } }) {
             HomePage(navController)
         }
 
