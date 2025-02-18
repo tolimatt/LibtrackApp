@@ -19,7 +19,7 @@ fun Navigation() {
         composable(Pages.Sign_Up_Page1) {
             Page1_SU(navController)
         }
-        composable(Pages.Sign_Up_Page2+"/{firstname}") { backStackEntry ->
+        composable(Pages.Sign_Up_Page2+"/{firstname}/{lastname}/{studentId}/{password}") { backStackEntry ->
             val firstname = backStackEntry.arguments?.getString("firstname") ?: ""
             val lastname = backStackEntry.arguments?.getString("lastname") ?: ""
             val studentId = backStackEntry.arguments?.getString("studentId") ?: ""

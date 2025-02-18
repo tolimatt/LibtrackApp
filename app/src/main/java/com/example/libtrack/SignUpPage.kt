@@ -16,10 +16,10 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -40,6 +40,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,9 +52,12 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -67,7 +71,9 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
 import retrofit2.Response
@@ -76,6 +82,8 @@ import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
 import java.io.IOException
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = PAGE 1 SIGN UP = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,9 +103,24 @@ fun Page1_SU(navHostController: NavHostController){
             passwordTS.isNotEmpty() &&
             confirmPasswordTS.isNotEmpty()
 
+    // Booleans
     var isCompletePage1 by remember { mutableStateOf(true) }
     var isPasswordMatch by remember { mutableStateOf(true) }
     var isPasswordLength by remember { mutableStateOf(true) }
+    var isValidStudentId by remember { mutableStateOf(true) }
+
+    // Focus Requester
+    val firstNameFocusRequester = remember { FocusRequester() }
+    val lastNameFocusRequester = remember { FocusRequester() }
+    val studentIdFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
+    val confirmPasswordFocusRequester = remember { FocusRequester() }
+
+    // Store Data to Variables
+    val firstname = firstNameTS
+    val lastname = lastNameTS
+    val studentId = studentIdTS
+    val password = passwordTS
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -116,7 +139,7 @@ fun Page1_SU(navHostController: NavHostController){
     ) { paddingValues ->
 
         Column (
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(paddingValues).fillMaxSize()
         ) {
@@ -125,21 +148,21 @@ fun Page1_SU(navHostController: NavHostController){
                 text = "Create an Account",
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 28.sp,
+                    fontSize = 25.sp,
                     fontWeight = FontWeight(700)
                 )
             )
 
             Spacer(
                 modifier = Modifier
-                    .height(10.dp)
+                    .height(5.dp)
             )
 
             Text(
                 text = "Step 1",
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 23.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight(700)
                 )
             )
@@ -181,14 +204,16 @@ fun Page1_SU(navHostController: NavHostController){
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
-                    .height(55.dp),
-                value = firstNameTS,
-                onValueChange = { firstNameTS = it },
+                    .height(55.dp)
+                    .focusRequester(firstNameFocusRequester),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
                 ),
                 placeholder = {
                     Text(
@@ -196,7 +221,18 @@ fun Page1_SU(navHostController: NavHostController){
                         fontWeight = FontWeight(400)
                     )
                 },
-                singleLine = true
+
+                singleLine = true,
+                value = firstNameTS,
+                onValueChange = { firstNameTS = it },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {lastNameFocusRequester.requestFocus()}
+                ),
+
             )
 
             Spacer(
@@ -222,14 +258,16 @@ fun Page1_SU(navHostController: NavHostController){
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
-                    .height(55.dp),
-                value = lastNameTS,
-                onValueChange = { lastNameTS = it  },
+                    .height(55.dp)
+                    .focusRequester(lastNameFocusRequester),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
                 ),
                 placeholder = {
                     Text(
@@ -237,7 +275,17 @@ fun Page1_SU(navHostController: NavHostController){
                         fontWeight = FontWeight(400)
                     )
                 },
-                singleLine = true
+
+                singleLine = true,
+                value = lastNameTS,
+                onValueChange = { lastNameTS = it },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = {studentIdFocusRequester.requestFocus()}
+                )
             )
 
             Spacer(
@@ -259,18 +307,20 @@ fun Page1_SU(navHostController: NavHostController){
                 modifier = Modifier
                     .border(
                         width = 1.2.dp,
-                        color = if(!isCompletePage1) Color.Red else Color(0xFFC1C1C1),
+                        color = if(!isCompletePage1 || !isValidStudentId) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
-                    .height(55.dp),
-                value = studentIdTS,
-                onValueChange = { if (it.length <= 14) studentIdTS = it  },
+                    .height(55.dp)
+                    .focusRequester(studentIdFocusRequester),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
                 ),
                 placeholder = {
                     Text(
@@ -278,11 +328,17 @@ fun Page1_SU(navHostController: NavHostController){
                         fontWeight = FontWeight(400)
                     )
                 },
+
+                singleLine = true,
+                value = studentIdTS,
+                onValueChange = { studentIdTS = it  },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
-                singleLine = true
+                keyboardActions = KeyboardActions(
+                    onDone = {passwordFocusRequester.requestFocus()}
+                )
             )
 
             Spacer(
@@ -308,14 +364,16 @@ fun Page1_SU(navHostController: NavHostController){
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
-                    .height(55.dp),
-                value = passwordTS,
-                onValueChange = { passwordTS = it },
+                    .height(55.dp)
+                    .focusRequester(passwordFocusRequester),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
                 ),
                 placeholder = {
                     Text(
@@ -323,12 +381,18 @@ fun Page1_SU(navHostController: NavHostController){
                         fontWeight = FontWeight(400)
                     )
                 },
+
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                value = passwordTS,
+                onValueChange = { passwordTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true
+                keyboardActions = KeyboardActions(
+                    onDone = {confirmPasswordFocusRequester.requestFocus()}
+                )
             )
 
             Text(
@@ -363,14 +427,16 @@ fun Page1_SU(navHostController: NavHostController){
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
-                    .height(55.dp),
-                value = confirmPasswordTS,
-                onValueChange = { confirmPasswordTS = it },
+                    .height(55.dp)
+                    .focusRequester(confirmPasswordFocusRequester),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
                 ),
                 placeholder = {
                     Text(
@@ -378,81 +444,111 @@ fun Page1_SU(navHostController: NavHostController){
                         fontWeight = FontWeight(400)
                     )
                 },
+
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                value = confirmPasswordTS,
+                onValueChange = { confirmPasswordTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
                     imeAction = ImeAction.Done
                 ),
-                visualTransformation = PasswordVisualTransformation(),
-                singleLine = true
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12 && studentIdTS.length >= 10) {
+                            isCompletePage1 = true
+                            isPasswordMatch = true
+                            isPasswordLength = true
+                            isValidStudentId = true
+                            navHostController.navigate("Page2_SU/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
+                        } else if (studentIdTS.length < 10){
+                            isValidStudentId = false
+                            isCompletePage1 = true
+                            isPasswordMatch = true
+                            isPasswordLength = true
+                        }else if (!allCompletedPage1) { // Incomplete Page
+                            isCompletePage1 = false
+                            isPasswordMatch = true
+                            isPasswordLength = true
+                            isValidStudentId = true
+                        } else if (passwordTS != confirmPasswordTS) { // Password Not Match
+                            isPasswordMatch = false
+                            isCompletePage1 = true
+                            isPasswordLength = true
+                            isValidStudentId = true
+                        } else { // Password is less than 12 characters
+                            isPasswordLength = false
+                            isPasswordMatch = true
+                            isCompletePage1 = true
+                            isValidStudentId = true
+                        }
+                    }
+                )
             )
 
-            if (!isCompletePage1){
-                Text(
-                    modifier = Modifier.offset(
-                        (0).dp, 15.dp
+            Text(
+                modifier = Modifier.offset(
+                    (0).dp, 9.dp
+                ),
+                text =
+                    if(!isCompletePage1){
+                        "Fill up all the requirements."
+                    } else if (!isPasswordMatch){
+                        "Password does not match."
+                    } else if (!isPasswordLength){
+                        "Password must be at least 12 characters long."
+                    } else if (!isValidStudentId){
+                        "Invalid Student ID."
+                    }else{
+                        ""
+                    },
+                fontSize = 16.sp,
+                color = Color.Red,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.Gray,
+                        offset = Offset(0.1f, 0.1f),
+                        blurRadius = 5f
                     ),
-                    text ="Fill up all the requirements.",
-                    fontSize = 16.sp,
-                    color = Color.Red,
-                    style = TextStyle(
-                        shadow = Shadow(
-                            color = Color.Gray,
-                            offset = Offset(0.1f, 0.1f),
-                            blurRadius = 5f
-                        ),
-                        fontWeight = FontWeight(400)
-                    ),
-                )
-            }
-            if (!isPasswordMatch || !isPasswordLength){
-                Text(
-                    modifier = Modifier.offset(
-                        (0).dp, 15.dp
-                    ),
-                    text ="Invalid Password.",
-                    fontSize = 16.sp,
-                    color = Color.Red,
-                    style = TextStyle(
-                        shadow = Shadow(
-                            color = Color.Gray,
-                            offset = Offset(0.1f, 0.1f),
-                            blurRadius = 5f
-                        ),
-                        fontWeight = FontWeight(400)
-                    ),
-                )
-            }
+                    fontWeight = FontWeight(400)
+                ),
+            )
 
             Spacer(
-                modifier = Modifier.height(35.dp)
+                modifier = Modifier.height(18.dp)
             )
 
-            val firstname = firstNameTS
-            val lastname = lastNameTS
-            val studentId = studentIdTS
-            val password = passwordTS
+
 
             Button(
                 onClick = {
-                    navHostController.navigate("Page2_SU/${firstname} ${lastname}${studentId}${password}")
-
-                    /*if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12) {
+                    if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12 && studentIdTS.length >= 10) {
                         isCompletePage1 = true
                         isPasswordMatch = true
-                        navHostController.navigate("Page2_SU/${firstname} ${lastname}${studentId}${password} ")
-                    } else if (!allCompletedPage1) { // Incomplete Page
+                        isPasswordLength = true
+                        isValidStudentId = true
+                        navHostController.navigate("Page2_SU/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
+                    } else if (studentIdTS.length < 10){
+                        isValidStudentId = false
+                        isCompletePage1 = true
+                        isPasswordMatch = true
+                        isPasswordLength = true
+                    }else if (!allCompletedPage1) { // Incomplete Page
                         isCompletePage1 = false
                         isPasswordMatch = true
                         isPasswordLength = true
+                        isValidStudentId = true
                     } else if (passwordTS != confirmPasswordTS) { // Password Not Match
                         isPasswordMatch = false
                         isCompletePage1 = true
-                        isPasswordLength = false
-                    } else {
+                        isPasswordLength = true
+                        isValidStudentId = true
+                    } else { // Password is less than 12 characters
                         isPasswordLength = false
                         isPasswordMatch = true
                         isCompletePage1 = true
-                    }*/
+                        isValidStudentId = true
+                    }
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -475,6 +571,8 @@ fun Page1_SU(navHostController: NavHostController){
         }
     }
 }
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = PAGE 2 SIGN UP = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -522,8 +620,8 @@ fun Page2_SU(
         "BS Tourism Management",)
 
 
-    var selectedProgram by rememberSaveable { mutableStateOf("") }
-    var selectedYearLevel by rememberSaveable { mutableStateOf("") }
+    var selectedProgram by rememberSaveable { mutableStateOf("Select Year Level") }
+    var selectedYearLevel by rememberSaveable { mutableStateOf("Select Program") }
 
     var isYearLevelExpanded by remember { mutableStateOf(false) }
     var isProgramExpanded by remember { mutableStateOf(false) }
@@ -532,15 +630,28 @@ fun Page2_SU(
     var isShowDialog by remember { mutableStateOf(false) }
 
     val allCompletedPage2 = schoolEmailTS.isNotEmpty() &&
-            validSchoolEmail &&
             contactNumbTS.isNotEmpty() &&
-            selectedProgram != null &&
-            selectedYearLevel != null &&
-            isChecked
+            selectedProgram != "Select Program" &&
+            selectedYearLevel != "Select Year Level"
+            && isChecked
 
+
+    // Error Handling / Booleans
     var isCompletePage2 by remember { mutableStateOf(true) }
     var isValidSchoolEmail by remember { mutableStateOf(true) }
 
+    // Focus Requester
+    val schoolEmailFocusRequester = remember { FocusRequester() }
+    val contactNumbFocusRequester = remember { FocusRequester() }
+
+    // Hide Keyboard
+    val keyboardController = LocalSoftwareKeyboardController.current
+
+    LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
+        signupViewModel.navigationEvent.collect { route ->
+            navController.navigate(route)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -559,7 +670,7 @@ fun Page2_SU(
     ){ paddingValues ->
 
         Column (
-            verticalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.padding(paddingValues).fillMaxSize()
         ) {
@@ -568,20 +679,20 @@ fun Page2_SU(
                 text = "Create an Account",
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 28.sp,
+                    fontSize = 25.sp,
                     fontWeight = FontWeight(700)
                 )
             )
 
             Spacer(
-                modifier = Modifier.height(10.dp)
+                modifier = Modifier.height(5.dp)
             )
 
             Text(
                 text = "Step 2",
                 style = TextStyle(
                     color = Color.Black,
-                    fontSize = 23.sp,
+                    fontSize = 20.sp,
                     fontWeight = FontWeight(700)
                 )
             )
@@ -631,7 +742,7 @@ fun Page2_SU(
                             shape = RoundedCornerShape(15.dp)
                         )
                         .width(350.dp),
-                    value = selectedYearLevel ?: "Year Level",
+                    value = selectedYearLevel,
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearLevelExpanded) },
@@ -689,7 +800,7 @@ fun Page2_SU(
                             shape = RoundedCornerShape(15.dp)
                         )
                         .width(350.dp),
-                    value = selectedProgram ?: "Program",
+                    value = selectedProgram,
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isProgramExpanded) },
@@ -740,14 +851,16 @@ fun Page2_SU(
                         color = if (!isCompletePage2 || !isValidSchoolEmail) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
-                value = schoolEmailTS,
-                onValueChange = { schoolEmailTS = it },
+                    .width(350.dp)
+                    .focusRequester(schoolEmailFocusRequester),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
                 ),
                 placeholder = {
                     Text(
@@ -755,11 +868,17 @@ fun Page2_SU(
                         fontWeight = FontWeight(400)
                     )
                 },
+
+                singleLine = true,
+                value = schoolEmailTS,
+                onValueChange = { schoolEmailTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Done
+                    imeAction = ImeAction.Next
                 ),
-                singleLine = true
+                keyboardActions = KeyboardActions(
+                    onDone = {contactNumbFocusRequester.requestFocus()}
+                )
             )
 
             Spacer(
@@ -784,14 +903,16 @@ fun Page2_SU(
                          color =  if (!isCompletePage2) Color.Red else Color(0xFFC1C1C1),
                          shape = RoundedCornerShape(15.dp)
                      )
-                     .width(350.dp),
-                 value = contactNumbTS,
-                 onValueChange = { contactNumbTS = it },
+                     .width(350.dp)
+                     .focusRequester(contactNumbFocusRequester),
                  colors = TextFieldDefaults.colors(
                      focusedContainerColor = Color.Transparent,
                      unfocusedContainerColor = Color.Transparent,
                      focusedIndicatorColor = Color.Transparent,
                      unfocusedIndicatorColor = Color.Transparent
+                 ),
+                 textStyle = TextStyle(
+                     fontSize = 17.sp
                  ),
                  placeholder = {
                      Text(
@@ -799,14 +920,18 @@ fun Page2_SU(
                          fontWeight = FontWeight(400)
                      )
                  },
+
+                 singleLine = true,
+                 value = contactNumbTS,
+                 onValueChange = { contactNumbTS = it },
                  keyboardOptions = KeyboardOptions(
                      keyboardType = KeyboardType.Number,
                      imeAction = ImeAction.Done
                  ),
-                 singleLine = true
+                 keyboardActions = KeyboardActions(
+                     onDone = {keyboardController?.hide()}
+                 )
              )
-
-            
 
             Spacer(
                 modifier = Modifier.height(10.dp)
@@ -847,7 +972,7 @@ fun Page2_SU(
                         .offset(
                             0.dp,15.dp
                         ),
-                    text = "T&C ",
+                    text = "Terms and Conditions",
                     style = TextStyle(
                         color = Color(0xFF006400),
                         fontSize = 15.sp,
@@ -855,75 +980,49 @@ fun Page2_SU(
                         textDecoration = TextDecoration.Underline
                     )
                 )
-                Text(
-                    modifier = Modifier
-                        .offset(0.dp,15.dp),
-                    text = "of Liquid ",
-                    style = TextStyle(
-                        color = Color.Black,
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight(400)
-                    )
-                )
             }
 
-            if (!isCompletePage2){
-                Text(
-                    modifier = Modifier.offset(
-                        (0).dp, 20.dp
-                    ),
-                    text ="Fill up all the requirements.",
-                    fontSize = 16.sp,
-                    color = Color.Red,
-                    style = TextStyle(
-                        shadow = Shadow(
-                            color = Color.Gray,
-                            offset = Offset(0.1f, 0.1f),
-                            blurRadius = 5f
-                        ),
-                        fontWeight = FontWeight(400)
-                    ),
-                )
-            }
 
-            if (!isValidSchoolEmail){
-                Text(
-                    modifier = Modifier.offset(
-                        (0).dp, 20.dp
+            Text(
+                modifier = Modifier.offset(
+                    (0).dp, 10.dp
+                ),
+                text =
+                    if (!isCompletePage2){
+                        "Fill up all the requirements."
+                    } else if (!isValidSchoolEmail){
+                        "Enter a valid Email."
+                    } else {""},
+                fontSize = 16.sp,
+                color = Color.Red,
+                style = TextStyle(
+                    shadow = Shadow(
+                        color = Color.Gray,
+                        offset = Offset(0.1f, 0.1f),
+                        blurRadius = 5f
                     ),
-                    text ="Enter a valid Email.",
-                    fontSize = 16.sp,
-                    color = Color.Red,
-                    style = TextStyle(
-                        shadow = Shadow(
-                            color = Color.Gray,
-                            offset = Offset(0.1f, 0.1f),
-                            blurRadius = 5f
-                        ),
-                        fontWeight = FontWeight(400)
-                    ),
-                )
-            }
+                    fontWeight = FontWeight(400)
+                ),
+            )
 
             Spacer(
-                modifier = Modifier.height(58.dp)
+                modifier = Modifier.height(40.dp)
             )
 
             Button(
                 onClick = {
-
-                    signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS)
-                    /*if(allCompletedPage2){
-                        navController.navigate(Pages.Sign_Up_Complete)
-                        // Get all values of firstName, lastName, studentId, password, yearLevel, program, schoolEmail, contactNumb
-                        // Insert to DB
-                    } else if (!validSchoolEmail){
-                        isValidSchoolEmail = false
+                    if(allCompletedPage2 && validSchoolEmail){
                         isCompletePage2 = true
-                    } else {
+                        isValidSchoolEmail = true
+                        signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS)
+                        navController.navigate(Pages.Sign_Up_Complete)
+                    } else if (!allCompletedPage2){
                         isCompletePage2 = false
                         isValidSchoolEmail = true
-                    }*/
+                    } else { // Invalid SchoolEmail
+                        isCompletePage2 = true
+                        isValidSchoolEmail = false
+                    }
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -936,11 +1035,7 @@ fun Page2_SU(
                 Text(
                     text = "Register"
                 )
-
             }
-
-
-
             if (isShowDialog) {
                 AlertDialog(
                     onDismissRequest = { isShowDialog = false },
@@ -993,6 +1088,8 @@ fun Page2_SU(
         }
     }
 }
+
+// = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = COMPLETE SIGN UP = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
 @Composable
 fun Complete_SU(navController: NavHostController){
@@ -1080,7 +1177,10 @@ fun Complete_SU(navController: NavHostController){
 
 
 class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewModel() {
-    var connectedStatus = MutableStateFlow("Not connected") // Status in ViewModel
+    private var signupStatus = MutableStateFlow("") // Status in ViewModel
+
+    private val _navigationEvent = MutableSharedFlow<String>() // Use SharedFlow
+    val navigationEvent = _navigationEvent.asSharedFlow()
 
     fun signupUser(
         firstname: String,
@@ -1112,17 +1212,24 @@ class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewMod
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     val status = apiResponse?.status ?: "Unknown status"
-                    connectedStatus.value = "Connected: $status" // Update status in ViewModel
+
+                    signupStatus.value = status
+
+                    if (status == "success"){
+                        _navigationEvent.emit(Pages.Sign_Up_Complete)
+                    }
+
+                    signupStatus.value = "Connected: $status" // Update status in ViewModel
                     Log.d("Server Response", status)
                 } else {
-                    connectedStatus.value = "Error: ${response.code()} - ${response.message()}" // Update status
+                    signupStatus.value = "Error: ${response.code()} - ${response.message()}" // Update status
                     Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
                 }
             } catch (e: IOException) {
-                connectedStatus.value = "Network Error: ${e.message}" // Update status
+                signupStatus.value = "Network Error: ${e.message}" // Update status
                 Log.e("Network Error", e.message.toString())
             } catch (e: Exception) {
-                connectedStatus.value = "Request failed: ${e.message}" // Update status
+                signupStatus.value = "Request failed: ${e.message}" // Update status
                 Log.e("Request Error", e.message.toString())
             }
         }

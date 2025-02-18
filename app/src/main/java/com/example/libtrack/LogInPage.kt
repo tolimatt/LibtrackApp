@@ -35,6 +35,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -79,6 +81,9 @@ fun LogIn(navController: NavHostController) {
     var isPassword by remember { mutableStateOf(true) }
     var isRegistered by remember { mutableStateOf(true) }
 
+    // For text field focus
+    val studentIdFocusRequester = remember { FocusRequester() }
+    val passwordFocusRequester = remember { FocusRequester() }
 
     LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
         loginViewModel.navigationEvent.collect { route ->
@@ -163,13 +168,8 @@ fun LogIn(navController: NavHostController) {
                             color = if(!isStudentId || !isRegistered) Color.Red else Color(0xFF727D83),
                             shape = RoundedCornerShape(12.dp)
                         )
-                        .width(350.dp),
-                    value = studentIdTS,
-                    onValueChange = { if (it.length <= 14) studentIdTS = it },
-                    keyboardOptions = KeyboardOptions(
-                        //keyboardType = KeyboardType.Number, ============================================================================
-                        imeAction = ImeAction.Done
-                    ),
+                        .width(350.dp)
+                        .focusRequester(studentIdFocusRequester),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
@@ -184,31 +184,18 @@ fun LogIn(navController: NavHostController) {
                             text = "Enter Student ID",
                             fontWeight = FontWeight(400))
                     },
+
                     singleLine = true,
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (studentIdTS == "00-0000-000000" && passwordTS == "0"){
-                                isStudentId = true
-                                isPassword = true
-                                navController.navigate(Pages.Home_Page)
-                            } else if (studentIdTS == ""){
-                                isStudentId = false
-                                isPassword = true
-                                isRegistered = true
-                                if (passwordTS == ""){
-                                    isPassword = false
-                                }
-                            } else if (passwordTS == ""){
-                                isPassword = false
-                                isStudentId = true
-                                isRegistered = true
-                            }else {
-                                isStudentId = true
-                                isPassword = true
-                                isRegistered = false
-                            }
-                        }
+                    value = studentIdTS,
+                    onValueChange = { if (it.length <= 14) studentIdTS = it },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
                     ),
+                    keyboardActions = KeyboardActions(
+                        onDone = {passwordFocusRequester.requestFocus()}
+                    ),
+
                 )
 
                 if (!isStudentId){
@@ -264,12 +251,6 @@ fun LogIn(navController: NavHostController) {
                             shape = RoundedCornerShape(12.dp)
                         )
                         .width(350.dp),
-                    value = passwordTS,
-                    onValueChange = {passwordTS = it },
-                    keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
-                        imeAction = ImeAction.Done
-                    ),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
@@ -284,15 +265,18 @@ fun LogIn(navController: NavHostController) {
                             text = "Password",
                             fontWeight = FontWeight(400))
                     },
-                    visualTransformation = PasswordVisualTransformation(),
+
                     singleLine = true,
+                    visualTransformation = PasswordVisualTransformation(),
+                    value = passwordTS,
+                    onValueChange = {passwordTS = it },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Done
+                    ),
                     keyboardActions = KeyboardActions(
                         onDone = {
-                            if (studentIdTS == "00-0000-000000" && passwordTS == "0"){
-                                isStudentId = true
-                                isPassword = true
-                                navController.navigate(Pages.Home_Page)
-                            } else if (studentIdTS == ""){
+                            if (studentIdTS == ""){
                                 isStudentId = false
                                 isPassword = true
                                 isRegistered = true
@@ -303,10 +287,11 @@ fun LogIn(navController: NavHostController) {
                                 isPassword = false
                                 isStudentId = true
                                 isRegistered = true
-                            }else {
-                                isStudentId = true
+                            } else {
                                 isPassword = true
+                                isStudentId = true
                                 isRegistered = false
+                                loginViewModel.loginUser(studentIdTS, passwordTS)
                             }
                         }
                     ),
@@ -412,14 +397,10 @@ fun LogIn(navController: NavHostController) {
                             isPassword = false
                             isStudentId = true
                             isRegistered = true
-                        } else if ( isRegistered){
-                            isPassword = true
-                            isStudentId = true
-                            isRegistered = false
                         } else {
                             isPassword = true
                             isStudentId = true
-                            isRegistered = true
+                            isRegistered = false
                             loginViewModel.loginUser(studentIdTS, passwordTS)
                         }
                     },
@@ -449,6 +430,7 @@ fun LogIn(navController: NavHostController) {
 
 
 class LoginViewModel(private val context: Context) : androidx.lifecycle.ViewModel() {
+
     private var loginStatus = MutableStateFlow("")
 
     private val _navigationEvent = MutableSharedFlow<String>() // Use SharedFlow
@@ -467,22 +449,19 @@ class LoginViewModel(private val context: Context) : androidx.lifecycle.ViewMode
                 if (response.isSuccessful) {
                     val apiResponse = response.body()
                     val status = apiResponse?.status ?: "Unknown status"
-                    val message = apiResponse?.message
 
                     loginStatus.value = status
 
                     if (status == "success") {
                         Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                         _navigationEvent.emit(Pages.Home_Page) // Emit navigation event
-
-                    } else if (message != null) {
-                        loginStatus.value = message
                     }
 
                     Log.d("Server Response", status)
                 } else {
                     loginStatus.value = "Error: ${response.code()} - ${response.message()}"
                     Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
+                    Toast.makeText(context, "Invalid Account", Toast.LENGTH_LONG).show()
                 }
             } catch (e: IOException) {
                 loginStatus.value = "Network Error: ${e.message}"
