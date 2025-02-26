@@ -54,8 +54,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -218,7 +216,9 @@ fun Page1_SU(navHostController: NavHostController){
                 placeholder = {
                     Text(
                         text = "First Name",
-                        fontWeight = FontWeight(400)
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
+
                     )
                 },
 
@@ -272,7 +272,8 @@ fun Page1_SU(navHostController: NavHostController){
                 placeholder = {
                     Text(
                         text = "Last Name",
-                        fontWeight = FontWeight(400)
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
                     )
                 },
 
@@ -325,7 +326,8 @@ fun Page1_SU(navHostController: NavHostController){
                 placeholder = {
                     Text(
                         text = "Student ID",
-                        fontWeight = FontWeight(400)
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
                     )
                 },
 
@@ -378,7 +380,8 @@ fun Page1_SU(navHostController: NavHostController){
                 placeholder = {
                     Text(
                         text = "Password",
-                        fontWeight = FontWeight(400)
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
                     )
                 },
 
@@ -419,6 +422,9 @@ fun Page1_SU(navHostController: NavHostController){
                 color = Color(0xFF727D83)
             )
 
+            // Hide Keyboard
+            val keyboardController = LocalSoftwareKeyboardController.current
+
             TextField(
                 modifier = Modifier
                     .border(
@@ -441,7 +447,8 @@ fun Page1_SU(navHostController: NavHostController){
                 placeholder = {
                     Text(
                         text = "Confirm Password",
-                        fontWeight = FontWeight(400)
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
                     )
                 },
 
@@ -454,71 +461,60 @@ fun Page1_SU(navHostController: NavHostController){
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
-                        if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12 && studentIdTS.length >= 10) {
-                            isCompletePage1 = true
-                            isPasswordMatch = true
-                            isPasswordLength = true
-                            isValidStudentId = true
-                            navHostController.navigate("Page2_SU/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
-                        } else if (studentIdTS.length < 10){
-                            isValidStudentId = false
-                            isCompletePage1 = true
-                            isPasswordMatch = true
-                            isPasswordLength = true
-                        }else if (!allCompletedPage1) { // Incomplete Page
-                            isCompletePage1 = false
-                            isPasswordMatch = true
-                            isPasswordLength = true
-                            isValidStudentId = true
-                        } else if (passwordTS != confirmPasswordTS) { // Password Not Match
-                            isPasswordMatch = false
-                            isCompletePage1 = true
-                            isPasswordLength = true
-                            isValidStudentId = true
-                        } else { // Password is less than 12 characters
-                            isPasswordLength = false
-                            isPasswordMatch = true
-                            isCompletePage1 = true
-                            isValidStudentId = true
-                        }
-                    }
+                    onDone = { keyboardController?.hide() }
                 )
             )
 
-            Text(
-                modifier = Modifier.offset(
-                    (0).dp, 9.dp
-                ),
-                text =
+            Spacer(
+                modifier = Modifier.height(13.dp)
+            )
+
+
+            Row {
+
+                if (!isCompletePage1 || !isPasswordMatch || !isPasswordLength || !isValidStudentId){
+                    Image(
+                        painter = painterResource(id = R.drawable.error),
+                        contentDescription = "Error Icon",
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else{
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    text =
                     if(!isCompletePage1){
                         "Fill up all the requirements."
                     } else if (!isPasswordMatch){
                         "Password does not match."
                     } else if (!isPasswordLength){
-                        "Password must be at least 12 characters long."
+                        "Password must be at least \n 12 characters long."
                     } else if (!isValidStudentId){
                         "Invalid Student ID."
                     }else{
                         ""
                     },
-                fontSize = 16.sp,
-                color = Color.Red,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.Gray,
-                        offset = Offset(0.1f, 0.1f),
-                        blurRadius = 5f
+                    fontSize = 15.sp,
+                    color = Color.Red,
+                    style = TextStyle(
+                        fontWeight = FontWeight(700)
                     ),
-                    fontWeight = FontWeight(400)
-                ),
-            )
+                )
+            }
+
 
             Spacer(
-                modifier = Modifier.height(18.dp)
+                modifier = Modifier.height(13.dp)
             )
-
-
 
             Button(
                 onClick = {
@@ -528,16 +524,16 @@ fun Page1_SU(navHostController: NavHostController){
                         isPasswordLength = true
                         isValidStudentId = true
                         navHostController.navigate("Page2_SU/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
+                    } else if (!allCompletedPage1) { // Incomplete Page
+                        isCompletePage1 = false
+                        isPasswordMatch = true
+                        isPasswordLength = true
+                        isValidStudentId = true
                     } else if (studentIdTS.length < 10){
                         isValidStudentId = false
                         isCompletePage1 = true
                         isPasswordMatch = true
                         isPasswordLength = true
-                    }else if (!allCompletedPage1) { // Incomplete Page
-                        isCompletePage1 = false
-                        isPasswordMatch = true
-                        isPasswordLength = true
-                        isValidStudentId = true
                     } else if (passwordTS != confirmPasswordTS) { // Password Not Match
                         isPasswordMatch = false
                         isCompletePage1 = true
@@ -608,6 +604,7 @@ fun Page2_SU(
         "BS Civil Engineering",
         "BS Computer Engineering",
         "BS Criminology",
+        "BS Education",
         "BS Electrical Engineering",
         "BS Hospitality Management",
         "BS Information Technology",
@@ -617,7 +614,8 @@ fun Page2_SU(
         "BS Nursing",
         "BS Pharmacy",
         "BS Psychology",
-        "BS Tourism Management",)
+        "BS Tourism Management"
+    )
 
 
     var selectedProgram by rememberSaveable { mutableStateOf("Select Year Level") }
@@ -644,8 +642,7 @@ fun Page2_SU(
     val schoolEmailFocusRequester = remember { FocusRequester() }
     val contactNumbFocusRequester = remember { FocusRequester() }
 
-    // Hide Keyboard
-    val keyboardController = LocalSoftwareKeyboardController.current
+
 
     LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
         signupViewModel.navigationEvent.collect { route ->
@@ -743,6 +740,11 @@ fun Page2_SU(
                         )
                         .width(350.dp),
                     value = selectedYearLevel,
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight(400),
+                        color = Color.Black,
+                        fontSize = 17.sp
+                    ),
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearLevelExpanded) },
@@ -801,6 +803,11 @@ fun Page2_SU(
                         )
                         .width(350.dp),
                     value = selectedProgram,
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight(400),
+                        color = Color.Black,
+                        fontSize = 17.sp
+                    ),
                     onValueChange = {},
                     readOnly = true,
                     trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isProgramExpanded) },
@@ -865,10 +872,10 @@ fun Page2_SU(
                 placeholder = {
                     Text(
                         text = "School Email",
-                        fontWeight = FontWeight(400)
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
                     )
                 },
-
                 singleLine = true,
                 value = schoolEmailTS,
                 onValueChange = { schoolEmailTS = it },
@@ -896,6 +903,9 @@ fun Page2_SU(
                 color = Color(0xFF727D83)
             )
 
+            // Hide Keyboard
+            val keyboardController = LocalSoftwareKeyboardController.current
+
              TextField(
                  modifier = Modifier
                      .border(
@@ -917,7 +927,8 @@ fun Page2_SU(
                  placeholder = {
                      Text(
                          text = "Contact Number",
-                         fontWeight = FontWeight(400)
+                         fontWeight = FontWeight(400),
+                         color = Color.LightGray
                      )
                  },
 
@@ -932,6 +943,7 @@ fun Page2_SU(
                      onDone = {keyboardController?.hide()}
                  )
              )
+
 
             Spacer(
                 modifier = Modifier.height(10.dp)
@@ -967,7 +979,6 @@ fun Page2_SU(
                             indication = null
                         ){
                             isShowDialog = true
-
                         }
                         .offset(
                             0.dp,15.dp
@@ -982,31 +993,50 @@ fun Page2_SU(
                 )
             }
 
+            Spacer(
+                modifier = Modifier.height(22.dp)
+            )
 
-            Text(
-                modifier = Modifier.offset(
-                    (0).dp, 10.dp
-                ),
-                text =
+            Row{
+                if (!isCompletePage2 || !isValidSchoolEmail){
+                    Image(
+                        painter = painterResource(id = R.drawable.error),
+                        contentDescription = "Error Icon",
+                        modifier = Modifier
+                            .size(16.dp)
+                    )
+                } else {
+                    Spacer(
+                        modifier = Modifier.height(16.dp)
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    text =
                     if (!isCompletePage2){
                         "Fill up all the requirements."
                     } else if (!isValidSchoolEmail){
-                        "Enter a valid Email."
-                    } else {""},
-                fontSize = 16.sp,
-                color = Color.Red,
-                style = TextStyle(
-                    shadow = Shadow(
-                        color = Color.Gray,
-                        offset = Offset(0.1f, 0.1f),
-                        blurRadius = 5f
+                        "Enter a valid Email"
+                    } else {
+                        ""
+                    },
+
+                    style = TextStyle(
+                        color = Color.Red,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight(700),
+                        fontFamily = FontFamily.Default,
                     ),
-                    fontWeight = FontWeight(400)
-                ),
-            )
+                )
+            }
 
             Spacer(
-                modifier = Modifier.height(40.dp)
+                modifier = Modifier.height(22.dp)
             )
 
             Button(
@@ -1183,24 +1213,24 @@ class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewMod
     val navigationEvent = _navigationEvent.asSharedFlow()
 
     fun signupUser(
-        firstname: String,
-        lastname: String,
-        studentid: String,
+        firstName: String,
+        lastName: String,
+        studentId: String,
         password: String,
-        yearlevel: String,
+        yearLevel: String,
         program: String,
-        schoolemail: String,
-        contactnumber: String) {
+        schoolEmail: String,
+        contactNumber: String) {
 
         val userData = UserData(
-            firstname,
-            lastname,
-            studentid,
+            firstName,
+            lastName,
+            studentId,
             password,
-            yearlevel,
+            yearLevel,
             program,
-            schoolemail,
-            contactnumber)
+            schoolEmail,
+            contactNumber)
 
         val json = Gson().toJson(userData)
         Log.d("Request Body", json)
@@ -1241,14 +1271,14 @@ data class ApiResponseSignup(
 )
 
 data class UserData(
-    val firstname: String,
-    val lastname: String,
-    val studentid: String,
+    val firstName: String,
+    val lastName: String,
+    val studentId: String,
     val password: String,
-    val yearlevel: String,
+    val yearLevel: String,
     val program: String,
-    val schoolemail: String,
-    val contactnumber: String
+    val schoolEmail: String,
+    val contactNumber: String
 )
 
 interface SignupServer {

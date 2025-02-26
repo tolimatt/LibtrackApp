@@ -1,5 +1,6 @@
 package com.example.libtrack
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,6 +26,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -32,8 +34,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import java.io.IOException
 
 
 @Composable
@@ -41,6 +48,8 @@ fun SplashScreenPage(navController: NavHostController) {
     var currentProgress by remember { mutableFloatStateOf(0f) }
     var loading by remember { mutableStateOf(true) } // Start loading automatically
     val scope = rememberCoroutineScope() // Create a coroutine scope
+    val context = LocalContext.current
+    var serverConnected by remember { mutableStateOf(false) }
 
     // Start the loading process when the screen is displayed
     LaunchedEffect(Unit) {
@@ -51,8 +60,25 @@ fun SplashScreenPage(navController: NavHostController) {
             loading = false // Stop loading when the coroutine finishes
 
             // Navigate to the Log In screen and remove the SplashScreenPage from the back stack
-            navController.navigate(Pages.Log_In) {
+            navController.navigate(
+                if(serverConnected){
+                    Pages.Log_In
+                } else {
+                    Pages.No_Connection_Page
+                }
+            ) {
                 popUpTo(Pages.Splash_Screen) { inclusive = true } // Remove the splash screen from the back stack
+            }
+        }
+    }
+
+
+
+    LaunchedEffect(true) {
+        scope.launch {
+            serverConnected = checkServerConnection(context)
+            if (!serverConnected) {
+                Toast.makeText(context, "Server connection failed.", Toast.LENGTH_LONG).show()
             }
         }
     }
@@ -80,6 +106,8 @@ fun SplashScreenPage(navController: NavHostController) {
             LinearProgressIndicator(
                 progress = { currentProgress },
                 modifier = Modifier.width(300.dp),
+                color = Color(0xFF72AF7B),
+                trackColor = Color.LightGray
             )
         }
     }
@@ -93,6 +121,20 @@ suspend fun loadProgress(updateProgress: (Float) -> Unit) {
     }
 }
 
+private suspend fun checkServerConnection(context: android.content.Context): Boolean =
+    withContext(Dispatchers.IO) {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url("http://192.168.1.59/") // Replace with your server URL
+            .build()
+
+        try {
+            val response = client.newCall(request).execute()
+            return@withContext response.isSuccessful
+        } catch (e: IOException) {
+            return@withContext false
+        }
+    }
 
 
 

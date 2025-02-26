@@ -1,5 +1,6 @@
 package com.example.libtrack
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import android.widget.Toast
@@ -39,6 +40,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -90,7 +92,6 @@ fun LogIn(navController: NavHostController) {
             navController.navigate(route)
         }
     }
-
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -182,7 +183,9 @@ fun LogIn(navController: NavHostController) {
                     placeholder = {
                         Text(
                             text = "Enter Student ID",
-                            fontWeight = FontWeight(400))
+                            fontWeight = FontWeight(400),
+                            color = Color.LightGray
+                        )
                     },
 
                     singleLine = true,
@@ -195,34 +198,44 @@ fun LogIn(navController: NavHostController) {
                     keyboardActions = KeyboardActions(
                         onDone = {passwordFocusRequester.requestFocus()}
                     ),
-
                 )
 
-                if (!isStudentId){
-                    Text(
-                        text ="Student ID is required.",
-                        modifier = Modifier
-                            .offset(
-                                (-100).dp, 5.dp),
-                        style = TextStyle(
-                            color = Color.Red,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight(400),
-                            fontFamily = FontFamily.Default,
-                        ),
-                    )
-                }
+                Row{
+                    if (!isStudentId || !isRegistered){
+                        Image(
+                            painter = painterResource(id = R.drawable.error),
+                            contentDescription = "Error Icon",
+                            modifier = Modifier
+                                .offset((-88).dp,5.dp)
+                                .size(16.dp)
+                        )
+                    } else {
+                        Spacer(
+                            modifier = Modifier.height(16.dp)
+                        )
+                    }
 
-                if (!isRegistered){
+                    Spacer(modifier = Modifier.width(8.dp)
+                    )
+
                     Text(
-                        text ="Invalid Student ID.",
                         modifier = Modifier
                             .offset(
-                                (-111).dp, 5.dp),
+                                (-90).dp, 5.dp)
+                            .align(Alignment.CenterVertically),
+                        text =
+                        if (!isStudentId){
+                            "Student ID is required."
+                        } else if (!isRegistered){
+                            "Invalid Student ID."
+                        } else {
+                            ""
+                        },
+
                         style = TextStyle(
                             color = Color.Red,
                             fontSize = 13.sp,
-                            fontWeight = FontWeight(400),
+                            fontWeight = FontWeight(700),
                             fontFamily = FontFamily.Default,
                         ),
                     )
@@ -230,7 +243,7 @@ fun LogIn(navController: NavHostController) {
 
                 Spacer(
                     modifier = Modifier
-                        .height(if (!isStudentId || !isRegistered) 17.dp else 22.dp)
+                        .height(18.dp)
                 )
 
                 Text(
@@ -243,6 +256,10 @@ fun LogIn(navController: NavHostController) {
                 )
 
                 // ------------------------------------------------------------ PASSWORD ------------------------------------------------------------
+
+                // Hide Keyboard
+                val keyboardController = LocalSoftwareKeyboardController.current
+
                 TextField(
                     modifier = Modifier
                         .border(
@@ -262,8 +279,10 @@ fun LogIn(navController: NavHostController) {
                     ),
                     placeholder = {
                         Text(
-                            text = "Password",
-                            fontWeight = FontWeight(400))
+                            text = " Enter Password",
+                            fontWeight = FontWeight(400),
+                            color = Color.LightGray
+                        )
                     },
 
                     singleLine = true,
@@ -271,57 +290,50 @@ fun LogIn(navController: NavHostController) {
                     value = passwordTS,
                     onValueChange = {passwordTS = it },
                     keyboardOptions = KeyboardOptions(
-                        keyboardType = KeyboardType.Text,
+                        keyboardType = KeyboardType.Password,
                         imeAction = ImeAction.Done
                     ),
                     keyboardActions = KeyboardActions(
-                        onDone = {
-                            if (studentIdTS == ""){
-                                isStudentId = false
-                                isPassword = true
-                                isRegistered = true
-                                if (passwordTS == ""){
-                                    isPassword = false
-                                }
-                            } else if (passwordTS == ""){
-                                isPassword = false
-                                isStudentId = true
-                                isRegistered = true
-                            } else {
-                                isPassword = true
-                                isStudentId = true
-                                isRegistered = false
-                                loginViewModel.loginUser(studentIdTS, passwordTS)
-                            }
-                        }
-                    ),
+                        onDone = { keyboardController?.hide() }
+                    )
                 )
 
-                if (!isPassword){
-                    Text(
-                        text ="Password is required.",
-                        modifier = Modifier
-                            .offset(
-                                (-101).dp, 5.dp),
-                        style = TextStyle(
-                            color = Color.Red,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight(400),
-                            fontFamily = FontFamily.Default,
-                        ),
-                    )
-                }
+                Row{
+                    if (!isPassword || !isRegistered){
+                        Image(
+                            painter = painterResource(id = R.drawable.error),
+                            contentDescription = "Error Icon",
+                            modifier = Modifier
+                                .offset((-88).dp,5.dp)
+                                .size(16.dp)
+                        )
+                    } else {
+                        Spacer(
+                            modifier = Modifier.height(16.dp)
+                        )
+                    }
 
-                if (!isRegistered){
+                    Spacer(modifier = Modifier.width(8.dp)
+                    )
+
                     Text(
-                        text ="Invalid Password.",
                         modifier = Modifier
                             .offset(
-                                (-112).dp, 5.dp),
+                                (-90).dp, 5.dp)
+                            .align(Alignment.CenterVertically),
+                        text =
+                        if (!isStudentId){
+                            "Password is required."
+                        } else if (!isRegistered){
+                            "Invalid Password."
+                        } else {
+                            ""
+                        },
+
                         style = TextStyle(
                             color = Color.Red,
                             fontSize = 13.sp,
-                            fontWeight = FontWeight(400),
+                            fontWeight = FontWeight(700),
                             fontFamily = FontFamily.Default,
                         ),
                     )
@@ -329,7 +341,7 @@ fun LogIn(navController: NavHostController) {
 
                 Spacer(
                     modifier = Modifier
-                        .height(if (!isPassword || !isRegistered) 22.dp else 27.dp)
+                        .height(28.dp)
                 )
 
                 Row{
@@ -398,9 +410,9 @@ fun LogIn(navController: NavHostController) {
                             isStudentId = true
                             isRegistered = true
                         } else {
+                            isRegistered = true
                             isPassword = true
                             isStudentId = true
-                            isRegistered = false
                             loginViewModel.loginUser(studentIdTS, passwordTS)
                         }
                     },
@@ -429,7 +441,7 @@ fun LogIn(navController: NavHostController) {
 }
 
 
-class LoginViewModel(private val context: Context) : androidx.lifecycle.ViewModel() {
+class LoginViewModel(@SuppressLint("StaticFieldLeak") private var context: Context) : androidx.lifecycle.ViewModel() {
 
     private var loginStatus = MutableStateFlow("")
 
@@ -437,8 +449,8 @@ class LoginViewModel(private val context: Context) : androidx.lifecycle.ViewMode
     val navigationEvent = _navigationEvent.asSharedFlow()
 
 
-    fun loginUser(studentid: String, password: String) {
-        val loginData = LoginData(studentid, password)
+    fun loginUser(studentId: String, password: String) {
+        val loginData = LoginData(studentId, password)
         val json = Gson().toJson(loginData)
         Log.d("Request Body", json)
 
@@ -454,7 +466,7 @@ class LoginViewModel(private val context: Context) : androidx.lifecycle.ViewMode
 
                     if (status == "success") {
                         Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                        _navigationEvent.emit(Pages.Home_Page) // Emit navigation event
+                        _navigationEvent.emit(Pages.Main_Page)
                     }
 
                     Log.d("Server Response", status)
@@ -481,7 +493,7 @@ data class ApiResponseLogin(
 )
 
 data class LoginData(
-    val studentid: String,
+    val studentId: String,
     val password: String
 )
 
