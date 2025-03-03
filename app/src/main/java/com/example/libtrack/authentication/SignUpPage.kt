@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.authentication
 
 import android.content.Context
 import android.util.Log
@@ -67,6 +67,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
+import com.example.libtrack.navFunctions.Pages
+import com.example.libtrack.backend.SERVER_IP
+import com.example.libtrack.errorHandling.errorImage
+import com.example.libtrack.errorHandling.successImage
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -474,7 +478,7 @@ fun Page1_SU(navHostController: NavHostController){
 
                 if (!isCompletePage1 || !isPasswordMatch || !isPasswordLength || !isValidStudentId){
                     Image(
-                        painter = painterResource(id = R.drawable.error),
+                        painter = painterResource(id = errorImage),
                         contentDescription = "Error Icon",
                         modifier = Modifier.size(20.dp)
                     )
@@ -1000,7 +1004,7 @@ fun Page2_SU(
             Row{
                 if (!isCompletePage2 || !isValidSchoolEmail){
                     Image(
-                        painter = painterResource(id = R.drawable.error),
+                        painter = painterResource(id = errorImage),
                         contentDescription = "Error Icon",
                         modifier = Modifier
                             .size(16.dp)
@@ -1137,7 +1141,7 @@ fun Complete_SU(navController: NavHostController){
         ) {
 
             Image(
-                painter = painterResource(id = R.drawable.success),
+                painter = painterResource(id = successImage),
                 contentDescription = "Success",
                 modifier = Modifier
                     .size(70.dp)
@@ -1287,14 +1291,12 @@ interface SignupServer {
 }
 
 object RetrofitSignup {
-    private const val BASE_URL = "http://192.168.1.59/" // IPV4 Address of the connection
-
     val api: SignupServer by lazy {
         val gson = GsonBuilder().setLenient().create()
         val client = OkHttpClient.Builder().build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(SERVER_IP)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()

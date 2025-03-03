@@ -78,5 +78,28 @@ dependencies {
     implementation (libs.converter.gson) // Or latest version
     implementation (libs.logging.interceptor) // For logging (optional, but recommended)
 
+    implementation (libs.androidx.room.runtime)
+    annotationProcessor (libs.androidx.room.compiler) // Use kapt if you use Kotlin
+    implementation (libs.androidx.room.ktx) // for Kotlin extensions
+
+    // Jetpack Compose dependencies (if not already added)
+    implementation (libs.material3)
+    implementation (libs.ui.tooling.preview)
+
+    // Coroutines
+    implementation (libs.kotlinx.coroutines.android)
+
+    implementation (libs.androidx.lifecycle.runtime.ktx.v260)
+    implementation (libs.okhttp.v493)
+    implementation (libs.logging.interceptor)
+
+    implementation (libs.coil.compose)
+    
+    implementation (libs.androidx.lifecycle.livedata.ktx.v260)  // LiveData for Kotlin extensions
+    implementation (libs.coil.compose)  // Correct version for Coil
+
+    implementation(libs.gson)
+
+
 
 }

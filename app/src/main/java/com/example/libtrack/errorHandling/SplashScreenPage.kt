@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.errorHandling
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,17 +22,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.libtrack.backend.SERVER_IP
+import com.example.libtrack.navFunctions.Pages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -51,6 +46,7 @@ fun SplashScreenPage(navController: NavHostController) {
     val context = LocalContext.current
     var serverConnected by remember { mutableStateOf(false) }
 
+
     // Start the loading process when the screen is displayed
     LaunchedEffect(Unit) {
         scope.launch {
@@ -59,7 +55,7 @@ fun SplashScreenPage(navController: NavHostController) {
             }
             loading = false // Stop loading when the coroutine finishes
 
-            // Navigate to the Log In screen and remove the SplashScreenPage from the back stack
+            // Navigate to the Log In screen and remove the SplashScreenPage from the Back Stack
             navController.navigate(
                 if(serverConnected){
                     Pages.Log_In
@@ -71,8 +67,6 @@ fun SplashScreenPage(navController: NavHostController) {
             }
         }
     }
-
-
 
     LaunchedEffect(true) {
         scope.launch {
@@ -90,7 +84,7 @@ fun SplashScreenPage(navController: NavHostController) {
         modifier = Modifier.fillMaxSize()
     ) {
         Image(
-            painter = painterResource(id = R.drawable.logo),
+            painter = painterResource(id = logoImage),
             contentDescription = "Logo Loading",
             modifier = Modifier
                 .size(230.dp)
@@ -117,7 +111,7 @@ fun SplashScreenPage(navController: NavHostController) {
 suspend fun loadProgress(updateProgress: (Float) -> Unit) {
     for (i in 1..100) {
         updateProgress(i.toFloat() / 100)
-        delay(30/** 20 for original**/) // Milliseconds to Load
+        delay(30) // Load Time
     }
 }
 
@@ -125,7 +119,7 @@ private suspend fun checkServerConnection(context: android.content.Context): Boo
     withContext(Dispatchers.IO) {
         val client = OkHttpClient()
         val request = Request.Builder()
-            .url("http://192.168.1.59/") // Replace with your server URL
+            .url(SERVER_IP) // Replace with your server URL
             .build()
 
         try {

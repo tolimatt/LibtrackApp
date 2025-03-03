@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.navFunctions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,10 +31,24 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.libtrack.pagesMain.BooksPage
+import com.example.libtrack.pagesMain.HomePage
+import com.example.libtrack.R
+import com.example.libtrack.errorHandling.codeGeneratorImage
+import com.example.libtrack.errorHandling.logoImage
+import com.example.libtrack.errorHandling.selectedBooksImage
+import com.example.libtrack.errorHandling.selectedHomeImage
+import com.example.libtrack.errorHandling.selectedSettingsImage
+import com.example.libtrack.errorHandling.unselectedBooksImage
+import com.example.libtrack.errorHandling.unselectedHomeImage
+import com.example.libtrack.errorHandling.unselectedSettingsImage
+import com.example.libtrack.pagesMain.SettingsPage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MainPage(navController: NavHostController) {
+fun MainPage(
+    navController: NavHostController,
+    studentNumber: String) {
 
     // Track selected item index
     val selectedIndex = remember { mutableIntStateOf(0) } // Use mutableStateOf for state
@@ -43,9 +57,9 @@ fun MainPage(navController: NavHostController) {
 
     // Bottom Navigation Bar
     val bottomNavItemList = listOf(
-        BottomNavItem(painterResource(id = R.drawable.unselect_home), painterResource(id = R.drawable.select_home)),
-        BottomNavItem(painterResource(id = R.drawable.unselect_book), painterResource(id = R.drawable.select_book)),
-        BottomNavItem(painterResource(id = R.drawable.unselect_settings), painterResource(id = R.drawable.select_settings)),
+        BottomNavItem(painterResource(id = unselectedHomeImage), painterResource(id = selectedHomeImage)),
+        BottomNavItem(painterResource(id = unselectedBooksImage), painterResource(id = selectedBooksImage)),
+        BottomNavItem(painterResource(id = unselectedSettingsImage), painterResource(id = selectedSettingsImage)),
     )
 
     Scaffold(
@@ -60,7 +74,7 @@ fun MainPage(navController: NavHostController) {
 
                     }) {
                         Icon(
-                            painter = painterResource(id = R.drawable.id_barcode),
+                            painter = painterResource(id = codeGeneratorImage),
                             contentDescription = "Scan QR Code",
                             tint = Color.White,
                             modifier = Modifier
@@ -121,7 +135,7 @@ fun MainPage(navController: NavHostController) {
                         .fillMaxSize()
                 ){
                     Image(
-                        painter = painterResource(R.drawable.logo),
+                        painter = painterResource(logoImage),
                         contentDescription = "Logo",
                         modifier = Modifier
                             .size(250.dp)
@@ -134,21 +148,20 @@ fun MainPage(navController: NavHostController) {
                             .fillMaxSize()
                             .background(Color(0xFF72AF7B).copy(alpha = 0.8f)) // Adjust the alpha for transparency
                     )
-                    ContentScreen(selectedIndex.intValue)
+                    ContentScreen(selectedIndex.intValue ,studentNumber)
                 }
-
             }
-
         }
     }
 }
 
 @Composable
-fun ContentScreen(selectedIndex: Int) {
+fun ContentScreen(selectedIndex: Int, studentNumber: String) {
+
     when(selectedIndex){
-        0 -> HomePage()
+        0 -> HomePage("03-2324-036622")
         1 -> BooksPage()
-        2 -> SettingsPage()
+        2 -> SettingsPage("03-2324-036622")
     }
 }
 

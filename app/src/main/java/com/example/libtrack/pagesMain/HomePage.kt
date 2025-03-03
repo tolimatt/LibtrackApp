@@ -1,5 +1,6 @@
-package com.example.libtrack
+package com.example.libtrack.pagesMain
 
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -16,18 +17,63 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.libtrack.backend.SERVER_IP
+import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 @Composable
-fun HomePage() {
+fun HomePage(studentNumber: String) {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    var firstName by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(studentNumber) {
+        scope.launch {
+            try {
+                val response = RetrofitAccountName.apiService.getFirstName(studentNumber)
+                response.enqueue(object : Callback<AccountResponse> {
+                    override fun onResponse(
+                        call: Call<AccountResponse>,
+                        response: Response<AccountResponse>
+                    ) {
+                        if (response.isSuccessful && response.body() != null) {
+                            firstName = response.body()!!.firstName
+                        } else {
+                            Toast.makeText(context, "Failed to fetch first name. Code:${response.code()}", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<AccountResponse>, t: Throwable) {
+                        Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
+                    }
+                })
+            } catch (e: Exception) {
+                Toast.makeText(context, "An unexpected error occurred: ${e.message}", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
 
     LazyColumn (
         verticalArrangement = Arrangement.Top,
@@ -44,7 +90,7 @@ fun HomePage() {
             Text(
                 modifier = Modifier
                     .offset(3.dp, 0.dp),
-                text = "Hello User!",
+                text = if (firstName != null){"Hello $firstName!"} else{"Hello ...!"},
                 style = TextStyle(
                     color = Color.Black,
                     fontSize = 25.sp,
@@ -295,5 +341,26 @@ fun HomePage() {
                 }
             }
         }
+    }
+}
+
+
+interface ApiService {
+    @GET("hello/tests.php") // Replace with your PHP endpoint
+    fun getFirstName(@Query("id") accountId: String): Call<AccountResponse>
+}
+
+data class AccountResponse(
+    val firstName: String
+)
+
+object RetrofitAccountName {
+
+    val apiService: ApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(SERVER_IP)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiService::class.java)
     }
 }

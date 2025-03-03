@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.navFunctions
 
 object Pages {
     var Splash_Screen = "SplashScreenPage"

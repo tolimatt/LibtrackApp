@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.pagesMain
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable

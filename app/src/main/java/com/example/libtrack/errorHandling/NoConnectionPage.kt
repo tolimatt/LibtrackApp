@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.errorHandling
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.libtrack.R
 
 @Composable
 fun NoConnectionPage(navHostController: NavHostController) {
@@ -44,7 +45,7 @@ fun NoConnectionPage(navHostController: NavHostController) {
         ) {
 
             Image(
-                painter = painterResource(id = R.drawable.error),
+                painter = painterResource(id = errorImage),
                 contentDescription = "Error",
                 modifier = Modifier
                     .clip(CircleShape)

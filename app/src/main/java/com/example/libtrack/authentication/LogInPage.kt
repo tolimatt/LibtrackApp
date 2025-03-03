@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.authentication
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -52,6 +52,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.example.libtrack.navFunctions.Pages
+import com.example.libtrack.backend.SERVER_IP
+import com.example.libtrack.errorHandling.errorImage
+import com.example.libtrack.errorHandling.logoImage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
@@ -75,8 +79,8 @@ fun LogIn(navController: NavHostController) {
     val loginViewModel = remember { LoginViewModel(context) } // Initialize ViewModel here
 
     // For text fields / Text State
-    var studentIdTS by remember { mutableStateOf("") }
-    var passwordTS by remember { mutableStateOf("") }
+    var studentIdTS by remember { mutableStateOf("03-2324-032803") }
+    var passwordTS by remember { mutableStateOf("Kirsteen12345") }
 
     // For error handling / Booleans
     var isStudentId by remember { mutableStateOf(true) }
@@ -86,6 +90,8 @@ fun LogIn(navController: NavHostController) {
     // For text field focus
     val studentIdFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
+
+    val studentNumber = studentIdTS
 
     LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
         loginViewModel.navigationEvent.collect { route ->
@@ -108,7 +114,7 @@ fun LogIn(navController: NavHostController) {
 
                 // Logo
                 Image(
-                    painter = painterResource(id = R.drawable.logo),
+                    painter = painterResource(id = logoImage),
                     contentDescription = "Logo Loading",
                     modifier = Modifier
                         .size(120.dp)
@@ -203,7 +209,7 @@ fun LogIn(navController: NavHostController) {
                 Row{
                     if (!isStudentId || !isRegistered){
                         Image(
-                            painter = painterResource(id = R.drawable.error),
+                            painter = painterResource(id = errorImage),
                             contentDescription = "Error Icon",
                             modifier = Modifier
                                 .offset((-88).dp,5.dp)
@@ -301,7 +307,7 @@ fun LogIn(navController: NavHostController) {
                 Row{
                     if (!isPassword || !isRegistered){
                         Image(
-                            painter = painterResource(id = R.drawable.error),
+                            painter = painterResource(id = errorImage),
                             contentDescription = "Error Icon",
                             modifier = Modifier
                                 .offset((-88).dp,5.dp)
@@ -503,14 +509,12 @@ interface LoginServer {
 }
 
 object RetrofitLogin {
-    private const val BASE_URL = "http://192.168.1.59/" // IPV4 Address of the connection
-
     val api: LoginServer by lazy {
         val gson = GsonBuilder().setLenient().create()
         val client = OkHttpClient.Builder().build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl(BASE_URL)
+            .baseUrl(SERVER_IP)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .client(client)
             .build()

@@ -1,4 +1,4 @@
-package com.example.libtrack
+package com.example.libtrack.authentication
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -42,6 +42,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.libtrack.navFunctions.Pages
+import com.example.libtrack.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

@@ -1,8 +1,7 @@
-package com.example.libtrack
+package com.example.libtrack.pagesMain
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,29 +14,28 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.blur
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
+import com.example.libtrack.R
+import com.example.libtrack.errorHandling.aboutUsImage
+import com.example.libtrack.errorHandling.changePasswordImage
+import com.example.libtrack.errorHandling.historyImage
+import com.example.libtrack.errorHandling.notificationsImage
+import com.example.libtrack.errorHandling.personalInfoImage
 
 @Composable
-fun SettingsPage(){
+fun SettingsPage(studentNumber: String){
 
     Column (
         verticalArrangement = Arrangement.Top,
@@ -51,8 +49,6 @@ fun SettingsPage(){
             modifier = Modifier
                 .height(5.dp)
         )
-
-
 
         Card(
             modifier = Modifier
@@ -72,7 +68,7 @@ fun SettingsPage(){
             ){
 
                 Image(
-                    painter = painterResource(id = R.drawable.personal_info),
+                    painter = painterResource(id = personalInfoImage),
                     contentDescription = "Personal Information",
                     modifier = Modifier
                         .size(25.dp)
@@ -124,7 +120,7 @@ fun SettingsPage(){
                 ){
 
                     Image(
-                        painter = painterResource(id = R.drawable.notifications),
+                        painter = painterResource(id = notificationsImage),
                         contentDescription = "Notifications",
                         modifier = Modifier
                             .size(25.dp)
@@ -178,7 +174,7 @@ fun SettingsPage(){
             ){
 
                 Image(
-                    painter = painterResource(id = R.drawable.change_password),
+                    painter = painterResource(id = changePasswordImage),
                     contentDescription = "Change Password",
                     modifier = Modifier
                         .size(25.dp)
@@ -230,7 +226,7 @@ fun SettingsPage(){
                 ){
 
                     Image(
-                        painter = painterResource(id = R.drawable.history),
+                        painter = painterResource(id = historyImage),
                         contentDescription = "History",
                         modifier = Modifier
                             .size(25.dp)
@@ -251,10 +247,7 @@ fun SettingsPage(){
                             fontWeight = FontWeight(600),
                             fontFamily = FontFamily.Default
                         )
-
                     )
-
-
                 }
             }
 
@@ -284,7 +277,7 @@ fun SettingsPage(){
             ){
 
                 Image(
-                    painter = painterResource(id = R.drawable.about_us),
+                    painter = painterResource(id = aboutUsImage),
                     contentDescription = "About Us",
                     modifier = Modifier
                         .size(25.dp)
