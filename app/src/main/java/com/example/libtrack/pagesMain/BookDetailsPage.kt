@@ -212,7 +212,6 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                         )
                     )
                 }
-
             }
         }
     }
