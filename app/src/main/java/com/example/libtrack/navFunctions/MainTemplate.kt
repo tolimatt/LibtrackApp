@@ -88,7 +88,7 @@ fun MainPage(
                     }) {
                         Icon(
                             painter = painterResource(id = codeGeneratorImage),
-                            contentDescription = "Scan QR Code",
+                            contentDescription = "Generate QR Code",
                             tint = Color.White,
                             modifier = Modifier
                                 .size(30.dp)
@@ -126,7 +126,6 @@ fun MainPage(
                                     .size(25.dp)
                             )
                         },
-
                     )
                 }
             }

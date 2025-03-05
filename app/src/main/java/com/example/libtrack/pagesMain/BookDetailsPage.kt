@@ -101,7 +101,7 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                 )
 
                 AsyncImage(
-                    model = bookDetails!!.image_url,
+                    model = bookDetails!!.imageUrl,
                     contentDescription = bookDetails!!.title,
                     modifier = Modifier
                         .size(270.dp)
@@ -176,6 +176,10 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                     )
                 }
 
+                Text(
+                    text = bookDetails!!.availableCopies.toString()+" / "+bookDetails!!.totalCopies.toString()+" Available Copies"
+                )
+
                 Spacer(
                     modifier = Modifier
                         .height(20.dp)
@@ -183,10 +187,10 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
 
                 Button(
                     onClick = {
-                        Log.d("PDF_URL_VALUE", "PDF URL: ${bookDetails!!.pdf_url}")
+                        Log.d("PDF_URL_VALUE", "PDF URL: ${bookDetails!!.pdfUrl}")
                         try {
                             val intent = Intent(Intent.ACTION_VIEW)
-                            intent.data = Uri.parse(bookDetails!!.pdf_url)
+                            intent.data = Uri.parse(bookDetails!!.pdfUrl)
                             context.startActivity(intent)
                         } catch (e: ActivityNotFoundException) {
                             Toast.makeText(context, "No PDF viewer app found.", Toast.LENGTH_SHORT).show()

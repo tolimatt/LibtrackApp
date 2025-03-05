@@ -71,11 +71,12 @@ fun Navigation() {
         composable(Pages.Splash_Screen) {
             SplashScreenPage(navController)
         }
-        composable(Pages.Main_Page +"/{studentNumber}", enterTransition = { slideInHorizontally { 2000000 } }) { backStackEntry ->
+        composable(Pages.Main_Page +"/{studentNumber}") { backStackEntry ->
             val studentNumber = backStackEntry.arguments?.getString("studentNumber") ?: ""
             MainPage(
                 navController = navController,
-                studentNumber = studentNumber)
+                studentNumber = studentNumber
+            )
         }
         composable("HomePage/{studentNumber}") { backStackEntry ->
             val studentNumber = backStackEntry.arguments?.getString("studentNumber") ?: ""
