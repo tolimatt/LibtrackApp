@@ -3,9 +3,11 @@ package com.example.libtrack.navFunctions
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.libtrack.authentication.Complete_FP
 import com.example.libtrack.authentication.Complete_SU
 import com.example.libtrack.authentication.LogIn
@@ -69,10 +71,7 @@ fun Navigation() {
         composable(Pages.Splash_Screen) {
             SplashScreenPage(navController)
         }
-        composable(Pages.Book_Details_Page) {
-            BookDetailsPage(navController)
-        }
-        composable(Pages.Main_Page, enterTransition = { slideInHorizontally { 2000000 } }) { backStackEntry ->
+        composable(Pages.Main_Page +"/{studentNumber}", enterTransition = { slideInHorizontally { 2000000 } }) { backStackEntry ->
             val studentNumber = backStackEntry.arguments?.getString("studentNumber") ?: ""
             MainPage(
                 navController = navController,
@@ -84,9 +83,15 @@ fun Navigation() {
                 studentNumber = studentNumber,
             )
         }
-
-
-
+        composable("BooksPage") {
+            BooksPage{ bookId ->
+                navController.navigate("BookDetailsPage/$bookId")
+            }
+        }
+        composable(Pages.Book_Details_Page + "/{bookId}", arguments = listOf(navArgument("bookId") { type = NavType.IntType })) { backStackEntry ->
+            val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
+            BookDetailsPage(bookId, navController)
+        }
     }
 }
 

@@ -98,7 +98,13 @@ dependencies {
     implementation (libs.androidx.lifecycle.livedata.ktx.v260)  // LiveData for Kotlin extensions
     implementation (libs.coil.compose)  // Correct version for Coil
 
-    implementation(libs.gson)
+    implementation (libs.android.core)
+    implementation (libs.core)
+
+    implementation (libs.zxing.android.embedded) // ZXing library
+    implementation (libs.androidx.activity.compose.v1101) // For Jetpack Compose support
+
+
 
 
 

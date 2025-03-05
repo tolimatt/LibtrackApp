@@ -35,7 +35,7 @@ import retrofit2.http.Query
 
 
 @Composable
-fun BooksPage() {
+fun BooksPage(onBookClick: (Any) -> Unit) {
 
     val scope = rememberCoroutineScope()
     var books by remember { mutableStateOf(listOf<Book>()) }
@@ -68,7 +68,7 @@ fun BooksPage() {
                 Card (
                     modifier = Modifier
                         .clickable {
-
+                            onBookClick(book.id)
                         }
                         .padding(7.dp)
                         .shadow(elevation = 4.dp)

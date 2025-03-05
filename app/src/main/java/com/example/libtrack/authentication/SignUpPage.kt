@@ -219,7 +219,7 @@ fun Page1_SU(navHostController: NavHostController){
                 ),
                 placeholder = {
                     Text(
-                        text = "First Name",
+                        text = "ex. Juan",
                         fontWeight = FontWeight(400),
                         color = Color.LightGray
 
@@ -275,7 +275,7 @@ fun Page1_SU(navHostController: NavHostController){
                 ),
                 placeholder = {
                     Text(
-                        text = "Last Name",
+                        text = "ex. Dela Cruz",
                         fontWeight = FontWeight(400),
                         color = Color.LightGray
                     )
@@ -329,7 +329,7 @@ fun Page1_SU(navHostController: NavHostController){
                 ),
                 placeholder = {
                     Text(
-                        text = "Student ID",
+                        text = "ex. 03-2324-000",
                         fontWeight = FontWeight(400),
                         color = Color.LightGray
                     )
@@ -597,6 +597,7 @@ fun Page2_SU(
         "Junior (3rd Year)",
         "Senior (4th Year)",
         "Super Senior (5th Year)")
+
     val listProgramCourse = listOf(
         "Associate in Computer Technology",
         "BA Political Science",
@@ -621,6 +622,7 @@ fun Page2_SU(
         "BS Tourism Management"
     )
 
+    var department: String
 
     var selectedProgram by rememberSaveable { mutableStateOf("Select Year Level") }
     var selectedYearLevel by rememberSaveable { mutableStateOf("Select Program") }
@@ -633,8 +635,8 @@ fun Page2_SU(
 
     val allCompletedPage2 = schoolEmailTS.isNotEmpty() &&
             contactNumbTS.isNotEmpty() &&
-            selectedProgram != "Select Program" &&
-            selectedYearLevel != "Select Year Level"
+            listProgramCourse.contains(selectedProgram) &&
+            listYearLevel.contains(selectedYearLevel)
             && isChecked
 
 
@@ -875,7 +877,7 @@ fun Page2_SU(
                 ),
                 placeholder = {
                     Text(
-                        text = "School Email",
+                        text = "ex. juan.delacruz.up@phinma.com",
                         fontWeight = FontWeight(400),
                         color = Color.LightGray
                     )
@@ -930,7 +932,7 @@ fun Page2_SU(
                  ),
                  placeholder = {
                      Text(
-                         text = "Contact Number",
+                         text = "0987654321",
                          fontWeight = FontWeight(400),
                          color = Color.LightGray
                      )
@@ -1043,12 +1045,34 @@ fun Page2_SU(
                 modifier = Modifier.height(22.dp)
             )
 
+            if (selectedProgram == "BS Medical Laboratory" || selectedProgram == "BS Nursing"
+                || selectedProgram == "BS Pharmacy" || selectedProgram == "BS Psychology" ){
+                department = "College of Allied Health and Sciences (CAHS)"
+            } else if (selectedProgram == "BS Criminology"){
+                department = "College of Criminal Justice Education (CCJE)"
+            } else if (selectedProgram == "BS Architecture" || selectedProgram == "BS Civil Engineering"
+                || selectedProgram == "BS Computer Engineering" || selectedProgram == "BS Electrical Engineering"
+                || selectedProgram == "BS Mechanical Engineering"){
+                department = "College of Engineering and Architecture (CEA)"
+            } else if (selectedProgram == "BA Political Science" || selectedProgram == "BS Education"){
+                department = "College of Education and Liberal Arts (CELA)"
+            } else if (selectedProgram == "Associate in Computer Technology" || selectedProgram == "BS Information Technology"){
+                department = "College of Information Technology Education (CITE)"
+            } else if (selectedProgram == "BS Accountancy" || selectedProgram == "BS Accounting Information System"
+                || selectedProgram == "BS Business Admin Financial Management" || selectedProgram == "BS Business Admin Marketing Management"
+                || selectedProgram == "BS Hospitality Management" || selectedProgram == "BS Management Accounting"
+                || selectedProgram == "BS Tourism Management" ){
+                department = "College of Management and Accountancy (CMA)"
+            } else{
+                department = "Not Selected"
+            }
+
             Button(
                 onClick = {
                     if(allCompletedPage2 && validSchoolEmail){
                         isCompletePage2 = true
                         isValidSchoolEmail = true
-                        signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS)
+                        signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS, department)
                         navController.navigate(Pages.Sign_Up_Complete)
                     } else if (!allCompletedPage2){
                         isCompletePage2 = false
@@ -1224,7 +1248,8 @@ class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewMod
         yearLevel: String,
         program: String,
         schoolEmail: String,
-        contactNumber: String) {
+        contactNumber: String,
+        department: String) {
 
         val userData = UserData(
             firstName,
@@ -1234,7 +1259,8 @@ class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewMod
             yearLevel,
             program,
             schoolEmail,
-            contactNumber)
+            contactNumber,
+            department)
 
         val json = Gson().toJson(userData)
         Log.d("Request Body", json)
@@ -1282,7 +1308,8 @@ data class UserData(
     val yearLevel: String,
     val program: String,
     val schoolEmail: String,
-    val contactNumber: String
+    val contactNumber: String,
+    val department: String
 )
 
 interface SignupServer {

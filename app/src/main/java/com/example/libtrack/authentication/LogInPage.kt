@@ -419,7 +419,9 @@ fun LogIn(navController: NavHostController) {
                             isRegistered = true
                             isPassword = true
                             isStudentId = true
-                            loginViewModel.loginUser(studentIdTS, passwordTS)
+                            //loginViewModel.loginUser(studentIdTS, passwordTS)
+                            navController.navigate("MainPage/$studentNumber")
+
                         }
                     },
                     modifier = Modifier
