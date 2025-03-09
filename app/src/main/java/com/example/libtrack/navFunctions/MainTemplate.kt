@@ -62,6 +62,7 @@ fun MainPage(
     studentNumber: String) {
 
     // Track selected item index
+//Reminder, make assignment operations to by instead of =
     val selectedIndex = remember { mutableIntStateOf(0) } // Use mutableStateOf for state
 
     val topBarTitle = remember { mutableStateOf("FVR - LIBRARY") } // Default
