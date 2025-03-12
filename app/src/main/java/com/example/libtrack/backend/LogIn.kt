@@ -92,7 +92,7 @@ data class LoginData(
     val studentId: String,
     val password: String
 )
-
+//
 interface LoginServer {
     @POST(LOG_IN_URL_PATH)
     suspend fun login(@Body loginData: LoginData): Response<ApiResponseLogin>
