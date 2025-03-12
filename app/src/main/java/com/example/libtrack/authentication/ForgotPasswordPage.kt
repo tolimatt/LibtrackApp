@@ -74,7 +74,7 @@ fun Page1_FP(navController: NavHostController){
         ) {
 
             Text(
-                text = "Forgot Password",
+                text = "Change Password",
                 style = TextStyle(
                     color = Color.Black,
                     fontSize = 28.sp,

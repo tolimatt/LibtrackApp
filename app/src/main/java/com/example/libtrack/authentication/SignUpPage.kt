@@ -1,7 +1,7 @@
 package com.example.libtrack.authentication
 
-import android.content.Context
-import android.util.Log
+import android.app.Application
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -35,12 +35,14 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MenuAnchorType
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -61,29 +63,19 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import com.example.libtrack.navFunctions.Pages
-import com.example.libtrack.backend.SERVER_IP
+import com.example.libtrack.backend.SignupViewModel
 import com.example.libtrack.errorHandling.errorImage
+import com.example.libtrack.errorHandling.passwordVisibilityFalseImage
+import com.example.libtrack.errorHandling.passwordVisibilityTrueImage
 import com.example.libtrack.errorHandling.successImage
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.POST
-import java.io.IOException
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = PAGE 1 SIGN UP = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -97,6 +89,8 @@ fun Page1_SU(navHostController: NavHostController){
     var studentIdTS by rememberSaveable { mutableStateOf("") }
     var passwordTS by rememberSaveable { mutableStateOf("") }
     var confirmPasswordTS by rememberSaveable { mutableStateOf("") }
+
+    val validStudentId = studentIdTS.contains("-") && studentIdTS.contains("-") && studentIdTS.contains("-")
 
     // Completed all TFs
     val allCompletedPage1 = firstNameTS.isNotEmpty() &&
@@ -117,6 +111,9 @@ fun Page1_SU(navHostController: NavHostController){
     val studentIdFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
     val confirmPasswordFocusRequester = remember { FocusRequester() }
+
+    // Password
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     // Store Data to Variables
     val firstname = firstNameTS
@@ -231,6 +228,7 @@ fun Page1_SU(navHostController: NavHostController){
                 onValueChange = { firstNameTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
@@ -286,6 +284,7 @@ fun Page1_SU(navHostController: NavHostController){
                 onValueChange = { lastNameTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Text,
+                    capitalization = KeyboardCapitalization.Words,
                     imeAction = ImeAction.Next
                 ),
                 keyboardActions = KeyboardActions(
@@ -337,7 +336,7 @@ fun Page1_SU(navHostController: NavHostController){
 
                 singleLine = true,
                 value = studentIdTS,
-                onValueChange = { studentIdTS = it  },
+                onValueChange = { if (it.length <= 14) studentIdTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Number,
                     imeAction = ImeAction.Next
@@ -390,8 +389,15 @@ fun Page1_SU(navHostController: NavHostController){
                 },
 
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
-                value = passwordTS,
+                visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(
+                            painter = painterResource(id = if (isPasswordVisible) passwordVisibilityTrueImage else passwordVisibilityFalseImage),
+                            contentDescription = "Password Visibility Toggle"
+                        )
+                    }
+                },                value = passwordTS,
                 onValueChange = { passwordTS = it },
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Password,
@@ -406,7 +412,7 @@ fun Page1_SU(navHostController: NavHostController){
                 modifier = Modifier.offset(
                     (-40).dp, 0.dp
                 ),
-                text = "• Password must be at least 12 characters",
+                text = "• Password must be at least 8 characters",
                 fontSize = 13.sp,
                 color = Color(0xFF727D83)
             )
@@ -501,7 +507,7 @@ fun Page1_SU(navHostController: NavHostController){
                     } else if (!isPasswordMatch){
                         "Password does not match."
                     } else if (!isPasswordLength){
-                        "Password must be at least \n 12 characters long."
+                        "Password must be at least \n 8 characters long."
                     } else if (!isValidStudentId){
                         "Invalid Student ID."
                     }else{
@@ -515,25 +521,24 @@ fun Page1_SU(navHostController: NavHostController){
                 )
             }
 
-
             Spacer(
                 modifier = Modifier.height(13.dp)
             )
 
             Button(
                 onClick = {
-                    if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 12 && studentIdTS.length >= 10) {
+                    if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 8 && studentIdTS.length >= 10 && validStudentId) {
                         isCompletePage1 = true
                         isPasswordMatch = true
                         isPasswordLength = true
                         isValidStudentId = true
-                        navHostController.navigate("Page2_SU/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
+                        navHostController.navigate("sign_up_page2/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
                     } else if (!allCompletedPage1) { // Incomplete Page
                         isCompletePage1 = false
                         isPasswordMatch = true
                         isPasswordLength = true
                         isValidStudentId = true
-                    } else if (studentIdTS.length < 10){
+                    } else if (studentIdTS.length < 8 || !validStudentId){
                         isValidStudentId = false
                         isCompletePage1 = true
                         isPasswordMatch = true
@@ -543,7 +548,7 @@ fun Page1_SU(navHostController: NavHostController){
                         isCompletePage1 = true
                         isPasswordLength = true
                         isValidStudentId = true
-                    } else { // Password is less than 12 characters
+                    } else { // Password is less than 8 characters
                         isPasswordLength = false
                         isPasswordMatch = true
                         isCompletePage1 = true
@@ -585,18 +590,28 @@ fun Page2_SU(
     ){
 
     val context = LocalContext.current
-    val signupViewModel = remember { SignupViewModel(context) } // Initialize ViewModel
+    val signupViewModel = remember { SignupViewModel(application = context.applicationContext as Application) } // Initialize ViewModel
 
     var schoolEmailTS by rememberSaveable { mutableStateOf("") }
-    val validSchoolEmail = schoolEmailTS.contains("@") && schoolEmailTS.contains(".")
+    val validSchoolEmail = schoolEmailTS.contains(".up@phinmaed.com")
     var contactNumbTS by rememberSaveable { mutableStateOf("") }
 
-    val listYearLevel = listOf(
+    // Bachelor Degree
+    val listYearLevelBD = listOf(
         "Freshman (1st Year)",
         "Sophomore (2nd Year)",
         "Junior (3rd Year)",
         "Senior (4th Year)",
-        "Super Senior (5th Year)")
+    )
+
+    // Undergrad
+    val listYearLevelU = listOf(
+        "Freshman (1st Year)",
+        "Sophomore (2nd Year)",
+        "Junior (3rd Year)",
+        "Senior (4th Year)",
+        "Super Senior (5th Year)"
+    )
 
     val listProgramCourse = listOf(
         "Associate in Computer Technology",
@@ -624,8 +639,8 @@ fun Page2_SU(
 
     var department: String
 
-    var selectedProgram by rememberSaveable { mutableStateOf("Select Year Level") }
-    var selectedYearLevel by rememberSaveable { mutableStateOf("Select Program") }
+    var selectedProgram by rememberSaveable { mutableStateOf("Select Program") }
+    var selectedYearLevel by rememberSaveable { mutableStateOf("Select Year Level") }
 
     var isYearLevelExpanded by remember { mutableStateOf(false) }
     var isProgramExpanded by remember { mutableStateOf(false) }
@@ -636,7 +651,7 @@ fun Page2_SU(
     val allCompletedPage2 = schoolEmailTS.isNotEmpty() &&
             contactNumbTS.isNotEmpty() &&
             listProgramCourse.contains(selectedProgram) &&
-            listYearLevel.contains(selectedYearLevel)
+            (listYearLevelBD.contains(selectedYearLevel) || listYearLevelU.contains(selectedYearLevel))
             && isChecked
 
 
@@ -647,14 +662,6 @@ fun Page2_SU(
     // Focus Requester
     val schoolEmailFocusRequester = remember { FocusRequester() }
     val contactNumbFocusRequester = remember { FocusRequester() }
-
-
-
-    LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
-        signupViewModel.navigationEvent.collect { route ->
-            navController.navigate(route)
-        }
-    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -721,69 +728,6 @@ fun Page2_SU(
 
             Text(
                 modifier = Modifier.offset(
-                    (-130).dp, 0.dp
-                ),
-                text = "YEAR LEVEL",
-                fontSize = 12.sp,
-                color = Color(0xFF727D83)
-            )
-
-            // YEAR LEVEL
-            ExposedDropdownMenuBox(
-                modifier = Modifier
-                    .width(350.dp),
-                expanded = isYearLevelExpanded,
-                onExpandedChange = { isYearLevelExpanded = !isYearLevelExpanded }
-            ) {
-
-                TextField(
-                    modifier = Modifier
-                        .menuAnchor()
-                        .border(
-                            width = 1.2.dp,
-                            color = if (!isCompletePage2) Color.Red else Color(0xFFC1C1C1),
-                            shape = RoundedCornerShape(15.dp)
-                        )
-                        .width(350.dp),
-                    value = selectedYearLevel,
-                    textStyle = TextStyle(
-                        fontWeight = FontWeight(400),
-                        color = Color.Black,
-                        fontSize = 17.sp
-                    ),
-                    onValueChange = {},
-                    readOnly = true,
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearLevelExpanded) },
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                )
-
-                ExposedDropdownMenu(
-                    expanded = isYearLevelExpanded,
-                    onDismissRequest = { isYearLevelExpanded = false },
-                ) {
-                    listYearLevel.forEach { item ->
-                        DropdownMenuItem(
-                            text = { Text(text = item) },
-                            onClick = {
-                                selectedYearLevel = item
-                                isYearLevelExpanded = false
-                            }
-                        )
-                    }
-                }
-            }
-
-            Spacer(
-                modifier = Modifier.height(10.dp)
-            )
-
-            Text(
-                modifier = Modifier.offset(
                     (-135).dp, 0.dp
                 ),
                 text = "PROGRAM",
@@ -801,7 +745,7 @@ fun Page2_SU(
             ) {
                 TextField(
                     modifier = Modifier
-                        .menuAnchor()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
                         .border(
                             width = 1.2.dp,
                             color = if (!isCompletePage2) Color.Red else Color(0xFFC1C1C1),
@@ -838,6 +782,90 @@ fun Page2_SU(
                                 isProgramExpanded = false
                             }
                         )
+                    }
+                }
+            }
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+            Text(
+                modifier = Modifier.offset(
+                    (-130).dp, 0.dp
+                ),
+                text = "YEAR LEVEL",
+                fontSize = 12.sp,
+                color = Color(0xFF727D83)
+            )
+
+            // YEAR LEVEL
+            ExposedDropdownMenuBox(
+                modifier = Modifier
+                    .width(350.dp),
+                expanded = isYearLevelExpanded,
+                onExpandedChange = { isYearLevelExpanded = !isYearLevelExpanded }
+            ) {
+
+                TextField(
+                    modifier = Modifier
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                        .border(
+                            width = 1.2.dp,
+                            color = if (!isCompletePage2) Color.Red else Color(0xFFC1C1C1),
+                            shape = RoundedCornerShape(15.dp)
+                        )
+                        .width(350.dp),
+                    value = selectedYearLevel,
+                    textStyle = TextStyle(
+                        fontWeight = FontWeight(400),
+                        color = Color.Black,
+                        fontSize = 17.sp
+                    ),
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = isYearLevelExpanded) },
+                    colors = TextFieldDefaults.colors(
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent
+                    ),
+                )
+
+                ExposedDropdownMenu(
+                    expanded = isYearLevelExpanded,
+                    onDismissRequest = { isYearLevelExpanded = false },
+                ) {
+                    when (selectedProgram){
+                        "BS Mechanical Engineering" -> {
+                            listYearLevelU.forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(text = item) },
+                                    onClick = {
+                                        selectedYearLevel = item
+                                        isYearLevelExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                        "Select Program" -> {
+                            DropdownMenuItem(
+                                text = { Text(text = "Select a Program First", fontWeight = FontWeight(500)) },
+                                onClick = {}
+                            )
+                        }
+                        else -> {
+                            listYearLevelBD.forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(text = item) },
+                                    onClick = {
+                                        selectedYearLevel = item
+                                        isYearLevelExpanded = false
+                                    }
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -940,7 +968,7 @@ fun Page2_SU(
 
                  singleLine = true,
                  value = contactNumbTS,
-                 onValueChange = { contactNumbTS = it },
+                 onValueChange = { if (it.length <= 11) contactNumbTS = it },
                  keyboardOptions = KeyboardOptions(
                      keyboardType = KeyboardType.Number,
                      imeAction = ImeAction.Done
@@ -1027,7 +1055,7 @@ fun Page2_SU(
                     if (!isCompletePage2){
                         "Fill up all the requirements."
                     } else if (!isValidSchoolEmail){
-                        "Enter a valid Email"
+                        "Enter a valid School Email"
                     } else {
                         ""
                     },
@@ -1045,26 +1073,15 @@ fun Page2_SU(
                 modifier = Modifier.height(22.dp)
             )
 
-            if (selectedProgram == "BS Medical Laboratory" || selectedProgram == "BS Nursing"
-                || selectedProgram == "BS Pharmacy" || selectedProgram == "BS Psychology" ){
-                department = "College of Allied Health and Sciences (CAHS)"
-            } else if (selectedProgram == "BS Criminology"){
-                department = "College of Criminal Justice Education (CCJE)"
-            } else if (selectedProgram == "BS Architecture" || selectedProgram == "BS Civil Engineering"
-                || selectedProgram == "BS Computer Engineering" || selectedProgram == "BS Electrical Engineering"
-                || selectedProgram == "BS Mechanical Engineering"){
-                department = "College of Engineering and Architecture (CEA)"
-            } else if (selectedProgram == "BA Political Science" || selectedProgram == "BS Education"){
-                department = "College of Education and Liberal Arts (CELA)"
-            } else if (selectedProgram == "Associate in Computer Technology" || selectedProgram == "BS Information Technology"){
-                department = "College of Information Technology Education (CITE)"
-            } else if (selectedProgram == "BS Accountancy" || selectedProgram == "BS Accounting Information System"
-                || selectedProgram == "BS Business Admin Financial Management" || selectedProgram == "BS Business Admin Marketing Management"
-                || selectedProgram == "BS Hospitality Management" || selectedProgram == "BS Management Accounting"
-                || selectedProgram == "BS Tourism Management" ){
-                department = "College of Management and Accountancy (CMA)"
-            } else{
-                department = "Not Selected"
+            department = when (selectedProgram){
+                "BS Medical Laboratory", "BS Nursing", "BS Pharmacy", "BS Psychology" -> "College of Allied Health and Sciences (CAHS)"
+                "BS Criminology" -> "College of Criminal Justice Education (CCJE)"
+                "BS Architecture", "BS Civil Engineering", "BS Computer Engineering", "BS Electrical Engineering", "BS Mechanical Engineering" -> "College of Engineering and Architecture (CEA)"
+                "BA Political Science", "BS Education" -> "College of Education and Liberal Arts (CELA)"
+                "Associate in Computer Technology", "BS Information Technology" -> "College of Information Technology Education (CITE)"
+                "BS Accountancy", "BS Accounting Information System", "BS Business Admin Financial Management", "BS Business Admin Marketing Management",
+                "BS Hospitality Management", "BS Management Accounting", "BS Tourism Management" -> "College of Management and Accountancy (CMA)"
+                else  -> "Not Selected"
             }
 
             Button(
@@ -1072,8 +1089,7 @@ fun Page2_SU(
                     if(allCompletedPage2 && validSchoolEmail){
                         isCompletePage2 = true
                         isValidSchoolEmail = true
-                        signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS, department)
-                        navController.navigate(Pages.Sign_Up_Complete)
+                        signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS, department, navController)
                     } else if (!allCompletedPage2){
                         isCompletePage2 = false
                         isValidSchoolEmail = true
@@ -1094,6 +1110,20 @@ fun Page2_SU(
                     text = "Register"
                 )
             }
+
+            val errorMessage by signupViewModel.getErrorMessage().collectAsState(initial = null)
+
+            errorMessage?.let {
+                LaunchedEffect(it) {
+                    Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
+                    navController.navigate(Pages.Sign_Up_Error){
+                        popUpTo(Pages.Sign_Up_Error) {
+                            inclusive = true
+                        }
+                    }
+                }
+            }
+
             if (isShowDialog) {
                 AlertDialog(
                     onDismissRequest = { isShowDialog = false },
@@ -1207,8 +1237,9 @@ fun Complete_SU(navController: NavHostController){
             Button(
                 onClick = {
                     navController.navigate(Pages.Log_In){
-                        popUpTo(Pages.Sign_Up_Complete){
-                            inclusive = true}
+                        popUpTo("Sign_Up_Complete"){
+                            inclusive = true
+                        }
                     }
                 },
                 modifier = Modifier
@@ -1233,101 +1264,87 @@ fun Complete_SU(navController: NavHostController){
     }
 }
 
+@Composable
+fun Error_SU(navController: NavHostController){
 
-class SignupViewModel(private val context: Context) : androidx.lifecycle.ViewModel() {
-    private var signupStatus = MutableStateFlow("") // Status in ViewModel
+    Scaffold (
+        modifier = Modifier.fillMaxSize()
+    ){ paddingValues ->
 
-    private val _navigationEvent = MutableSharedFlow<String>() // Use SharedFlow
-    val navigationEvent = _navigationEvent.asSharedFlow()
+        Column (
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .padding(paddingValues)
+                .fillMaxSize()
+        ) {
 
-    fun signupUser(
-        firstName: String,
-        lastName: String,
-        studentId: String,
-        password: String,
-        yearLevel: String,
-        program: String,
-        schoolEmail: String,
-        contactNumber: String,
-        department: String) {
+            Image(
+                painter = painterResource(id = errorImage),
+                contentDescription = "Error",
+                modifier = Modifier
+                    .size(70.dp)
+                    .clip(CircleShape)
+            )
 
-        val userData = UserData(
-            firstName,
-            lastName,
-            studentId,
-            password,
-            yearLevel,
-            program,
-            schoolEmail,
-            contactNumber,
-            department)
+            Spacer(
+                modifier = Modifier
+                    .height(20.dp)
+            )
 
-        val json = Gson().toJson(userData)
-        Log.d("Request Body", json)
+            Text(
+                text = "Sign-Up Error!",
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight(700)
+                )
+            )
 
-        viewModelScope.launch {
-            try {
-                val response = RetrofitSignup.api.signup(userData)
+            Spacer(
+                modifier = Modifier.height(20.dp)
+            )
 
-                if (response.isSuccessful) {
-                    val apiResponse = response.body()
-                    val status = apiResponse?.status ?: "Unknown status"
+            Text(
+                textAlign = TextAlign.Center,
+                text = "Account Error. Student ID already exists on an account.",
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight(400)
+                )
+            )
 
-                    signupStatus.value = status
+            Spacer(
+                modifier = Modifier.height(80.dp)
+            )
 
-                    if (status == "success"){
-                        _navigationEvent.emit(Pages.Sign_Up_Complete)
+            Button(
+                onClick = {
+                    navController.navigate(Pages.Log_In){
+                        popUpTo(Pages.Sign_Up_Error){
+                            inclusive = true
+                        }
                     }
-
-                    signupStatus.value = "Connected: $status" // Update status in ViewModel
-                    Log.d("Server Response", status)
-                } else {
-                    signupStatus.value = "Error: ${response.code()} - ${response.message()}" // Update status
-                    Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
-                }
-            } catch (e: IOException) {
-                signupStatus.value = "Network Error: ${e.message}" // Update status
-                Log.e("Network Error", e.message.toString())
-            } catch (e: Exception) {
-                signupStatus.value = "Request failed: ${e.message}" // Update status
-                Log.e("Request Error", e.message.toString())
+                },
+                modifier = Modifier
+                    .size(width = 290.dp, height = 43.dp),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF72AF7B),
+                    contentColor = Color.White
+                )
+            ) {
+                Text(
+                    text = "Back to Login",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily.Default
+                    )
+                )
             }
         }
-    }
-}
-
-data class ApiResponseSignup(
-    val status: String
-)
-
-data class UserData(
-    val firstName: String,
-    val lastName: String,
-    val studentId: String,
-    val password: String,
-    val yearLevel: String,
-    val program: String,
-    val schoolEmail: String,
-    val contactNumber: String,
-    val department: String
-)
-
-interface SignupServer {
-    @POST("libTrack/signup.php")
-    suspend fun signup(@Body userData: UserData): Response<ApiResponseSignup>
-}
-
-object RetrofitSignup {
-    val api: SignupServer by lazy {
-        val gson = GsonBuilder().setLenient().create()
-        val client = OkHttpClient.Builder().build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(SERVER_IP)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(client)
-            .build()
-
-        retrofit.create(SignupServer::class.java)
     }
 }

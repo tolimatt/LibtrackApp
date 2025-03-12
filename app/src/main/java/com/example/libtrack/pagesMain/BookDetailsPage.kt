@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -40,19 +42,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.libtrack.errorHandling.codeGeneratorImage
+import com.example.libtrack.backend.RetrofitBooks
+import com.example.libtrack.backend.SERVER_IP
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.POST
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BookDetailsPage(bookId: Int, navController: NavHostController){
+fun BookDetailsPage(
+    bookId: Int,
+    studentNumber: String,
+    navController: NavHostController
+){
     val scope = rememberCoroutineScope()
     var bookDetails by remember { mutableStateOf<BookDetails?>(null) }
     val context = LocalContext.current
+    var isBorrowed by remember { mutableStateOf(true) }
+    var isShowBorrowConfirmation by remember { mutableStateOf(false) }
 
     LaunchedEffect(bookId) {
         scope.launch {
@@ -92,12 +107,13 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
                     .padding(paddingValues)
+                    .padding(10.dp)
                     .fillMaxSize()
             ) {
 
                 Spacer(
                     modifier = Modifier
-                        .height(55.dp)
+                        .height(40.dp)
                 )
 
                 AsyncImage(
@@ -120,7 +136,8 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                         fontSize = 23.sp,
                         fontWeight = FontWeight(600),
                         fontFamily = FontFamily.Default
-                    )
+                    ),
+                    textAlign = TextAlign.Center
                 )
 
                 Spacer(
@@ -143,17 +160,18 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                         .height(20.dp)
                 )
 
-                Text(
-                    text = bookDetails!!.description
-                )
-
                 Spacer(
                     modifier = Modifier
-                        .height(40.dp)
+                        .height(25.dp)
                 )
+
+                if (bookDetails!!.availableCopies.toString() == "0"){
+                    isBorrowed = false
+                }
 
                 Button(
                     onClick = {
+                        isShowBorrowConfirmation = true
 
                     },
                     modifier = Modifier
@@ -162,7 +180,9 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF72AF7B),
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = isBorrowed
+
 
                 ) {
                     Text(
@@ -184,6 +204,7 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                     modifier = Modifier
                         .height(20.dp)
                 )
+
 
                 Button(
                     onClick = {
@@ -216,7 +237,112 @@ fun BookDetailsPage(bookId: Int, navController: NavHostController){
                         )
                     )
                 }
+
+                if (isShowBorrowConfirmation) {
+                    AlertDialog(
+                        onDismissRequest = { isShowBorrowConfirmation = false },
+                        title = {
+                            Column {
+                                Text(
+                                    text = "Borrow Book Confirmation",
+                                    fontWeight = FontWeight(600),
+                                    fontSize = 20.sp
+                                )
+                            }
+                        },
+                        text = {
+
+                            Column {
+                                Text(
+                                    text = "Are you sure you want to borrow this book?"
+                                )
+
+                                Row {
+                                    Button(
+                                        shape = RoundedCornerShape(15.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF72AF7B),
+                                            contentColor = Color.White
+                                        ),
+                                        onClick = {
+                                            isBorrowed = false
+                                            isShowBorrowConfirmation = false
+                                            // Handle Backend Insertion here
+                                            scope.launch {
+                                                try {
+                                                    val borrowData = BorrowData(
+                                                        studentId = studentNumber,
+                                                        bookRequest = bookDetails?.title ?: "",
+                                                        bookNumber = bookDetails?.bookNumber ?: "",
+                                                        approve = "0" // Assuming 0 means pending
+                                                    )
+                                                    RetrofitBorrow.apiService.insertBorrowData(borrowData)
+                                                    Toast.makeText(context, "Borrow request sent", Toast.LENGTH_SHORT).show()
+                                                } catch (e: Exception) {
+                                                    Toast.makeText(context, "Error sending request", Toast.LENGTH_SHORT).show()
+                                                    Log.e("BorrowError", "Error: ${e.message}")
+                                                }
+                                            }
+                                        },
+                                    ) {
+                                        Text(
+                                            text = "opo",
+                                            fontWeight = FontWeight(900),
+                                            fontSize = 30.sp
+                                        )
+                                    }
+                                    Button(
+                                        shape = RoundedCornerShape(15.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF72AF7B),
+                                            contentColor = Color.White
+                                        ),
+                                        onClick = {
+                                            isShowBorrowConfirmation = false
+                                        },
+                                    ) {
+                                        Text(
+                                            text = "wag nalang pala",
+                                            fontWeight = FontWeight(900),
+                                            fontSize = 30.sp
+                                        )
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+
+                        }
+                    )
+                }
             }
         }
+    }
+}
+
+data class BorrowData(
+    val studentId: String,
+    val bookRequest: String,
+    val bookNumber: String,
+    val approve: String
+)
+
+data class BorrowResponse(
+    val message: String?,
+    val error: String?
+)
+
+interface BorrowApiService {
+    @POST("hello/borrow.php") // Replace with your PHP script's name
+    suspend fun insertBorrowData(@Body borrowData: BorrowData): Call<BorrowResponse>
+}
+
+object RetrofitBorrow {
+    val apiService: BorrowApiService by lazy {
+        Retrofit.Builder()
+            .baseUrl(SERVER_IP) // Your server IP
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(BorrowApiService::class.java)
     }
 }

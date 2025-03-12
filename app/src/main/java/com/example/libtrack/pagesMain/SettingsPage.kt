@@ -27,15 +27,20 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import com.example.libtrack.R
 import com.example.libtrack.errorHandling.aboutUsImage
 import com.example.libtrack.errorHandling.changePasswordImage
 import com.example.libtrack.errorHandling.historyImage
 import com.example.libtrack.errorHandling.notificationsImage
 import com.example.libtrack.errorHandling.personalInfoImage
+import com.example.libtrack.navFunctions.Pages
 
 @Composable
-fun SettingsPage(studentNumber: String){
+fun SettingsPage(
+    studentNumber: String,
+    navController: NavHostController
+){
 
     Column (
         verticalArrangement = Arrangement.Top,
@@ -53,6 +58,7 @@ fun SettingsPage(studentNumber: String){
         Card(
             modifier = Modifier
                 .clickable {
+
 
                 }
                 .padding(4.dp)
@@ -159,7 +165,7 @@ fun SettingsPage(studentNumber: String){
         Card(
             modifier = Modifier
                 .clickable {
-
+                    navController.navigate(Pages.Forgot_Password_Page1)
                 }
                 .padding(4.dp)
                 .fillMaxWidth(),
@@ -320,4 +326,3 @@ fun SettingsPage(studentNumber: String){
 
 }
 
-data class SettingsOptions(val icon: Int)

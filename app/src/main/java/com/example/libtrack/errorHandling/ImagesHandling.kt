@@ -6,13 +6,12 @@ val logoImage = R.drawable.logo
 val errorImage = R.drawable.error
 val successImage = R.drawable.success
 
-val selectedHomeImage = R.drawable.select_home
-val selectedBooksImage = R.drawable.select_book
-val selectedSettingsImage = R.drawable.select_settings
+val homeIconImage = R.drawable.home_icon
+val booksIconImage = R.drawable.books_icon
+val settingsIconImage = R.drawable.settings_icon
 
-val unselectedHomeImage = R.drawable.unselect_home
-val unselectedBooksImage = R.drawable.unselect_book
-val unselectedSettingsImage = R.drawable.unselect_settings
+val passwordVisibilityTrueImage = R.drawable.passwordvisibletrue
+val passwordVisibilityFalseImage = R.drawable.passwordvisiblefalse
 
 val codeGeneratorImage = R.drawable.id_barcode
 

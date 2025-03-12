@@ -45,14 +45,11 @@ import androidx.navigation.NavHostController
 import com.example.libtrack.pagesMain.BooksPage
 import com.example.libtrack.pagesMain.HomePage
 import com.example.libtrack.backend.BarcodeDisplay
+import com.example.libtrack.errorHandling.booksIconImage
 import com.example.libtrack.errorHandling.codeGeneratorImage
+import com.example.libtrack.errorHandling.homeIconImage
 import com.example.libtrack.errorHandling.logoImage
-import com.example.libtrack.errorHandling.selectedBooksImage
-import com.example.libtrack.errorHandling.selectedHomeImage
-import com.example.libtrack.errorHandling.selectedSettingsImage
-import com.example.libtrack.errorHandling.unselectedBooksImage
-import com.example.libtrack.errorHandling.unselectedHomeImage
-import com.example.libtrack.errorHandling.unselectedSettingsImage
+import com.example.libtrack.errorHandling.settingsIconImage
 import com.example.libtrack.pagesMain.SettingsPage
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -62,17 +59,17 @@ fun MainPage(
     studentNumber: String) {
 
     // Track selected item index
-    val selectedIndex = remember { mutableIntStateOf(0) } // Use mutableStateOf for state
+    var selectedIndex by remember { mutableIntStateOf(0) } // Use mutableStateOf for state
 
-    val topBarTitle = remember { mutableStateOf("FVR - LIBRARY") } // Default
+    var topBarTitle by remember { mutableStateOf("FVR - LIBRARY") } // Default
 
     var isShowDialog by remember { mutableStateOf(false) }
 
     // Bottom Navigation Bar
     val bottomNavItemList = listOf(
-        BottomNavItem(painterResource(id = unselectedHomeImage), painterResource(id = selectedHomeImage)),
-        BottomNavItem(painterResource(id = unselectedBooksImage), painterResource(id = selectedBooksImage)),
-        BottomNavItem(painterResource(id = unselectedSettingsImage), painterResource(id = selectedSettingsImage)),
+        BottomNavItem(painterResource(id = homeIconImage)),
+        BottomNavItem(painterResource(id = booksIconImage)),
+        BottomNavItem(painterResource(id = settingsIconImage))
     )
 
     Scaffold(
@@ -80,7 +77,7 @@ fun MainPage(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = topBarTitle.value, fontWeight = FontWeight(700))
+                    Text(text = topBarTitle, fontWeight = FontWeight(700))
                 },
                 actions = {
                     IconButton(onClick = {
@@ -104,14 +101,14 @@ fun MainPage(
         bottomBar = {
             NavigationBar(
                 modifier = Modifier
-                    .height(105.dp)
+                    .height(93.dp)
                     .background(Color.White)
             ) {
                 bottomNavItemList.forEachIndexed { index, bottomNavItem ->
                     NavigationBarItem(
-                        selected = selectedIndex.intValue == index, // Use selectedIndex.value to access state
-                        onClick = { selectedIndex.intValue = index
-                            topBarTitle.value = when (index) { // Will change Top bar titles when pressed in bottom nav bar
+                        selected = selectedIndex == index, // Use selectedIndex.value to access state
+                        onClick = { selectedIndex = index
+                            topBarTitle = when (index) { // Will change Top bar titles when pressed in bottom nav bar
                                 0 -> "FVR - LIBRARY"
                                 1 -> "Book Collections"
                                 2 -> "Settings"
@@ -119,11 +116,11 @@ fun MainPage(
                             } },
                         icon = {
                             Icon(
-                                painter = if (selectedIndex.intValue == index) bottomNavItem.selectedIcon else bottomNavItem.unselectedIcon,
-                                tint = Color.Unspecified,
+                                painter = bottomNavItem.bottomNavIcon,
+                                tint = if (selectedIndex == index) Color(0xFF72AF7B) else Color.Unspecified,
                                 contentDescription = "Bottom Navigation Icon",
                                 modifier = Modifier
-                                    .size(25.dp)
+                                    .size( if (selectedIndex == index) 45.dp else 40.dp)
                             )
                         },
                     )
@@ -161,7 +158,7 @@ fun MainPage(
                             .background(Color(0xFF72AF7B).copy(alpha = 0.8f)) // Adjust the alpha for transparency
                     )
 
-                    ContentScreen(selectedIndex.intValue ,studentNumber, navController)
+                    ContentScreen(selectedIndex ,studentNumber, navController)
 
                     if (isShowDialog) {
                         AlertDialog(
@@ -182,6 +179,7 @@ fun MainPage(
                                     Text(
                                         text =  "Welcome to the Library! Your barcode has been successfully generated. Use it to access library services and resources."
                                     )
+
                                     Row {
 
                                         Spacer(modifier = Modifier.width(30.dp))
@@ -216,18 +214,30 @@ fun MainPage(
 }
 
 @Composable
-fun ContentScreen(selectedIndex: Int, studentNumber: String, navController: NavHostController) {
+fun ContentScreen(selectedIndex: Int,
+                  studentNumber: String,
+                  navController: NavHostController) {
 
     when(selectedIndex){
-        0 -> HomePage(studentNumber)
-        1 -> BooksPage{ bookId ->
-            navController.navigate("BookDetailsPage/$bookId")
+        0 -> HomePage(
+            studentNumber = studentNumber,
+            navController = navController
+        ){ bookId ->
+            navController.navigate("BookDetailsPage/$bookId/$studentNumber")
         }
-        2 -> SettingsPage(studentNumber)
+        1 -> BooksPage(
+            studentNumber = studentNumber,
+            onBookClick = { bookId ->
+            navController.navigate("BookDetailsPage/$bookId/$studentNumber")
+            }
+        )
+        2 -> SettingsPage(
+            studentNumber = studentNumber,
+            navController = navController
+        )
     }
 }
 
 data class BottomNavItem(
-    val unselectedIcon: Painter,
-    val selectedIcon: Painter
+    val bottomNavIcon: Painter
 )

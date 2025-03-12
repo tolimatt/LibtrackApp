@@ -1,9 +1,6 @@
 package com.example.libtrack.authentication
 
-import android.annotation.SuppressLint
-import android.content.Context
-import android.util.Log
-import android.widget.Toast
+import android.app.Application
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -23,12 +20,14 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -48,35 +47,22 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
+import com.example.libtrack.backend.LoginViewModel
 import com.example.libtrack.navFunctions.Pages
-import com.example.libtrack.backend.SERVER_IP
 import com.example.libtrack.errorHandling.errorImage
 import com.example.libtrack.errorHandling.logoImage
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.launch
-import okhttp3.OkHttpClient
-import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.Body
-import retrofit2.http.POST
-import java.io.IOException
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.asSharedFlow
-
-
+import com.example.libtrack.errorHandling.passwordVisibilityFalseImage
+import com.example.libtrack.errorHandling.passwordVisibilityTrueImage
 
 @Composable
 fun LogIn(navController: NavHostController) {
     // Context and View Model
     val context = LocalContext.current
-    val loginViewModel = remember { LoginViewModel(context) } // Initialize ViewModel here
+    val loginViewModel = remember { LoginViewModel(application = context.applicationContext as Application) } // Initialize ViewModel here
 
     // For text fields / Text State
     var studentIdTS by remember { mutableStateOf("03-2324-032803") }
@@ -91,13 +77,10 @@ fun LogIn(navController: NavHostController) {
     val studentIdFocusRequester = remember { FocusRequester() }
     val passwordFocusRequester = remember { FocusRequester() }
 
-    val studentNumber = studentIdTS
+    // Password
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
-    LaunchedEffect(key1 = true) { // Use LaunchedEffect to collect navigation events
-        loginViewModel.navigationEvent.collect { route ->
-            navController.navigate(route)
-        }
-    }
+    val studentNumber = studentIdTS
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -281,7 +264,7 @@ fun LogIn(navController: NavHostController) {
                         unfocusedIndicatorColor = Color.Transparent
                     ),
                     textStyle = TextStyle(
-                        fontSize = 20.sp
+                        fontSize = 17.sp
                     ),
                     placeholder = {
                         Text(
@@ -292,7 +275,15 @@ fun LogIn(navController: NavHostController) {
                     },
 
                     singleLine = true,
-                    visualTransformation = PasswordVisualTransformation(),
+                    visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                    trailingIcon = {
+                        IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                            Icon(
+                                painter = painterResource(id = if (isPasswordVisible) passwordVisibilityTrueImage else passwordVisibilityFalseImage),
+                                contentDescription = "Password Visibility Toggle"
+                            )
+                        }
+                    },
                     value = passwordTS,
                     onValueChange = {passwordTS = it },
                     keyboardOptions = KeyboardOptions(
@@ -313,6 +304,8 @@ fun LogIn(navController: NavHostController) {
                                 .offset((-88).dp,5.dp)
                                 .size(16.dp)
                         )
+
+
                     } else {
                         Spacer(
                             modifier = Modifier.height(16.dp)
@@ -328,7 +321,7 @@ fun LogIn(navController: NavHostController) {
                                 (-90).dp, 5.dp)
                             .align(Alignment.CenterVertically),
                         text =
-                        if (!isStudentId){
+                        if (!isPassword){
                             "Password is required."
                         } else if (!isRegistered){
                             "Invalid Password."
@@ -365,7 +358,7 @@ fun LogIn(navController: NavHostController) {
                     Text(
                         modifier = Modifier
                             .clickable {
-                                navController.navigate(Pages.Sign_Up_Page1)
+                                navController.navigate("sign_up_page1")
                             },
                         text = "Register!",
                         style = TextStyle(
@@ -404,14 +397,14 @@ fun LogIn(navController: NavHostController) {
                 // ------------------------------------------------------------ LOGIN BUTTON ------------------------------------------------------------
                 Button(
                     onClick = {
-                        if (studentIdTS == ""){
+                        if (studentIdTS.isEmpty()){
                             isStudentId = false
                             isPassword = true
                             isRegistered = true
-                            if (passwordTS == ""){
+                            if (passwordTS.isEmpty()){
                                 isPassword = false
                             }
-                        } else if (passwordTS == ""){
+                        } else if (passwordTS.isEmpty()){
                             isPassword = false
                             isStudentId = true
                             isRegistered = true
@@ -419,9 +412,7 @@ fun LogIn(navController: NavHostController) {
                             isRegistered = true
                             isPassword = true
                             isStudentId = true
-                            //loginViewModel.loginUser(studentIdTS, passwordTS)
-                            navController.navigate("MainPage/$studentNumber")
-
+                            loginViewModel.loginUser(studentIdTS, passwordTS, studentNumber, navController)
                         }
                     },
                     modifier = Modifier
@@ -443,84 +434,15 @@ fun LogIn(navController: NavHostController) {
                         )
                     )
                 }
-            }
-        }
-    }
-}
 
+                val errorMessage by loginViewModel.getErrorMessage().collectAsState(initial = null)
 
-class LoginViewModel(@SuppressLint("StaticFieldLeak") private var context: Context) : androidx.lifecycle.ViewModel() {
-
-    private var loginStatus = MutableStateFlow("")
-
-    private val _navigationEvent = MutableSharedFlow<String>() // Use SharedFlow
-    val navigationEvent = _navigationEvent.asSharedFlow()
-
-
-    fun loginUser(studentId: String, password: String) {
-        val loginData = LoginData(studentId, password)
-        val json = Gson().toJson(loginData)
-        Log.d("Request Body", json)
-
-        viewModelScope.launch {
-            try {
-                val response = RetrofitLogin.api.login(loginData)
-
-                if (response.isSuccessful) {
-                    val apiResponse = response.body()
-                    val status = apiResponse?.status ?: "Unknown status"
-
-                    loginStatus.value = status
-
-                    if (status == "success") {
-                        Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                        _navigationEvent.emit(Pages.Main_Page)
-                    }
-
-                    Log.d("Server Response", status)
-                } else {
-                    loginStatus.value = "Error: ${response.code()} - ${response.message()}"
-                    Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
-                    Toast.makeText(context, "Invalid Account", Toast.LENGTH_LONG).show()
+                errorMessage?.let {
+                    isRegistered = false
+                    isPassword = true
+                    isStudentId = true
                 }
-            } catch (e: IOException) {
-                loginStatus.value = "Network Error: ${e.message}"
-                Log.e("Network Error", e.message.toString())
-            } catch (e: Exception) {
-                loginStatus.value = "Request failed: ${e.message}"
-                Log.e("Request Error", e.message.toString())
             }
         }
-    }
-}
-
-
-data class ApiResponseLogin(
-    val status: String,
-    val message: String? = null
-)
-
-data class LoginData(
-    val studentId: String,
-    val password: String
-)
-
-interface LoginServer {
-    @POST("libTrack/login.php")
-    suspend fun login(@Body loginData: LoginData): Response<ApiResponseLogin>
-}
-
-object RetrofitLogin {
-    val api: LoginServer by lazy {
-        val gson = GsonBuilder().setLenient().create()
-        val client = OkHttpClient.Builder().build()
-
-        val retrofit = Retrofit.Builder()
-            .baseUrl(SERVER_IP)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .client(client)
-            .build()
-
-        retrofit.create(LoginServer::class.java)
     }
 }
