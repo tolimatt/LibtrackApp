@@ -26,6 +26,9 @@ const val BOOK_IMAGES_URL_PATH = "hello/images.php"
 // Book List
 const val BOOK_LIST_URL_PATH = "hello/books.php"
 
+// Book Borrow
+const val BOOK_BORROW_URL_PATH = "hello/borrow.php"
+
 
 object RetrofitBooks {
     val apiService: ApiServiceBooks by lazy {

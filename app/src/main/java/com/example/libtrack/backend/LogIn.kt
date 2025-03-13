@@ -47,7 +47,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     loginStatus.value = status
 
                     when (status){
-                        "success" -> {
+                        "success" -> { // Account exists, now logging in
                             Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
                             navController.navigate("MainPage/$studentNumber"){
                                 popUpTo(Pages.Log_In) {
@@ -56,13 +56,13 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                             }
                             errorMessage.value = null
                         }
-                        "account_not_found" -> {
-                            errorMessage.value = "Account not found. Please check your credentials."
-                            Toast.makeText(context, "Account not found", Toast.LENGTH_LONG).show()
+                        "account_not_found" -> { // Account does not exist
+                            errorMessage.value = "account_not_found"
+                            Toast.makeText(context, "Account not found.", Toast.LENGTH_LONG).show()
                         }
-                        else -> {
+                        else -> { // Account exists, but wrong password
                             errorMessage.value = "Login failed. Please try again."
-                            Toast.makeText(context, "Login failed", Toast.LENGTH_LONG).show()
+                            Toast.makeText(context, "Account not found", Toast.LENGTH_LONG).show()
                         }
                     }
                     Log.d("Server Response", status)
@@ -92,7 +92,7 @@ data class LoginData(
     val studentId: String,
     val password: String
 )
-//
+
 interface LoginServer {
     @POST(LOG_IN_URL_PATH)
     suspend fun login(@Body loginData: LoginData): Response<ApiResponseLogin>

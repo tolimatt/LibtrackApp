@@ -65,13 +65,14 @@ fun LogIn(navController: NavHostController) {
     val loginViewModel = remember { LoginViewModel(application = context.applicationContext as Application) } // Initialize ViewModel here
 
     // For text fields / Text State
-    var studentIdTS by remember { mutableStateOf("03-2324-032803") }
-    var passwordTS by remember { mutableStateOf("Kirsteen12345") }
+    var studentIdTS by remember { mutableStateOf("") }
+    var passwordTS by remember { mutableStateOf("") }
 
     // For error handling / Booleans
-    var isStudentId by remember { mutableStateOf(true) }
-    var isPassword by remember { mutableStateOf(true) }
-    var isRegistered by remember { mutableStateOf(true) }
+    var isStudentId by remember { mutableStateOf(true) } // if null
+    var isPassword by remember { mutableStateOf(true) } // if null
+    var isRegistered by remember { mutableStateOf(true) } // no db
+    var isPassRight by remember { mutableStateOf(true) } // if db correction
 
     // For text field focus
     val studentIdFocusRequester = remember { FocusRequester() }
@@ -253,7 +254,7 @@ fun LogIn(navController: NavHostController) {
                     modifier = Modifier
                         .border(
                             width = 1.2.dp,
-                            color = if(!isPassword || !isRegistered) Color.Red else Color(0xFF727D83),
+                            color = if(!isPassword || !isRegistered || !isPassRight) Color.Red else Color(0xFF727D83),
                             shape = RoundedCornerShape(12.dp)
                         )
                         .width(350.dp),
@@ -296,7 +297,7 @@ fun LogIn(navController: NavHostController) {
                 )
 
                 Row{
-                    if (!isPassword || !isRegistered){
+                    if (!isPassword || !isRegistered || !isPassRight){
                         Image(
                             painter = painterResource(id = errorImage),
                             contentDescription = "Error Icon",
@@ -323,7 +324,7 @@ fun LogIn(navController: NavHostController) {
                         text =
                         if (!isPassword){
                             "Password is required."
-                        } else if (!isRegistered){
+                        } else if (!isRegistered || !isPassRight){
                             "Invalid Password."
                         } else {
                             ""
@@ -438,9 +439,17 @@ fun LogIn(navController: NavHostController) {
                 val errorMessage by loginViewModel.getErrorMessage().collectAsState(initial = null)
 
                 errorMessage?.let {
-                    isRegistered = false
-                    isPassword = true
-                    isStudentId = true
+                    if (it == "account_not_found"){
+                        isRegistered = false
+                        isPassword = true
+                        isStudentId = true
+                    } else {
+                        isRegistered = true
+                        isPassword = true
+                        isStudentId = true
+                        isPassRight = false
+                    }
+
                 }
             }
         }

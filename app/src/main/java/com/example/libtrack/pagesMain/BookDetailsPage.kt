@@ -1,5 +1,7 @@
 package com.example.libtrack.pagesMain
 
+import android.annotation.SuppressLint
+import android.app.Application
 import android.content.ActivityNotFoundException
 import android.content.Intent
 import android.net.Uri
@@ -29,7 +31,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -38,24 +42,33 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.libtrack.backend.BOOK_BORROW_URL_PATH
+import com.example.libtrack.backend.BorrowViewModel
 import com.example.libtrack.backend.RetrofitBooks
 import com.example.libtrack.backend.SERVER_IP
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import retrofit2.Call
+import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import java.io.IOException
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
 
+@SuppressLint("NewApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BookDetailsPage(
@@ -66,8 +79,23 @@ fun BookDetailsPage(
     val scope = rememberCoroutineScope()
     var bookDetails by remember { mutableStateOf<BookDetails?>(null) }
     val context = LocalContext.current
-    var isBorrowed by remember { mutableStateOf(true) }
+    var isBorrowed by remember { mutableStateOf(false) }
     var isShowBorrowConfirmation by remember { mutableStateOf(false) }
+    val currentDateTime by remember { mutableStateOf(LocalDateTime.now()) }
+
+    var decrementAvailableCopies by remember { mutableStateOf(false) }
+
+    val deadLineDateTime = currentDateTime.plusDays(7).format(
+        DateTimeFormatter.ofLocalizedDateTime(
+            FormatStyle.MEDIUM
+        )
+    )
+
+    val presentDateTime = currentDateTime.format(
+        DateTimeFormatter.ofLocalizedDateTime(
+            FormatStyle.MEDIUM
+        )
+    )
 
     LaunchedEffect(bookId) {
         scope.launch {
@@ -166,13 +194,12 @@ fun BookDetailsPage(
                 )
 
                 if (bookDetails!!.availableCopies.toString() == "0"){
-                    isBorrowed = false
+                    isBorrowed = true
                 }
 
                 Button(
                     onClick = {
                         isShowBorrowConfirmation = true
-
                     },
                     modifier = Modifier
                         .size(width = 290.dp, height = 43.dp),
@@ -181,7 +208,7 @@ fun BookDetailsPage(
                         containerColor = Color(0xFF72AF7B),
                         contentColor = Color.White
                     ),
-                    enabled = isBorrowed
+                    enabled = !isBorrowed
 
 
                 ) {
@@ -196,15 +223,20 @@ fun BookDetailsPage(
                     )
                 }
 
+                val decrementWhenBorrowed by remember { mutableIntStateOf(bookDetails!!.availableCopies - 1) }
+
                 Text(
-                    text = bookDetails!!.availableCopies.toString()+" / "+bookDetails!!.totalCopies.toString()+" Available Copies"
+                    text = if(!decrementAvailableCopies){
+                        bookDetails!!.availableCopies.toString()+" / "+bookDetails!!.totalCopies.toString()+" Available Copies"
+                    } else {
+                        decrementWhenBorrowed.toString()+" / "+bookDetails!!.totalCopies.toString()+" Available Copies"
+                    }
                 )
 
                 Spacer(
                     modifier = Modifier
                         .height(20.dp)
                 )
-
 
                 Button(
                     onClick = {
@@ -224,7 +256,8 @@ fun BookDetailsPage(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFF72AF7B),
                         contentColor = Color.White
-                    )
+                    ),
+                    enabled = bookDetails!!.pdfUrl != null
 
                 ) {
                     Text(
@@ -237,6 +270,9 @@ fun BookDetailsPage(
                         )
                     )
                 }
+
+                val borrowBookViewModel = remember { BorrowViewModel(application = context.applicationContext as Application) }
+
 
                 if (isShowBorrowConfirmation) {
                     AlertDialog(
@@ -265,24 +301,21 @@ fun BookDetailsPage(
                                             contentColor = Color.White
                                         ),
                                         onClick = {
-                                            isBorrowed = false
+                                            isBorrowed = true
                                             isShowBorrowConfirmation = false
-                                            // Handle Backend Insertion here
-                                            scope.launch {
-                                                try {
-                                                    val borrowData = BorrowData(
-                                                        studentId = studentNumber,
-                                                        bookRequest = bookDetails?.title ?: "",
-                                                        bookNumber = bookDetails?.bookNumber ?: "",
-                                                        approve = "0" // Assuming 0 means pending
-                                                    )
-                                                    RetrofitBorrow.apiService.insertBorrowData(borrowData)
-                                                    Toast.makeText(context, "Borrow request sent", Toast.LENGTH_SHORT).show()
-                                                } catch (e: Exception) {
-                                                    Toast.makeText(context, "Error sending request", Toast.LENGTH_SHORT).show()
-                                                    Log.e("BorrowError", "Error: ${e.message}")
-                                                }
-                                            }
+                                            decrementAvailableCopies = true
+
+                                            val borrowData = BorrowData(
+                                                studentId = studentNumber,
+                                                bookCode = bookDetails?.bookNumber ?: "",
+                                                bookTitle = bookDetails?.title ?: "",
+                                                borrowDate = presentDateTime,
+                                                dueDate = deadLineDateTime,
+                                                status = "Borrowed"
+                                            )
+
+                                            borrowBookViewModel.borrowBook(borrowData)
+
                                         },
                                     ) {
                                         Text(
@@ -322,19 +355,21 @@ fun BookDetailsPage(
 
 data class BorrowData(
     val studentId: String,
-    val bookRequest: String,
-    val bookNumber: String,
-    val approve: String
+    val bookCode: String,
+    val bookTitle: String,
+    val borrowDate: String,
+    val dueDate: String,
+    val status: String
 )
 
-data class BorrowResponse(
-    val message: String?,
+data class ApiResponseBorrow(
+    val status: String?,
     val error: String?
 )
 
 interface BorrowApiService {
-    @POST("hello/borrow.php") // Replace with your PHP script's name
-    suspend fun insertBorrowData(@Body borrowData: BorrowData): Call<BorrowResponse>
+    @POST(BOOK_BORROW_URL_PATH)
+    fun insertBorrowData(@Body borrowData: BorrowData): Call<ApiResponseBorrow>
 }
 
 object RetrofitBorrow {

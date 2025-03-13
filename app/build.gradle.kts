@@ -91,7 +91,6 @@ dependencies {
 
     implementation (libs.androidx.lifecycle.runtime.ktx.v260)
     implementation (libs.okhttp.v493)
-    implementation (libs.logging.interceptor)
 
     implementation (libs.coil.compose)
     
@@ -104,8 +103,9 @@ dependencies {
     implementation (libs.zxing.android.embedded) // ZXing library
     implementation (libs.androidx.activity.compose.v1101) // For Jetpack Compose support
 
-
-
-
-
 }
+
+
+
+
+
