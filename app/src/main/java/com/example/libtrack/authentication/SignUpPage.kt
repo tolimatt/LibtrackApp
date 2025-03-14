@@ -1116,11 +1116,13 @@ fun Page2_SU(
             errorMessage?.let {
                 LaunchedEffect(it) {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-                    navController.navigate(Pages.Sign_Up_Error){
-                        popUpTo(Pages.Sign_Up_Error) {
+/*
+                    // Ensure navigation runs on the main thread
+                    navController.navigate("sign_up_error") {
+                        popUpTo("sign_up_page1") {
                             inclusive = true
                         }
-                    }
+                    }*/
                 }
             }
 

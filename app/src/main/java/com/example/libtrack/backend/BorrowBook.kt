@@ -5,14 +5,19 @@ import android.app.Application
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
-import com.example.libtrack.pagesMain.ApiResponseBorrow
-import com.example.libtrack.pagesMain.BorrowData
-import com.example.libtrack.pagesMain.RetrofitBorrow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Body
+import retrofit2.http.GET
+import retrofit2.http.POST
+import retrofit2.http.Query
 
 class BorrowViewModel(application: Application) : AndroidViewModel(application) {
 
@@ -41,6 +46,7 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
                         "success" -> { // Book Has Been Borrowed Successfully
                             Toast.makeText(context, "Book Borrowed Successfully", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "success"
+                            context.showNotification()
                         }
                         "already_borrowed" -> { // Book Has Been Borrowed Already
                             Toast.makeText(context,"You Already Borrowed This Book", Toast.LENGTH_SHORT).show()
@@ -52,10 +58,9 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
                         }
                         else -> {
                             Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
-
+                            _borrowStatus.value = "error"
                         }
                     }
-                    _borrowStatus.value = apiResponse?.status ?: "Unknown status"
                 } else {
                     _errorMessage.value = response.body()?.error ?: "Unknown error"
                 }
@@ -65,5 +70,70 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
             }
         })
     }
-    fun getErrorMessage(): StateFlow<String?> = _errorMessage
+
+    fun checkBorrowStatus(studentId: String, bookCode: String) {
+        _errorMessage.value = null
+        _borrowStatus.value = "loading"
+
+        apiService.checkIfBorrowed(studentId, bookCode).enqueue(object : Callback<ApiResponseBorrow> {
+            override fun onResponse(call: Call<ApiResponseBorrow>, response: Response<ApiResponseBorrow>) {
+                if (response.isSuccessful) {
+                    val apiResponse = response.body()
+                    _borrowStatus.value = apiResponse?.status ?: "not_borrowed"
+                } else {
+                    _borrowStatus.value = "error"
+                }
+            }
+
+            override fun onFailure(call: Call<ApiResponseBorrow>, t: Throwable) {
+                _borrowStatus.value = "error"
+            }
+        })
+    }
+    fun getBorrowStatus(): StateFlow<String?> = _borrowStatus
 }
+
+data class BorrowData(
+    val studentId: String,
+    val bookCode: String,
+    val bookTitle: String,
+    val borrowDate: String,
+    val dueDate: String,
+    val status: String
+)
+
+data class ApiResponseBorrow(
+    val status: String?,
+    val error: String?
+)
+
+interface BorrowApiService {
+    @POST(BOOK_BORROW_URL_PATH)
+    fun insertBorrowData(@Body borrowData: BorrowData): Call<ApiResponseBorrow>
+
+    @GET(STATUS_BORROW_URL_PATH) // Adjust based on your API endpoint
+    fun checkIfBorrowed(
+        @Query("studentId") studentId: String,
+        @Query("bookCode") bookCode: String
+    ): Call<ApiResponseBorrow>
+
+}
+
+object RetrofitBorrow {
+    val apiService: BorrowApiService by lazy {
+        val logging = HttpLoggingInterceptor()
+        logging.setLevel(HttpLoggingInterceptor.Level.BODY)
+
+        val client = OkHttpClient.Builder()
+            .addInterceptor(logging)
+            .build()
+
+        Retrofit.Builder()
+            .baseUrl(SERVER_IP)
+            .addConverterFactory(GsonConverterFactory.create())
+            .client(client) // Add the OkHttpClient
+            .build()
+            .create(BorrowApiService::class.java)
+    }
+}
+

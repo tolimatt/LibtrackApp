@@ -101,7 +101,7 @@ fun MainPage(
         bottomBar = {
             NavigationBar(
                 modifier = Modifier
-                    .height(93.dp)
+                    .height(85.dp)
                     .background(Color.White)
             ) {
                 bottomNavItemList.forEachIndexed { index, bottomNavItem ->
@@ -120,7 +120,7 @@ fun MainPage(
                                 tint = if (selectedIndex == index) Color(0xFF72AF7B) else Color.Unspecified,
                                 contentDescription = "Bottom Navigation Icon",
                                 modifier = Modifier
-                                    .size( if (selectedIndex == index) 45.dp else 40.dp)
+                                    .size( if (selectedIndex == index) 40.dp else 35.dp)
                             )
                         },
                     )

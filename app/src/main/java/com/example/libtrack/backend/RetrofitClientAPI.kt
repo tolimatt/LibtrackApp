@@ -1,12 +1,5 @@
 package com.example.libtrack.backend
 
-import com.example.libtrack.pagesMain.Book
-import com.example.libtrack.pagesMain.BookDetails
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Query
-
 const val SERVER_IP = "http://192.168.1.59/"
 
 // Also change -> res/xml/server_address.xml to the same SERVER_IP
@@ -29,21 +22,6 @@ const val BOOK_LIST_URL_PATH = "hello/books.php"
 // Book Borrow
 const val BOOK_BORROW_URL_PATH = "hello/borrow.php"
 
+// Check Borrow Status
+const val STATUS_BORROW_URL_PATH = "hello/pdfile.php"
 
-object RetrofitBooks {
-    val apiService: ApiServiceBooks by lazy {
-        Retrofit.Builder()
-            .baseUrl(SERVER_IP)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiServiceBooks::class.java)
-    }
-}
-
-interface ApiServiceBooks {
-    @GET(BOOK_IMAGES_URL_PATH)
-    suspend fun getBooks(): List<Book>
-
-    @GET(BOOK_LIST_URL_PATH)
-    suspend fun getBookDetails(@Query("id") id: Int): BookDetails
-}

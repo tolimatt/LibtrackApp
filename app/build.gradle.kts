@@ -103,6 +103,11 @@ dependencies {
     implementation (libs.zxing.android.embedded) // ZXing library
     implementation (libs.androidx.activity.compose.v1101) // For Jetpack Compose support
 
+    implementation(libs.androidx.core.ktx.v1100) // Use correct version format
+
+    implementation(libs.androidx.core.ktx) // Required for NotificationCompat
+
+
 }
 
 

@@ -8,10 +8,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -80,15 +82,21 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
                 } else {
                     // Handle error responses
                     if (response.code() == 409) { // Check for 409 Conflict
-                        navController.navigate("sign_up_error") {
-                            popUpTo("sign_up_page2") {
-                                inclusive = true
-                            }
-                            popUpTo("sign_up_page1") {
-                                inclusive = true
+
+                        errorMessage.value = "Student ID already exists. Please log in."
+
+
+                        withContext(Dispatchers.Main) {
+                            navController.navigate("sign_up_error") {
+                                popUpTo("sign_up_page2") {
+                                    inclusive = true
+                                }
+                                popUpTo("sign_up_page1") {
+                                    inclusive = true
+                                }
                             }
                         }
-                        errorMessage.value = "Student ID already exists. Please log in."
+
                     } else {
                         Log.e("Server Error", "Code: ${response.code()}, Message: ${response.message()}")
                     }

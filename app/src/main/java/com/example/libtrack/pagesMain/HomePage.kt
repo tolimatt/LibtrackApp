@@ -47,7 +47,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.libtrack.backend.HOME_PAGE_URL_PATH
-import com.example.libtrack.backend.RetrofitBooks
 import com.example.libtrack.backend.SERVER_IP
 import kotlinx.coroutines.launch
 import retrofit2.Call

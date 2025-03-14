@@ -38,24 +38,31 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
-import com.example.libtrack.backend.RetrofitBooks
+import com.example.libtrack.backend.BOOK_IMAGES_URL_PATH
+import com.example.libtrack.backend.BOOK_LIST_URL_PATH
+import com.example.libtrack.backend.SERVER_IP
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
 @Composable
 fun BooksPage(
     studentNumber: String,
     onBookClick: (Any) -> Unit
 ) {
-
     val scope = rememberCoroutineScope()
     var books by remember { mutableStateOf(listOf<Book>()) }
-    var coolTS by remember { mutableStateOf("") }
+    var filteredBooks by remember { mutableStateOf(listOf<Book>()) }
+    var searchBookTS by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) } // State for loading
 
     LaunchedEffect(true) {
         scope.launch {
             try {
                 books = RetrofitBooks.apiService.getBooks()
+                filteredBooks = books // Initialize filteredBooks with all books
                 isLoading = false // Set loading to false when books are fetched
             } catch (e: Exception) {
                 // Handle error (e.g., show a message)
@@ -98,8 +105,19 @@ fun BooksPage(
                 )
             },
             singleLine = true,
-            value = coolTS,
-            onValueChange = { coolTS = it },
+            value = searchBookTS,
+            onValueChange = { input ->
+                searchBookTS = input
+                // Filter books based on title or author
+                filteredBooks = if (input.isEmpty()) {
+                    books
+                } else {
+                    books.filter { book ->
+                        book.title.contains(input, ignoreCase = true) ||
+                                book.author.contains(input, ignoreCase = true)
+                    }
+                }
+            },
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Done
             ),
@@ -124,7 +142,7 @@ fun BooksPage(
                 modifier = Modifier
                     .padding(start = 10.dp, end = 10.dp)
             ) {
-                items(books) { book ->
+                items(filteredBooks) { book ->
                     Card(
                         modifier = Modifier
                             .clickable {
@@ -173,6 +191,25 @@ fun BooksPage(
     }
 }
 
+
+
+object RetrofitBooks {
+    val apiService: ApiServiceBooks by lazy {
+        Retrofit.Builder()
+            .baseUrl(SERVER_IP)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(ApiServiceBooks::class.java)
+    }
+}
+
+interface ApiServiceBooks {
+    @GET(BOOK_IMAGES_URL_PATH)
+    suspend fun getBooks(): List<Book>
+
+    @GET(BOOK_LIST_URL_PATH)
+    suspend fun getBookDetails(@Query("id") id: Int): BookDetails
+}
 
 // Book Images
 data class Book(
