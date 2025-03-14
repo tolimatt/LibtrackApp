@@ -51,6 +51,8 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
             department)
 
         val json = Gson().toJson(userData)
+        Log.d("Request Body", json)
+
         viewModelScope.launch {
             try {
                 val response = RetrofitSignup.api.signup(userData)

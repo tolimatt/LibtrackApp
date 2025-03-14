@@ -74,7 +74,7 @@ fun HomePage(studentNumber: String,
     var isLoading by remember { mutableStateOf(true) } // State for loading
 
     // Later
-    if (validAccount == "1"){
+    if (validAccount == "0"){
 
         Text("Lmao Banned")// Navigate to Error Page
     } else {
@@ -104,8 +104,8 @@ fun HomePage(studentNumber: String,
                         ) {
                             if (response.isSuccessful && response.body() != null) {
                                 firstName = response.body()!!.firstName
-                                department = response.body()!!.departments
-                                validAccount = response.body()!!.valid.toString()
+                                department = response.body()!!.department
+                                validAccount = response.body()!!.status.toString()
                             } else {
                                 // Log the error response
                                 Log.e("HomePage", "Error response code: ${response.code()}")
@@ -551,8 +551,8 @@ interface ApiService {
 
 data class UserDetails(
     val firstName: String,
-    val departments: String,
-    val valid: Int
+    val department: String,
+    val status: Int
 )
 
 object RetrofitAccountName {
