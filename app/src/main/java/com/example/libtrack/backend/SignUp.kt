@@ -85,7 +85,6 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
 
                         errorMessage.value = "Student ID already exists. Please log in."
 
-
                         withContext(Dispatchers.Main) {
                             navController.navigate("sign_up_error") {
                                 popUpTo("sign_up_page2") {

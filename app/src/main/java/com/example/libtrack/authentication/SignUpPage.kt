@@ -506,11 +506,11 @@ fun Page1_SU(navHostController: NavHostController){
                         "Fill up all the requirements."
                     } else if (!isPasswordMatch){
                         "Password does not match."
-                    } else if (!isPasswordLength){
-                        "Password must be at least \n 8 characters long."
                     } else if (!isValidStudentId){
                         "Invalid Student ID."
-                    }else{
+                    } else if (!isPasswordLength){
+                        "Password must be at least \n 8 characters long."
+                    } else{
                         ""
                     },
                     fontSize = 15.sp,
@@ -538,7 +538,7 @@ fun Page1_SU(navHostController: NavHostController){
                         isPasswordMatch = true
                         isPasswordLength = true
                         isValidStudentId = true
-                    } else if (studentIdTS.length < 8 || !validStudentId){
+                    } else if (studentIdTS.length < 10 || !validStudentId){
                         isValidStudentId = false
                         isCompletePage1 = true
                         isPasswordMatch = true
@@ -1116,13 +1116,6 @@ fun Page2_SU(
             errorMessage?.let {
                 LaunchedEffect(it) {
                     Toast.makeText(context, it, Toast.LENGTH_SHORT).show()
-/*
-                    // Ensure navigation runs on the main thread
-                    navController.navigate("sign_up_error") {
-                        popUpTo("sign_up_page1") {
-                            inclusive = true
-                        }
-                    }*/
                 }
             }
 
@@ -1324,7 +1317,7 @@ fun Error_SU(navController: NavHostController){
             Button(
                 onClick = {
                     navController.navigate(Pages.Log_In){
-                        popUpTo(Pages.Sign_Up_Error){
+                        popUpTo("Sign_Up_Error"){
                             inclusive = true
                         }
                     }

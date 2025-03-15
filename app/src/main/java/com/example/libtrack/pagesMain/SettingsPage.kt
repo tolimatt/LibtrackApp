@@ -25,14 +25,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.libtrack.errorHandling.aboutUsImage
 import com.example.libtrack.errorHandling.changePasswordImage
 import com.example.libtrack.errorHandling.historyImage
-import com.example.libtrack.errorHandling.notificationsImage
 import com.example.libtrack.errorHandling.personalInfoImage
+import com.example.libtrack.errorHandling.servicesImage
+import com.example.libtrack.errorHandling.staffImage
 import com.example.libtrack.navFunctions.Pages
 
 @Composable
@@ -57,7 +59,6 @@ fun SettingsPage(
         Card(
             modifier = Modifier
                 .clickable {
-
 
                 }
                 .padding(4.dp)
@@ -110,60 +111,6 @@ fun SettingsPage(
         Card(
             modifier = Modifier
                 .clickable {
-
-                }
-                .padding(4.dp)
-                .fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = Color.Transparent
-                )
-            ){
-
-                Row (
-                    modifier = Modifier
-                        .padding(15.dp)
-                ){
-
-                    Image(
-                        painter = painterResource(id = notificationsImage),
-                        contentDescription = "Notifications",
-                        modifier = Modifier
-                            .size(25.dp)
-                    )
-
-                    Spacer(
-                        modifier = Modifier
-                            .width(20.dp)
-                    )
-
-                    Text(
-                        text = "Notifications",
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically),
-                        style = TextStyle(
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(600),
-                            fontFamily = FontFamily.Default
-                        )
-
-                    )
-
-
-                }
-            }
-
-        Box(
-            modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.Black)
-        )
-
-        Card(
-            modifier = Modifier
-                .clickable {
                     navController.navigate(Pages.Forgot_Password_Page1)
                 }
                 .padding(4.dp)
@@ -200,7 +147,6 @@ fun SettingsPage(
                         fontWeight = FontWeight(600),
                         fontFamily = FontFamily.Default
                     )
-
                 )
             }
         }
@@ -223,38 +169,140 @@ fun SettingsPage(
                 colors = CardDefaults.cardColors(
                     containerColor = Color.Transparent
                 )
+        ){
+
+            Row (
+                modifier = Modifier
+                    .padding(15.dp)
             ){
 
-                Row (
+                Image(
+                    painter = painterResource(id = historyImage),
+                    contentDescription = "History",
                     modifier = Modifier
-                        .padding(15.dp)
-                ){
+                        .size(25.dp)
+                )
 
-                    Image(
-                        painter = painterResource(id = historyImage),
-                        contentDescription = "History",
-                        modifier = Modifier
-                            .size(25.dp)
-                    )
+                Spacer(
+                    modifier = Modifier
+                        .width(20.dp)
+                )
 
-                    Spacer(
-                        modifier = Modifier
-                            .width(20.dp)
+                Text(
+                    text = "History",
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily.Default
                     )
-
-                    Text(
-                        text = "History",
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically),
-                        style = TextStyle(
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(600),
-                            fontFamily = FontFamily.Default
-                        )
-                    )
-                }
+                )
             }
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Color.Black)
+        )
+
+        Card(
+            modifier = Modifier
+                .clickable {
+
+                }
+                .padding(4.dp)
+                .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Transparent
+                )
+        ){
+
+            Row (
+                modifier = Modifier
+                    .padding(15.dp)
+            ){
+
+                Image(
+                    painter = painterResource(id = staffImage),
+                    contentDescription = "Library Staff",
+                    modifier = Modifier
+                        .size(25.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier
+                        .width(20.dp)
+                )
+
+                Text(
+                    text = "Library Staff",
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily.Default
+                    )
+                )
+            }
+        }
+
+        Box(
+            modifier = Modifier
+                .padding(5.dp)
+                .fillMaxWidth()
+                .height(1.dp)
+                .background(Color.Black)
+        )
+
+        Card(
+            modifier = Modifier
+                .clickable {
+
+                }
+                .padding(4.dp)
+                .fillMaxWidth(),
+                colors = CardDefaults.cardColors(
+                    containerColor = Color.Transparent
+                )
+        ){
+
+            Row (
+                modifier = Modifier
+                    .padding(15.dp)
+            ){
+
+                Image(
+                    painter = painterResource(id = servicesImage),
+                    contentDescription = "Services",
+                    modifier = Modifier
+                        .size(25.dp)
+                )
+
+                Spacer(
+                    modifier = Modifier
+                        .width(20.dp)
+                )
+
+                Text(
+                    text = "Services",
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily.Default
+                    )
+                )
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -306,22 +354,5 @@ fun SettingsPage(
                 )
             }
         }
-
-        Box(
-            modifier = Modifier
-                .padding(5.dp)
-                .fillMaxWidth()
-                .height(1.dp)
-                .background(Color.Black)
-        )
-
-
-
-
-
-
-
-        }
-
+    }
 }
-

@@ -15,8 +15,9 @@ val passwordVisibilityFalseImage = R.drawable.passwordvisiblefalse
 
 val codeGeneratorImage = R.drawable.id_barcode
 
-val personalInfoImage = R.drawable.personal_info
-val notificationsImage = R.drawable.notifications
-val changePasswordImage = R.drawable.change_password
-val historyImage = R.drawable.history
-val aboutUsImage = R.drawable.about_us
+val personalInfoImage = R.drawable.personal_info_icon
+val changePasswordImage = R.drawable.change_password_icon
+val historyImage = R.drawable.history_icon
+val staffImage = R.drawable.staff_icon
+val servicesImage = R.drawable.services_icon
+val aboutUsImage = R.drawable.about_us_icon
