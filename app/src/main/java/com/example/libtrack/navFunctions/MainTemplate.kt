@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -56,7 +57,7 @@ import com.example.libtrack.pagesMain.SettingsPage
 @Composable
 fun MainPage(
     navController: NavHostController,
-    studentNumber: String) {
+    studentID: String) {
 
     // Track selected item index
     var selectedIndex by remember { mutableIntStateOf(0) } // Use mutableStateOf for state
@@ -77,7 +78,10 @@ fun MainPage(
         topBar = {
             CenterAlignedTopAppBar(
                 title = {
-                    Text(text = topBarTitle, fontWeight = FontWeight(700))
+                    Text(
+                        text = topBarTitle,
+                        fontWeight = FontWeight(700)
+                    )
                 },
                 actions = {
                     IconButton(onClick = {
@@ -158,10 +162,12 @@ fun MainPage(
                             .background(Color(0xFF72AF7B).copy(alpha = 0.8f)) // Adjust the alpha for transparency
                     )
 
-                    ContentScreen(selectedIndex ,studentNumber, navController)
+                    ContentScreen(selectedIndex ,studentID, navController)
 
                     if (isShowDialog) {
                         AlertDialog(
+                            modifier = Modifier
+                                .size(300.dp, 520.dp),
                             onDismissRequest = { isShowDialog = false },
                             title = {
                                 Text(
@@ -174,19 +180,29 @@ fun MainPage(
                                 )
                             },
                             text = {
-                                Column {
+                                Column (
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ){
 
                                     Text(
                                         text =  "Welcome to the Library! Your barcode has been successfully generated. Use it to access library services and resources."
                                     )
 
-                                    Row {
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(20.dp)
+                                    )
 
-                                        Spacer(modifier = Modifier.width(30.dp))
-                                        BarcodeDisplay(studentNumber)
-                                    }
+                                    Text(
+                                        text = studentID
+                                    )
 
-                                    Text(studentNumber)
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(5.dp)
+                                    )
+
+                                    BarcodeDisplay(studentID)
 
                                 }
 
@@ -215,24 +231,25 @@ fun MainPage(
 
 @Composable
 fun ContentScreen(selectedIndex: Int,
-                  studentNumber: String,
+                  studentID: String,
                   navController: NavHostController) {
 
     when(selectedIndex){
         0 -> HomePage(
-            studentNumber = studentNumber,
+            studentID = studentID,
             navController = navController
         ){ bookId ->
-            navController.navigate("BookDetailsPage/$bookId/$studentNumber")
+            navController.navigate("BookDetailsPage/$bookId/$studentID")
         }
         1 -> BooksPage(
-            studentNumber = studentNumber,
+            studentID = studentID,
+            navController = navController,
             onBookClick = { bookId ->
-            navController.navigate("BookDetailsPage/$bookId/$studentNumber")
+            navController.navigate("BookDetailsPage/$bookId/$studentID")
             }
         )
         2 -> SettingsPage(
-            studentNumber = studentNumber,
+            studentID = studentID,
             navController = navController
         )
     }

@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
@@ -72,7 +73,6 @@ fun LogIn(navController: NavHostController) {
     var isStudentId by remember { mutableStateOf(true) } // if null
     var isPassword by remember { mutableStateOf(true) } // if null
     var isRegistered by remember { mutableStateOf(true) } // no db
-    var isPassRight by remember { mutableStateOf(true) } // if db correction
 
     // For text field focus
     val studentIdFocusRequester = remember { FocusRequester() }
@@ -80,8 +80,6 @@ fun LogIn(navController: NavHostController) {
 
     // Password
     var isPasswordVisible by remember { mutableStateOf(false) }
-
-    val studentNumber = studentIdTS
 
     Scaffold(
         modifier = Modifier.fillMaxSize()
@@ -190,50 +188,9 @@ fun LogIn(navController: NavHostController) {
                     ),
                 )
 
-                Row{
-                    if (!isStudentId || !isRegistered){
-                        Image(
-                            painter = painterResource(id = errorImage),
-                            contentDescription = "Error Icon",
-                            modifier = Modifier
-                                .offset((-88).dp,5.dp)
-                                .size(16.dp)
-                        )
-                    } else {
-                        Spacer(
-                            modifier = Modifier.height(16.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp)
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .offset(
-                                (-90).dp, 5.dp)
-                            .align(Alignment.CenterVertically),
-                        text =
-                        if (!isStudentId){
-                            "Student ID is required."
-                        } else if (!isRegistered){
-                            "Invalid Student ID."
-                        } else {
-                            ""
-                        },
-
-                        style = TextStyle(
-                            color = Color.Red,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight(700),
-                            fontFamily = FontFamily.Default,
-                        ),
-                    )
-                }
-
                 Spacer(
                     modifier = Modifier
-                        .height(18.dp)
+                        .height(35.dp)
                 )
 
                 Text(
@@ -254,7 +211,7 @@ fun LogIn(navController: NavHostController) {
                     modifier = Modifier
                         .border(
                             width = 1.2.dp,
-                            color = if(!isPassword || !isRegistered || !isPassRight) Color.Red else Color(0xFF727D83),
+                            color = if(!isPassword || !isRegistered) Color.Red else Color(0xFF727D83),
                             shape = RoundedCornerShape(12.dp)
                         )
                         .width(350.dp),
@@ -296,14 +253,18 @@ fun LogIn(navController: NavHostController) {
                     )
                 )
 
+                Spacer(
+                    modifier = Modifier
+                        .height(45.dp)
+                )
+
                 Row{
-                    if (!isPassword || !isRegistered || !isPassRight){
+                    if (!isPassword || !isRegistered ){
                         Image(
                             painter = painterResource(id = errorImage),
                             contentDescription = "Error Icon",
                             modifier = Modifier
-                                .offset((-88).dp,5.dp)
-                                .size(16.dp)
+                                .size(19.dp)
                         )
 
 
@@ -318,27 +279,82 @@ fun LogIn(navController: NavHostController) {
 
                     Text(
                         modifier = Modifier
-                            .offset(
-                                (-90).dp, 5.dp)
                             .align(Alignment.CenterVertically),
                         text =
-                        if (!isPassword){
-                            "Password is required."
-                        } else if (!isRegistered || !isPassRight){
-                            "Invalid Password."
+                        if (!isStudentId && !isPassword){
+                            "Student ID and Password is required."
+                        } else if(!isStudentId){
+                            "Student ID is Required."
+                        } else if (!isPassword){
+                            "Password is Required."
+                        }else if (!isRegistered ){
+                            "Incorrect Student ID or Password."
                         } else {
                             ""
                         },
 
                         style = TextStyle(
                             color = Color.Red,
-                            fontSize = 13.sp,
+                            fontSize = 16.sp,
                             fontWeight = FontWeight(700),
                             fontFamily = FontFamily.Default,
                         ),
                     )
                 }
 
+                Spacer(
+                    modifier = Modifier
+                        .height(10.dp)
+                )
+
+                // ------------------------------------------------------------ LOGIN BUTTON ------------------------------------------------------------
+                Button(
+                    onClick = {
+                        if (studentIdTS.isEmpty()){
+                            isStudentId = false
+                            isPassword = true
+                            isRegistered = true
+                            if (passwordTS.isEmpty()){
+                                isPassword = false
+                            }
+                        } else if (passwordTS.isEmpty()){
+                            isPassword = false
+                            isStudentId = true
+                            isRegistered = true
+                        } else {
+                            isRegistered = true
+                            isPassword = true
+                            isStudentId = true
+                            loginViewModel.loginUser(
+                                studentIdTS, // As studentID
+                                passwordTS,
+                                navController
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .size(width = 290.dp, height = 43.dp)
+                        .shadow(
+                            elevation = 5.dp,
+                            shape = RoundedCornerShape(10.dp)
+                        ),
+                    shape = RoundedCornerShape(15.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = Color(0xFF72AF7B),
+                        contentColor = Color.White
+                    )
+                ) {
+
+                    Text(
+                        text = "Login",
+                        style = TextStyle(
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight(600),
+                            fontFamily = FontFamily.Default
+                        )
+                    )
+                }
                 Spacer(
                     modifier = Modifier
                         .height(28.dp)
@@ -390,52 +406,6 @@ fun LogIn(navController: NavHostController) {
                     )
                 )
 
-                Spacer(
-                    modifier = Modifier
-                        .height(60.dp)
-                )
-
-                // ------------------------------------------------------------ LOGIN BUTTON ------------------------------------------------------------
-                Button(
-                    onClick = {
-                        if (studentIdTS.isEmpty()){
-                            isStudentId = false
-                            isPassword = true
-                            isRegistered = true
-                            if (passwordTS.isEmpty()){
-                                isPassword = false
-                            }
-                        } else if (passwordTS.isEmpty()){
-                            isPassword = false
-                            isStudentId = true
-                            isRegistered = true
-                        } else {
-                            isRegistered = true
-                            isPassword = true
-                            isStudentId = true
-                            loginViewModel.loginUser(studentIdTS, passwordTS, studentNumber, navController)
-                        }
-                    },
-                    modifier = Modifier
-                        .size(width = 290.dp, height = 43.dp),
-                    shape = RoundedCornerShape(15.dp),
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = Color(0xFF72AF7B),
-                        contentColor = Color.White
-                    )
-                ) {
-
-                    Text(
-                        text = "Login",
-                        style = TextStyle(
-                            color = Color.White,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight(600),
-                            fontFamily = FontFamily.Default
-                        )
-                    )
-                }
-
                 val errorMessage by loginViewModel.getErrorMessage().collectAsState(initial = null)
 
                 errorMessage?.let {
@@ -444,12 +414,10 @@ fun LogIn(navController: NavHostController) {
                         isPassword = true
                         isStudentId = true
                     } else {
-                        isRegistered = true
+                        isRegistered = false
                         isPassword = true
                         isStudentId = true
-                        isPassRight = false
                     }
-
                 }
             }
         }

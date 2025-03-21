@@ -118,7 +118,7 @@ fun Page1_SU(navHostController: NavHostController){
     // Store Data to Variables
     val firstname = firstNameTS
     val lastname = lastNameTS
-    val studentId = studentIdTS
+    val studentID = studentIdTS
     val password = passwordTS
 
     Scaffold(
@@ -532,7 +532,7 @@ fun Page1_SU(navHostController: NavHostController){
                         isPasswordMatch = true
                         isPasswordLength = true
                         isValidStudentId = true
-                        navHostController.navigate("sign_up_page2/$firstname/$lastname/$studentId/$password") // Use '/' to separate arguments
+                        navHostController.navigate("sign_up_page2/$firstname/$lastname/$studentID/$password") // Use '/' to separate arguments
                     } else if (!allCompletedPage1) { // Incomplete Page
                         isCompletePage1 = false
                         isPasswordMatch = true
@@ -585,7 +585,7 @@ fun Page2_SU(
     navController: NavHostController,
     firstname: String,
     lastname: String,
-    studentId: String,
+    studentID: String,
     password: String
     ){
 
@@ -960,7 +960,7 @@ fun Page2_SU(
                  ),
                  placeholder = {
                      Text(
-                         text = "0987654321",
+                         text = "09876543210",
                          fontWeight = FontWeight(400),
                          color = Color.LightGray
                      )
@@ -1089,7 +1089,17 @@ fun Page2_SU(
                     if(allCompletedPage2 && validSchoolEmail){
                         isCompletePage2 = true
                         isValidSchoolEmail = true
-                        signupViewModel.signupUser(firstname, lastname, studentId, password, selectedYearLevel, selectedProgram, schoolEmailTS, contactNumbTS, department, navController)
+                        signupViewModel.signupUser(
+                            firstname,
+                            lastname,
+                            studentID,
+                            schoolEmailTS, // As phinmaEmail
+                            password,
+                            selectedProgram, // As program
+                            selectedYearLevel, // As yearLevel
+                            department,
+                            contactNumbTS,
+                            navController)
                     } else if (!allCompletedPage2){
                         isCompletePage2 = false
                         isValidSchoolEmail = true

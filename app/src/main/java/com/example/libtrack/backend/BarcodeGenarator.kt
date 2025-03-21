@@ -14,7 +14,7 @@ import com.google.zxing.common.BitMatrix
 
 fun generateBarcode(text: String): Bitmap {
     val writer = MultiFormatWriter()
-    val bitMatrix: BitMatrix = writer.encode(text, BarcodeFormat.CODE_128, 1500, 1200)
+    val bitMatrix: BitMatrix = writer.encode(text, BarcodeFormat.CODE_128, 1800, 1500)
 
     val width = bitMatrix.width
     val height = bitMatrix.height
@@ -36,7 +36,7 @@ fun BarcodeDisplay(text: String) {
         bitmap = barcodeBitmap.asImageBitmap(),
         contentDescription = "Generated Barcode",
         modifier = Modifier
-            .size(200.dp),
+            .size(250.dp),
         contentScale = ContentScale.Fit
     )
 }

@@ -3,6 +3,7 @@ package com.example.libtrack.pagesMain
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -21,7 +22,10 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
@@ -34,9 +38,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -46,8 +52,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.libtrack.backend.Book
 import com.example.libtrack.backend.HOME_PAGE_URL_PATH
+import com.example.libtrack.backend.RetrofitAccountName
+import com.example.libtrack.backend.RetrofitBooks
 import com.example.libtrack.backend.SERVER_IP
+import com.example.libtrack.backend.UserDetails
+import com.example.libtrack.errorHandling.errorImage
+import com.example.libtrack.navFunctions.Pages
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -59,9 +71,12 @@ import retrofit2.http.Query
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
-fun HomePage(studentNumber: String,
-             navController: NavHostController,
-             onBookClick: (Any) -> Unit) {
+fun HomePage(
+    studentID: String,
+    navController: NavHostController,
+    onBookClick: (Any) -> Unit
+) {
+
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var firstName by remember { mutableStateOf<String?>("") }
@@ -75,7 +90,73 @@ fun HomePage(studentNumber: String,
     // Later
     if (validAccount == "0"){
 
-        Text("Lmao Banned")// Navigate to Error Page
+        Column (
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+
+            Image(
+                painter = painterResource(id = errorImage),
+                contentDescription = "Error",
+                modifier = Modifier
+                    .clip(CircleShape)
+                    .size(70.dp)
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(30.dp)
+            )
+
+            Text(
+                text = "Account Error",
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight(700)
+                )
+            )
+
+            Text(
+                text = "Please Proceed to Librarian's Office to Resolve this Issue",
+                textAlign = TextAlign.Center,
+                style = TextStyle(
+                    color = Color.Black,
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight(400)
+                )
+            )
+
+            Spacer(
+                modifier = Modifier
+                    .height(80.dp)
+            )
+
+            Button(
+                onClick = {
+                    navController.navigate(Pages.Splash_Screen)
+                },
+                modifier = Modifier
+                    .size(width = 290.dp, height = 43.dp),
+                shape = RoundedCornerShape(15.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF72AF7B),
+                    contentColor = Color.White
+                )
+            ){
+                Text(
+                    text = "Try Again",
+                    style = TextStyle(
+                        color = Color.White,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight(600),
+                        fontFamily = FontFamily.Default
+                    )
+                )
+            }
+        }
     } else {
 
         LaunchedEffect(true) {
@@ -91,11 +172,11 @@ fun HomePage(studentNumber: String,
             }
         }
 
-        LaunchedEffect(studentNumber) {
+        LaunchedEffect(studentID) {
 
             scope.launch {
                 try {
-                    val response = RetrofitAccountName.apiService.getFirstName(studentNumber)
+                    val response = RetrofitAccountName.apiServiceStudentDetails.getFirstName(studentID)
                     response.enqueue(object : Callback<UserDetails> {
                         override fun onResponse(
                             call: Call<UserDetails>,
@@ -119,7 +200,6 @@ fun HomePage(studentNumber: String,
                             Toast.makeText(context, "Network error: ${t.message}", Toast.LENGTH_SHORT).show()
                         }
                     })
-
                 } catch (e: Exception) {
                     // Log any unexpected exceptions
                     Log.e("HomePage", "Unexpected error: ${e.message}")
@@ -162,7 +242,7 @@ fun HomePage(studentNumber: String,
                             style = TextStyle(
                                 color = Color.Black,
                                 fontSize = 25.sp,
-                                fontWeight = FontWeight(700)
+                                fontWeight = FontWeight(800)
                             )
                         )
                     } else {
@@ -188,12 +268,13 @@ fun HomePage(studentNumber: String,
                         text = "Let's start reading!",
                         style = TextStyle(
                             fontSize = 15.sp,
-                            color = Color(0xFF727D83)
+                            color = Color(0xFF727D83),
+                            fontWeight = FontWeight(600)
                         )
                     )
 
                     Spacer(
-                        modifier = Modifier.height(25.dp)
+                        modifier = Modifier.height(30.dp)
                     )
 
                     // Top Rated Books
@@ -220,9 +301,12 @@ fun HomePage(studentNumber: String,
                                             onBookClick(book.id)
                                         }
                                         .padding(7.dp)
-                                        .shadow(elevation = 4.dp)
+                                        .shadow(
+                                            elevation = 10.dp,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .border(
-                                            width = 1.5.dp,
+                                            width = 0.8.dp,
                                             color = Color.Black,
                                             shape = RoundedCornerShape(10.dp)
                                         )
@@ -250,8 +334,8 @@ fun HomePage(studentNumber: String,
                                     Box(
                                         modifier = Modifier
                                             .width(100.dp)
-                                            .border(0.2.dp, Color.White)
-                                            .background(Color.White.copy(alpha = 0.5f))
+                                            .background(Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp))
+                                            .padding( horizontal = 1.dp, vertical = 3.dp)
                                     ){
                                         Text(
                                             text = book.title,
@@ -306,6 +390,7 @@ fun HomePage(studentNumber: String,
                                 }
                             }
                         }){book ->
+
                             Column {
                                 Card (
                                     modifier = Modifier
@@ -313,9 +398,12 @@ fun HomePage(studentNumber: String,
                                             onBookClick(book.id)
                                         }
                                         .padding(7.dp)
-                                        .shadow(elevation = 4.dp)
+                                        .shadow(
+                                            elevation = 10.dp,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .border(
-                                            width = 1.5.dp,
+                                            width = 0.8.dp,
                                             color = Color.Black,
                                             shape = RoundedCornerShape(10.dp)
                                         )
@@ -343,8 +431,8 @@ fun HomePage(studentNumber: String,
                                     Box(
                                         modifier = Modifier
                                             .width(100.dp)
-                                            .border(0.2.dp, Color.White)
-                                            .background(Color.White.copy(alpha = 0.5f))
+                                            .background(Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp))
+                                            .padding( horizontal = 1.dp, vertical = 3.dp)
                                     ){
                                         Text(
                                             text = book.title,
@@ -396,9 +484,12 @@ fun HomePage(studentNumber: String,
                                             onBookClick(book.id)
                                         }
                                         .padding(7.dp)
-                                        .shadow(elevation = 4.dp)
+                                        .shadow(
+                                            elevation = 10.dp,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .border(
-                                            width = 1.5.dp,
+                                            width = 0.8.dp,
                                             color = Color.Black,
                                             shape = RoundedCornerShape(10.dp)
                                         )
@@ -412,9 +503,7 @@ fun HomePage(studentNumber: String,
                                             model = book.imageUrl,
                                             contentDescription = book.title,
                                             modifier = Modifier
-                                                .size(900.dp)
-                                                .shadow(elevation = 4.dp)
-                                        )
+                                                .size(900.dp))
                                     }
                                 }
 
@@ -426,8 +515,8 @@ fun HomePage(studentNumber: String,
                                     Box(
                                         modifier = Modifier
                                             .width(100.dp)
-                                            .border(0.2.dp, Color.White)
-                                            .background(Color.White.copy(alpha = 0.5f))
+                                            .background(Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp))
+                                            .padding( horizontal = 1.dp, vertical = 3.dp)
                                     ){
                                         Text(
                                             text = book.title,
@@ -455,7 +544,7 @@ fun HomePage(studentNumber: String,
                         modifier = Modifier.height(10.dp)
                     )
 
-                    // Top Rated Books
+                    // Off Topic Books
                     Text(
                         modifier = Modifier
                             .offset(3.dp, 0.dp),
@@ -479,9 +568,12 @@ fun HomePage(studentNumber: String,
                                             onBookClick(book.id)
                                         }
                                         .padding(7.dp)
-                                        .shadow(elevation = 4.dp)
+                                        .shadow(
+                                            elevation = 10.dp,
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
                                         .border(
-                                            width = 1.5.dp,
+                                            width = 0.8.dp,
                                             color = Color.Black,
                                             shape = RoundedCornerShape(10.dp)
                                         )
@@ -509,8 +601,8 @@ fun HomePage(studentNumber: String,
                                     Box(
                                         modifier = Modifier
                                             .width(100.dp)
-                                            .border(0.2.dp, Color.White)
-                                            .background(Color.White.copy(alpha = 0.5f))
+                                            .background(Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp))
+                                            .padding( horizontal = 1.dp, vertical = 3.dp)
                                     ){
                                         Text(
                                             text = book.title,
@@ -543,24 +635,3 @@ fun HomePage(studentNumber: String,
 }
 
 
-interface ApiService {
-    @GET(HOME_PAGE_URL_PATH)
-    fun getFirstName(@Query("student_id") studentId: String): Call<UserDetails>
-}
-
-data class UserDetails(
-    val firstName: String,
-    val department: String,
-    val status: Int
-)
-
-object RetrofitAccountName {
-
-    val apiService: ApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(SERVER_IP)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(ApiService::class.java)
-    }
-}

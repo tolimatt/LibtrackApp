@@ -25,3 +25,8 @@ const val BOOK_BORROW_URL_PATH = "hello/borrow.php"
 // Check Borrow Status
 const val STATUS_BORROW_URL_PATH = "hello/pdfile.php"
 
+const val SEND_OTP_URL_PATH = "phpmailer/mailer/okay.php"
+
+const val VERIFY_OTP_URL_PATH = "phpmailer/mailer/nice.php"
+
+const val UPDATE_PASSWORD_URL_PATH = "hello/tests_also.php"

@@ -32,25 +32,26 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
     fun signupUser(
         firstName: String,
         lastName: String,
-        studentId: String,
+        studentID: String,
+        phinmaEmail: String,
         password: String,
-        yearLevel: String,
         program: String,
-        schoolEmail: String,
-        contactNumber: String,
+        yearLevel: String,
         department: String,
+        contactNumber: String,
         navController: NavHostController
     ) {
         val userData = UserData(
             firstName,
             lastName,
-            studentId,
+            studentID,
+            phinmaEmail,
             password,
-            yearLevel,
             program,
-            schoolEmail,
-            contactNumber,
-            department)
+            yearLevel,
+            department,
+            contactNumber
+        )
 
         val json = Gson().toJson(userData)
         Log.d("Request Body", json)
@@ -120,14 +121,14 @@ data class ApiResponseSignup(
 data class UserData(
     val firstName: String,
     val lastName: String,
-    val studentId: String,
+    val studentID: String,
+    val phinmaEmail: String,
     val password: String,
-    val yearLevel: String,
     val program: String,
-    val schoolEmail: String,
-    val contactNumber: String,
-    val department: String
-)
+    val yearLevel: String,
+    val department: String,
+    val contactNumber: String
+    )
 
 interface SignupServer {
     @POST(SIGN_UP_URL_PATH)

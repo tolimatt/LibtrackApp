@@ -30,9 +30,13 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
     private var loginStatus = MutableStateFlow("")
     private var errorMessage = MutableStateFlow<String?>(null)
 
-    fun loginUser(studentId: String, password: String, studentNumber: String, navController: NavHostController) { // Add studentNumber and navController
+    fun loginUser(
+        studentID: String,
+        password: String,
+        navController: NavHostController
+    ) {
 
-        val loginData = LoginData(studentId, password)
+        val loginData = LoginData(studentID, password)
         val json = Gson().toJson(loginData)
         Log.d("Request Body", json)
 
@@ -49,7 +53,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     when (status){
                         "success" -> { // Account exists, now logging in
                             Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                            navController.navigate("MainPage/$studentNumber"){
+                            navController.navigate("MainPage/$studentID"){
                                 popUpTo(Pages.Log_In) {
                                     inclusive = true
                                 }
@@ -89,7 +93,7 @@ data class ApiResponseLogin(
 )
 
 data class LoginData(
-    val studentId: String,
+    val studentID: String,
     val password: String
 )
 

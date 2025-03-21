@@ -56,6 +56,10 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
                             Toast.makeText(context,"You can only borrow 3 books at a time", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "limit"
                         }
+                        "returned" -> { // Book Not Found
+                            Toast.makeText(context,"OK", Toast.LENGTH_SHORT).show()
+                            _borrowStatus.value = "not_found"
+                        }
                         else -> {
                             Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "error"
