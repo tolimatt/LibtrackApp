@@ -30,3 +30,7 @@ const val SEND_OTP_URL_PATH = "phpmailer/mailer/okay.php"
 const val VERIFY_OTP_URL_PATH = "phpmailer/mailer/nice.php"
 
 const val UPDATE_PASSWORD_URL_PATH = "hello/tests_also.php"
+
+const val ATTENDANCE_CHECKER_URL_PATH = "libtrack/attendance.php"
+
+const val BORROWED_BOOKS_URL_PATH = "libtrack/homepage.php"

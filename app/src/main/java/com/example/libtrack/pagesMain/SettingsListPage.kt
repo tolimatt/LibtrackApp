@@ -59,6 +59,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.libtrack.R
+import com.example.libtrack.backend.ATTENDANCE_CHECKER_URL_PATH
+import com.example.libtrack.backend.BORROWED_BOOKS_URL_PATH
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.SERVER_IP
 import com.example.libtrack.backend.UserDetails
@@ -818,7 +820,7 @@ data class HistoryItem(
 )
 
 interface YourApiService {
-    @GET("libtrack/homepage.php")
+    @GET(BORROWED_BOOKS_URL_PATH)
     suspend fun getStudentHistory(@Query("studentID") studentId: String): Response<List<HistoryItem>>
 }
 
@@ -858,7 +860,7 @@ data class AttendanceItem(
 )
 
 interface AttendanceApiService {
-    @GET("libtrack/attendance.php") // Change this to your actual endpoint
+    @GET(ATTENDANCE_CHECKER_URL_PATH) // Change this to your actual endpoint
     suspend fun getStudentAttendance(@Query("studentID") studentId: String): Response<List<AttendanceItem>>
 }
 
