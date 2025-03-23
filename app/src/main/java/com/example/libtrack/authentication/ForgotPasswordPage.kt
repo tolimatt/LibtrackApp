@@ -1,6 +1,5 @@
 package com.example.libtrack.authentication
 
-import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -53,19 +52,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.android.volley.Request
-import com.android.volley.toolbox.JsonObjectRequest
-import com.android.volley.toolbox.Volley
 import com.example.libtrack.R
-import com.example.libtrack.backend.SEND_OTP_URL_PATH
-import com.example.libtrack.backend.SERVER_IP
-import com.example.libtrack.backend.UPDATE_PASSWORD_URL_PATH
-import com.example.libtrack.backend.VERIFY_OTP_URL_PATH
 import com.example.libtrack.backend.sendOTP
-import com.example.libtrack.backend.verifyOTP
 import com.example.libtrack.backend.updatePassword
+import com.example.libtrack.backend.verifyOTP
 import com.example.libtrack.errorHandling.errorImage
-import org.json.JSONObject
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -84,7 +75,6 @@ fun Page1_FP(navController: NavHostController){
 
     // Hide Keyboard
     val keyboardController = LocalSoftwareKeyboardController.current
-
 
 
     Scaffold (
@@ -207,10 +197,7 @@ fun Page1_FP(navController: NavHostController){
                         )
                     )
                 }
-
             }
-
-
 
             Spacer(
                 modifier = Modifier.height(40.dp)
@@ -254,7 +241,6 @@ fun Page1_FP(navController: NavHostController){
                         fontFamily = FontFamily.Default
                     )
                 )
-
             }
         }
     }
@@ -351,7 +337,6 @@ fun Page2_FP(navController: NavHostController, email: String){
                 )
             }
         }
-
     }
 }
 

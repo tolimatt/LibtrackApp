@@ -65,8 +65,8 @@ fun LogIn(navController: NavHostController) {
     val loginViewModel = remember { LoginViewModel(application = context.applicationContext as Application) } // Initialize ViewModel here
 
     // For text fields / Text State
-    var studentIdTS by remember { mutableStateOf("03-2324-036622") }
-    var passwordTS by remember { mutableStateOf("password123") }
+    var studentIdTS by remember { mutableStateOf("") }
+    var passwordTS by remember { mutableStateOf("") }
 
     // For error handling / Booleans
     var isStudentId by remember { mutableStateOf(true) } // if null
