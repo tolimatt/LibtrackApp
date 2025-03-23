@@ -46,7 +46,6 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
                         "success" -> { // Book Has Been Borrowed Successfully
                             Toast.makeText(context, "Book Borrowed Successfully", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "success"
-                            context.showNotification()
                         }
                         "already_borrowed" -> { // Book Has Been Borrowed Already
                             Toast.makeText(context,"You Already Borrowed This Book", Toast.LENGTH_SHORT).show()

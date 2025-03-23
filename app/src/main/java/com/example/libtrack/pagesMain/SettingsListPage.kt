@@ -46,7 +46,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -60,7 +59,11 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.libtrack.R
 import com.example.libtrack.backend.ATTENDANCE_CHECKER_URL_PATH
+import com.example.libtrack.backend.AttendanceItem
+import com.example.libtrack.backend.AttendanceViewModel
 import com.example.libtrack.backend.BORROWED_BOOKS_URL_PATH
+import com.example.libtrack.backend.HistoryItem
+import com.example.libtrack.backend.HistoryViewModel
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.SERVER_IP
 import com.example.libtrack.backend.UserDetails
@@ -438,10 +441,10 @@ fun HistoryPage(studentID: String, navController: NavHostController){
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
     var historyItems by remember { mutableStateOf<List<HistoryItem>?>(null) }
-    val historyViewModel = remember{HistoryViewModel()}
+    val historyViewModel = remember{ HistoryViewModel() }
 
     var attendanceItems by remember { mutableStateOf<List<AttendanceItem>?>(null) }
-    val attendanceViewModel = remember{AttendanceViewModel()}
+    val attendanceViewModel = remember{ AttendanceViewModel() }
 
     var isShowBorrowing by remember { mutableStateOf(false) }
     var isShowBorrowed by remember { mutableStateOf(false) }
@@ -507,7 +510,7 @@ fun HistoryPage(studentID: String, navController: NavHostController){
                 }
 
                 Spacer(
-                    modifier = Modifier.width(8.dp)
+                    modifier = Modifier.width(5.dp)
                 )
 
                 Button(
@@ -527,7 +530,7 @@ fun HistoryPage(studentID: String, navController: NavHostController){
                 }
 
                 Spacer(
-                    modifier = Modifier.width(8.dp)
+                    modifier = Modifier.width(5.dp)
                 )
 
                 Button(
@@ -810,88 +813,7 @@ fun HistoryPage(studentID: String, navController: NavHostController){
     }
 }
 
-data class HistoryItem(
-    val bookCode: String,
-    val title: String,
-    val borrowedDate: String,
-    val dueDate: String,
-    val returnDate: String,
-    val status: String
-)
 
-interface YourApiService {
-    @GET(BORROWED_BOOKS_URL_PATH)
-    suspend fun getStudentHistory(@Query("studentID") studentId: String): Response<List<HistoryItem>>
-}
-
-// Retrofit Instance
-object RetrofitInstance {
-    private const val BASE_URL = SERVER_IP // Replace with your base URL
-
-    val api: YourApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(YourApiService::class.java)
-    }
-}
-
-class HistoryViewModel{
-    suspend fun fetchStudentHistory(studentId: String): List<HistoryItem>? {
-        return try {
-            val response = RetrofitInstance.api.getStudentHistory(studentId) // Use the Retrofit instance
-            if (response.isSuccessful) {
-                response.body()
-            } else {
-                Log.e("StudentHistory", "Error: ${response.code()}, ${response.message()}")
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("StudentHistory", "Exception: ${e.message}")
-            null
-        }
-    }
-}
-
-data class AttendanceItem(
-    val entryTime: String,
-    val day: String
-)
-
-interface AttendanceApiService {
-    @GET(ATTENDANCE_CHECKER_URL_PATH) // Change this to your actual endpoint
-    suspend fun getStudentAttendance(@Query("studentID") studentId: String): Response<List<AttendanceItem>>
-}
-
-object RetrofitAttendanceInstance {
-    private const val BASE_URL = SERVER_IP // Replace with actual URL
-
-    val api: AttendanceApiService by lazy {
-        Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(AttendanceApiService::class.java)
-    }
-}
-
-class AttendanceViewModel {
-    suspend fun fetchStudentAttendance(studentId: String): List<AttendanceItem>? {
-        return try {
-            val response = RetrofitAttendanceInstance.api.getStudentAttendance(studentId)
-            if (response.isSuccessful) {
-                response.body()
-            } else {
-                Log.e("AttendanceViewModel", "API Error: ${response.code()} - ${response.message()}")
-                null
-            }
-        } catch (e: Exception) {
-            Log.e("AttendanceViewModel", "Exception: ${e.message}")
-            null
-        }
-    }
-}
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1358,7 +1280,7 @@ fun ServicesPage(navController: NavHostController){
                             }
 
                             Spacer(
-                                modifier = Modifier.width(30.dp)
+                                modifier = Modifier.width(20.dp)
                             )
 
                             Box(
@@ -1369,7 +1291,7 @@ fun ServicesPage(navController: NavHostController){
                             )
 
                             Spacer(
-                                modifier = Modifier.width(30.dp)
+                                modifier = Modifier.width(20.dp)
                             )
 
                             Column (

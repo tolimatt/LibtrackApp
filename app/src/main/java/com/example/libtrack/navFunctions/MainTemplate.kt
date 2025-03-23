@@ -2,12 +2,11 @@ package com.example.libtrack.navFunctions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,6 +17,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -27,6 +27,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -43,15 +44,16 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.libtrack.pagesMain.BooksPage
-import com.example.libtrack.pagesMain.HomePage
 import com.example.libtrack.backend.BarcodeDisplay
 import com.example.libtrack.errorHandling.booksIconImage
 import com.example.libtrack.errorHandling.codeGeneratorImage
 import com.example.libtrack.errorHandling.homeIconImage
 import com.example.libtrack.errorHandling.logoImage
 import com.example.libtrack.errorHandling.settingsIconImage
+import com.example.libtrack.pagesMain.BooksPage
+import com.example.libtrack.pagesMain.HomePage
 import com.example.libtrack.pagesMain.SettingsPage
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +67,8 @@ fun MainPage(
     var topBarTitle by remember { mutableStateOf("FVR - LIBRARY") } // Default
 
     var isShowDialog by remember { mutableStateOf(false) }
+
+    var isLoading by remember { mutableStateOf(false) }
 
     // Bottom Navigation Bar
     val bottomNavItemList = listOf(
@@ -85,7 +89,7 @@ fun MainPage(
                 },
                 actions = {
                     IconButton(onClick = {
-                        isShowDialog = true
+                        isLoading = true
                     }) {
                         Icon(
                             painter = painterResource(id = codeGeneratorImage),
@@ -132,6 +136,15 @@ fun MainPage(
             }
         }
     ) { paddingValues ->
+
+        if (isLoading) {
+            LaunchedEffect(Unit) {
+                delay(1000)
+                isLoading = false
+                isShowDialog = true
+            }
+        }
+
         Column(
             modifier = Modifier
                 .padding(paddingValues)
@@ -162,9 +175,32 @@ fun MainPage(
                             .background(Color(0xFF72AF7B).copy(alpha = 0.8f)) // Adjust the alpha for transparency
                     )
 
-                    ContentScreen(selectedIndex ,studentID, navController)
+                    ContentScreen(
+                        selectedIndex = selectedIndex ,
+                        studentID = studentID,
+                        navController = navController
+                    )
+
+                    if (isLoading) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.2f)), // Semi-transparent background
+                            contentAlignment = Alignment.Center  // Centers the content inside the Box
+                        ) {
+                            CircularProgressIndicator(
+                                strokeWidth = 8.dp,
+                                modifier = Modifier.size(60.dp),
+                                color = Color(0xFF72AF7B),
+                                trackColor = Color.LightGray
+                            )
+                        }
+                    }
+
 
                     if (isShowDialog) {
+                        isLoading = false
+
                         AlertDialog(
                             modifier = Modifier
                                 .size(300.dp, 520.dp),
@@ -239,13 +275,13 @@ fun ContentScreen(selectedIndex: Int,
             studentID = studentID,
             navController = navController
         ){ bookId ->
-            navController.navigate("BookDetailsPage/$bookId/$studentID")
+            navController.navigate("book_details_page/$bookId/$studentID")
         }
         1 -> BooksPage(
             studentID = studentID,
             navController = navController,
             onBookClick = { bookId ->
-            navController.navigate("BookDetailsPage/$bookId/$studentID")
+            navController.navigate("book_details_page/$bookId/$studentID")
             }
         )
         2 -> SettingsPage(

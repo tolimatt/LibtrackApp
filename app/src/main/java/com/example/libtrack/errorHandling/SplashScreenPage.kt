@@ -28,7 +28,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.libtrack.backend.SERVER_IP
-import com.example.libtrack.navFunctions.Pages
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,12 +57,12 @@ fun SplashScreenPage(navController: NavHostController) {
             // Navigate to the Log In screen and remove the SplashScreenPage from the Back Stack
             navController.navigate(
                 if(serverConnected){
-                    Pages.Log_In
+                    "log_in_page"
                 } else {
-                    Pages.No_Connection_Page
+                    "no_connection_page"
                 }
             ) {
-                popUpTo(Pages.Splash_Screen) { inclusive = true } // Remove the splash screen from the back stack
+                popUpTo("splash_screen_page") { inclusive = true } // Remove the splash screen from the back stack
             }
         }
     }

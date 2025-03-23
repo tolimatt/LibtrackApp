@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -59,13 +58,11 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import com.example.libtrack.backend.BarcodeDisplay
 import com.example.libtrack.backend.Book
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.RetrofitBooks
 import com.example.libtrack.backend.UserDetails
 import com.example.libtrack.errorHandling.errorImage
-import com.example.libtrack.navFunctions.Pages
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -213,7 +210,7 @@ fun BooksPage(
 
             Button(
                 onClick = {
-                    navController.navigate(Pages.Splash_Screen)
+                    navController.navigate("splash_screen_page")
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -326,6 +323,7 @@ fun BooksPage(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     CircularProgressIndicator(
+                        strokeWidth = 8.dp,
                         modifier = Modifier.width(60.dp),
                         color = Color(0xFF72AF7B),
                         trackColor = Color.LightGray,

@@ -20,7 +20,72 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Body
 import retrofit2.http.POST
+import java.io.BufferedReader
 import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
+
+
+suspend fun checkStudentID(inputText: String): Boolean {
+    return withContext(Dispatchers.IO) {
+        try {
+            val encodedText = URLEncoder.encode(inputText, "UTF-8")
+            val url = URL(SERVER_IP+CHECK_STUDENT_URL_PATH+"?text=$encodedText") // Replace with your PHP script URL
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+
+            val responseCode = connection.responseCode
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                val response = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    response.append(line)
+                }
+                reader.close()
+                // Assuming your PHP script returns "true" or "false" as a string.
+                return@withContext response.toString().trim().equals("true", ignoreCase = true)
+            } else {
+                return@withContext false // Or handle other response codes as needed
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        }
+    }
+}
+
+
+suspend fun checkEmail(inputText: String): Boolean {
+    return withContext(Dispatchers.IO) {
+        try {
+            val encodedText = URLEncoder.encode(inputText, "UTF-8")
+            val url = URL(SERVER_IP+ CHECK_EMAIL_URL_PATH+"?text=$encodedText") // Replace with your PHP script URL
+            val connection = url.openConnection() as HttpURLConnection
+            connection.requestMethod = "GET"
+
+            val responseCode = connection.responseCode
+            if (responseCode == HttpURLConnection.HTTP_OK) {
+                val reader = BufferedReader(InputStreamReader(connection.inputStream))
+                val response = StringBuilder()
+                var line: String?
+                while (reader.readLine().also { line = it } != null) {
+                    response.append(line)
+                }
+                reader.close()
+                // Assuming your PHP script returns "true" or "false" as a string.
+                return@withContext response.toString().trim().equals("true", ignoreCase = true)
+            } else {
+                return@withContext false // Or handle other response codes as needed
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return@withContext false
+        }
+    }
+}
 
 
 class SignupViewModel(application: Application) : AndroidViewModel(application) {
@@ -67,7 +132,7 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
                     signupStatus.value = status
 
                     if (status == "success"){
-                        navController.navigate("sign_up_complete"){
+                        navController.navigate("sign_up_complete_page"){
                             popUpTo("sign_up_page2") {
                                 inclusive = true
                             }
@@ -87,7 +152,7 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
                         errorMessage.value = "Student ID already exists. Please log in."
 
                         withContext(Dispatchers.Main) {
-                            navController.navigate("sign_up_error") {
+                            navController.navigate("sign_up_error_page") {
                                 popUpTo("sign_up_page2") {
                                     inclusive = true
                                 }

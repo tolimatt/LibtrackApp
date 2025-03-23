@@ -25,12 +25,25 @@ const val BOOK_BORROW_URL_PATH = "hello/borrow.php"
 // Check Borrow Status
 const val STATUS_BORROW_URL_PATH = "hello/pdfile.php"
 
+// PHP Mailer Send OTP
 const val SEND_OTP_URL_PATH = "phpmailer/mailer/okay.php"
 
+// PHP Mailer Verify OTP
 const val VERIFY_OTP_URL_PATH = "phpmailer/mailer/nice.php"
 
+// Forgot Password Change Password
 const val UPDATE_PASSWORD_URL_PATH = "hello/tests_also.php"
 
+// Attendance History
 const val ATTENDANCE_CHECKER_URL_PATH = "libtrack/attendance.php"
 
+// Borrowed Books History
 const val BORROWED_BOOKS_URL_PATH = "libtrack/homepage.php"
+
+// Verify Student ID
+const val CHECK_STUDENT_URL_PATH = "libTrack/check.php"
+
+// Verify Email
+const val CHECK_EMAIL_URL_PATH = "libTrack/kpo.php"
+
+

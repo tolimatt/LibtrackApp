@@ -1,35 +1,56 @@
 package com.example.libtrack.backend
 
-import android.app.Notification
+import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.core.content.ContextCompat
-import com.example.libtrack.R
+import androidx.annotation.RequiresApi
 import androidx.core.app.NotificationCompat
+import com.example.libtrack.errorHandling.logoImage
 
-// Function to show notification
-fun Context.showNotification() {
-    val notificationManager = ContextCompat.getSystemService(this, NotificationManager::class.java)
 
-// Create a Notification Channel for Android 8.0 and above
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val channelId = "default_channel"
-        val channelName = "Default Notifications"
-        val channel = NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_DEFAULT)
-        notificationManager?.createNotificationChannel(channel)
+class Notification: Application(){
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onCreate() {
+        super.onCreate()
+
+        // Create the NotificationChannel
+        val channel = NotificationChannel(
+            "download_channel",  // Channel ID should match the one used in NotificationCompat
+            "File download",
+            NotificationManager.IMPORTANCE_HIGH
+        )
+
+        channel.description = "Library"
+
+        // Create and register the NotificationChannel
+        val manager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+        manager.createNotificationChannel(channel)
     }
-
-    val notification: Notification = NotificationCompat.Builder(this, "default_channel")
-        .setSmallIcon(R.drawable.logo) // Example icon
-        .setContentTitle("Book Borrowed Successfully")
-        .setContentText("Your book has been successfully borrowed. Please return it on time.")
-        .setPriority(NotificationCompat.PRIORITY_HIGH) // Heads-up notification priority
-        .setCategory(NotificationCompat.CATEGORY_MESSAGE) // Category for message notifications
-        .setAutoCancel(true) // Dismiss notification when clicked
-        .build()
-
-    notificationManager?.notify(1, notification) // 1 is the notification ID
 }
 
+class NotificationLibrary(
+    private val context: Context
+){
+    private val notificationManager = context.getSystemService(NotificationManager::class.java)
+
+    fun showNotificationBorrowed(title: String, dueDate: String) {
+        // Create the notification using the correct channel ID
+        val notification = NotificationCompat.Builder(context, "download_channel")
+            .setContentTitle("Book Borrowed Successfully")
+            .setContentText("Borrowed $title")
+            .setSmallIcon(logoImage)  // Ensure you have this drawable in your resources
+            .setPriority(NotificationManager.IMPORTANCE_HIGH)
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText("You have successfully borrowed the book $title. Please Remember to return it before $dueDate.")
+            )
+            .setAutoCancel(true)
+            .build()
+
+        // Notify using the NotificationManager
+        notificationManager?.notify(1, notification)
+    }
+}

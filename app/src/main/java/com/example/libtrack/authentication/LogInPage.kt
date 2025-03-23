@@ -53,7 +53,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.libtrack.backend.LoginViewModel
-import com.example.libtrack.navFunctions.Pages
 import com.example.libtrack.errorHandling.errorImage
 import com.example.libtrack.errorHandling.logoImage
 import com.example.libtrack.errorHandling.passwordVisibilityFalseImage
@@ -66,8 +65,8 @@ fun LogIn(navController: NavHostController) {
     val loginViewModel = remember { LoginViewModel(application = context.applicationContext as Application) } // Initialize ViewModel here
 
     // For text fields / Text State
-    var studentIdTS by remember { mutableStateOf("") }
-    var passwordTS by remember { mutableStateOf("") }
+    var studentIdTS by remember { mutableStateOf("03-2324-036622") }
+    var passwordTS by remember { mutableStateOf("password123") }
 
     // For error handling / Booleans
     var isStudentId by remember { mutableStateOf(true) } // if null
@@ -395,7 +394,7 @@ fun LogIn(navController: NavHostController) {
                 Text(
                     modifier = Modifier
                         .clickable {
-                            navController.navigate(Pages.Forgot_Password_Page1)
+                            navController.navigate("forgot_password_page1")
                         },
                     text = "Forgot Password?",
                     style = TextStyle(

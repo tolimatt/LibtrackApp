@@ -46,16 +46,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
@@ -69,13 +68,24 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.libtrack.navFunctions.Pages
+import androidx.navigation.NavHostController
 import com.example.libtrack.backend.SignupViewModel
+import com.example.libtrack.backend.checkStudentID
+import com.example.libtrack.backend.checkEmail
 import com.example.libtrack.errorHandling.errorImage
 import com.example.libtrack.errorHandling.passwordVisibilityFalseImage
 import com.example.libtrack.errorHandling.passwordVisibilityTrueImage
 import com.example.libtrack.errorHandling.successImage
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.BufferedReader
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = PAGE 1 SIGN UP = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -104,6 +114,7 @@ fun Page1_SU(navHostController: NavHostController){
     var isPasswordMatch by remember { mutableStateOf(true) }
     var isPasswordLength by remember { mutableStateOf(true) }
     var isValidStudentId by remember { mutableStateOf(true) }
+    var isNewStudentId by remember { mutableStateOf(true) }
 
     // Focus Requester
     val firstNameFocusRequester = remember { FocusRequester() }
@@ -129,7 +140,7 @@ fun Page1_SU(navHostController: NavHostController){
                     Text(text = "")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navHostController.navigate(Pages.Log_In) }) {
+                    IconButton(onClick = { navHostController.navigate("log_in_page") }) {
                         Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                     }
                 }
@@ -311,7 +322,7 @@ fun Page1_SU(navHostController: NavHostController){
                 modifier = Modifier
                     .border(
                         width = 1.2.dp,
-                        color = if(!isCompletePage1 || !isValidStudentId) Color.Red else Color(0xFFC1C1C1),
+                        color = if(!isCompletePage1 || !isValidStudentId || !isNewStudentId) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
@@ -510,6 +521,8 @@ fun Page1_SU(navHostController: NavHostController){
                         "Invalid Student ID."
                     } else if (!isPasswordLength){
                         "Password must be at least \n 8 characters long."
+                    }else if (!isNewStudentId){
+                        "Student ID already has an Account."
                     } else{
                         ""
                     },
@@ -525,14 +538,28 @@ fun Page1_SU(navHostController: NavHostController){
                 modifier = Modifier.height(13.dp)
             )
 
+            val coroutineScope = rememberCoroutineScope()
+
+
+
             Button(
                 onClick = {
                     if (allCompletedPage1 && passwordTS == confirmPasswordTS && passwordTS.length >= 8 && studentIdTS.length >= 10 && validStudentId) {
-                        isCompletePage1 = true
-                        isPasswordMatch = true
-                        isPasswordLength = true
-                        isValidStudentId = true
-                        navHostController.navigate("sign_up_page2/$firstname/$lastname/$studentID/$password") // Use '/' to separate arguments
+                        coroutineScope.launch(Dispatchers.IO) {
+                            val dbResult = checkStudentID(studentIdTS)
+                            withContext(Dispatchers.Main) {
+                                if (dbResult) {
+                                    isNewStudentId = false
+                                } else {
+                                    navHostController.navigate("sign_up_page2/$firstname/$lastname/$studentID/$password") // Use '/' to separate arguments
+                                    isCompletePage1 = true
+                                    isPasswordMatch = true
+                                    isPasswordLength = true
+                                    isValidStudentId = true
+                                }
+                            }
+                        }
+
                     } else if (!allCompletedPage1) { // Incomplete Page
                         isCompletePage1 = false
                         isPasswordMatch = true
@@ -658,6 +685,7 @@ fun Page2_SU(
     // Error Handling / Booleans
     var isCompletePage2 by remember { mutableStateOf(true) }
     var isValidSchoolEmail by remember { mutableStateOf(true) }
+    var isNewEmail by remember { mutableStateOf(true) }
 
     // Focus Requester
     val schoolEmailFocusRequester = remember { FocusRequester() }
@@ -889,7 +917,7 @@ fun Page2_SU(
                 modifier = Modifier
                     .border(
                         width = 1.2.dp,
-                        color = if (!isCompletePage2 || !isValidSchoolEmail) Color.Red else Color(0xFFC1C1C1),
+                        color = if (!isCompletePage2 || !isValidSchoolEmail || !isNewEmail) Color.Red else Color(0xFFC1C1C1),
                         shape = RoundedCornerShape(15.dp)
                     )
                     .width(350.dp)
@@ -978,7 +1006,6 @@ fun Page2_SU(
                  )
              )
 
-
             Spacer(
                 modifier = Modifier.height(10.dp)
             )
@@ -1055,7 +1082,9 @@ fun Page2_SU(
                     if (!isCompletePage2){
                         "Fill up all the requirements."
                     } else if (!isValidSchoolEmail){
-                        "Enter a valid School Email"
+                        "Enter a valid PHINMA Email"
+                    } else if (!isNewEmail){
+                        "PHINMA Email Already has an Account."
                     } else {
                         ""
                     },
@@ -1084,22 +1113,36 @@ fun Page2_SU(
                 else  -> "Not Selected"
             }
 
+            val coroutineScope = rememberCoroutineScope()
+
+
             Button(
                 onClick = {
                     if(allCompletedPage2 && validSchoolEmail){
-                        isCompletePage2 = true
-                        isValidSchoolEmail = true
-                        signupViewModel.signupUser(
-                            firstname,
-                            lastname,
-                            studentID,
-                            schoolEmailTS, // As phinmaEmail
-                            password,
-                            selectedProgram, // As program
-                            selectedYearLevel, // As yearLevel
-                            department,
-                            contactNumbTS,
-                            navController)
+
+                        coroutineScope.launch(Dispatchers.IO) {
+                            val dbResult = checkEmail(schoolEmailTS)
+                            withContext(Dispatchers.Main) {
+                                if (dbResult) { //error
+                                    isNewEmail = false
+                                } else { //correct
+                                    isCompletePage2 = true
+                                    isValidSchoolEmail = true
+                                    signupViewModel.signupUser(
+                                        firstname,
+                                        lastname,
+                                        studentID,
+                                        schoolEmailTS, // As phinmaEmail
+                                        password,
+                                        selectedProgram, // As program
+                                        selectedYearLevel, // As yearLevel
+                                        department,
+                                        contactNumbTS,
+                                        navController
+                                    )
+                                }
+                            }
+                        }
                     } else if (!allCompletedPage2){
                         isCompletePage2 = false
                         isValidSchoolEmail = true
@@ -1158,9 +1201,7 @@ fun Page2_SU(
                                             "By using LibTracker, you acknowledge that you have read, understood, and agree to these Terms and Conditions. Thank you for choosing LibTracker!"
                                 )
                             }
-
                         }
-
                     },
                     confirmButton = {
                         Button(
@@ -1241,8 +1282,8 @@ fun Complete_SU(navController: NavHostController){
 
             Button(
                 onClick = {
-                    navController.navigate(Pages.Log_In){
-                        popUpTo("Sign_Up_Complete"){
+                    navController.navigate("log_in_page"){
+                        popUpTo("sign_up_complete_page"){
                             inclusive = true
                         }
                     }
@@ -1312,7 +1353,7 @@ fun Error_SU(navController: NavHostController){
 
             Text(
                 textAlign = TextAlign.Center,
-                text = "Account Error. Student ID already exists on an account.",
+                text = "Account Error. Student ID or Email already exists on an account.",
                 style = TextStyle(
                     color = Color.Black,
                     fontSize = 18.sp,
@@ -1326,8 +1367,8 @@ fun Error_SU(navController: NavHostController){
 
             Button(
                 onClick = {
-                    navController.navigate(Pages.Log_In){
-                        popUpTo("Sign_Up_Error"){
+                    navController.navigate("log_in_page"){
+                        popUpTo("sign_up_error_page"){
                             inclusive = true
                         }
                     }

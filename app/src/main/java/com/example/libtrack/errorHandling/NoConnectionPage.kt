@@ -82,7 +82,7 @@ fun NoConnectionPage(navHostController: NavHostController) {
 
             Button(
                 onClick = {
-                    navHostController.navigate("SplashScreenPage")
+                    navHostController.navigate("splash_screen_page")
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),

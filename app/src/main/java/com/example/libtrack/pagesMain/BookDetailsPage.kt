@@ -3,15 +3,10 @@ package com.example.libtrack.pagesMain
 import android.annotation.SuppressLint
 import android.app.Application
 import android.content.ActivityNotFoundException
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
-import android.net.Uri
 import android.os.ParcelFileDescriptor
 import android.util.Log
-import android.webkit.WebChromeClient
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -27,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -63,15 +59,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.libtrack.backend.BookDetails
 import com.example.libtrack.backend.BorrowData
 import com.example.libtrack.backend.BorrowViewModel
+import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitBooks
-import com.example.libtrack.backend.SERVER_IP
-import com.example.libtrack.backend.showNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -79,7 +73,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
-import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.time.LocalDateTime
@@ -281,7 +274,7 @@ fun BookDetailsPage(
                         onClick = {
                             Log.d("PDF_URL_VALUE", "PDF URL: ${bookDetails!!.pdfUrl}")
                             try {val encodedUrl = URLEncoder.encode(bookDetails!!.pdfUrl, StandardCharsets.UTF_8.toString())
-                                navController.navigate("pdfViewer/$encodedUrl")
+                                navController.navigate("pdf_viewer_page/$encodedUrl")
                             } catch (e: ActivityNotFoundException) {
                                 Toast.makeText(context, "No PDF viewer app found.", Toast.LENGTH_SHORT).show()
                                 Log.e("PDF_ERROR", "No Activity found to open PDF", e)
@@ -311,23 +304,88 @@ fun BookDetailsPage(
                     if (isShowBorrowConfirmation) {
                         AlertDialog(
                             onDismissRequest = { isShowBorrowConfirmation = false },
+                            modifier = Modifier
+                                .size(width = 300.dp, height = 330.dp),
                             title = {
-                                Column {
+                                Column (
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                ){
                                     Text(
                                         text = "Borrow Book Confirmation",
-                                        fontWeight = FontWeight(600),
-                                        fontSize = 20.sp
+                                        fontWeight = FontWeight(800),
+                                        fontSize = 20.sp,
                                     )
                                 }
                             },
                             text = {
 
-                                Column {
+                                Column (
+                                    verticalArrangement = Arrangement.Center,
+                                    horizontalAlignment = Alignment.CenterHorizontally
+                                ){
+
                                     Text(
-                                        text = "Are you sure you want to borrow this book?"
+                                        text = "You must have a valid library account to borrow e-books.",
+                                        style = TextStyle(
+                                            color = Color.Black,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight(600),
+                                            fontFamily = FontFamily.Default
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(10.dp)
+                                    )
+
+                                    Text(
+                                        text = " - Search the catalog for available titles.\n" +
+                                                " - Access the book online after borrowing.\n" +
+                                                " - Checkout now to start reading.\n" +
+                                                "⚠ Borrowing is disabled one week before final exams.",
+                                        style = TextStyle(
+                                            color = Color.Black,
+                                            fontSize = 14.sp,
+                                            fontWeight = FontWeight(600),
+                                            fontFamily = FontFamily.Default
+                                        ),
+                                        textAlign = TextAlign.Center
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier
+                                            .height(20.dp)
                                     )
 
                                     Row {
+
+                                        Button(
+                                            shape = RoundedCornerShape(15.dp),
+                                            colors = ButtonDefaults.buttonColors(
+                                                containerColor = Color.Gray.copy(alpha = 0.2f),
+                                                contentColor = Color(0xFF72AF7B)
+                                            ),
+                                            onClick = {
+                                                isShowBorrowConfirmation = false
+                                            },
+                                        ) {
+                                            Text(
+                                                text = "Cancel",
+                                                fontWeight = FontWeight(500),
+                                                fontSize = 20.sp,
+                                            )
+                                        }
+
+                                        Spacer(
+                                            modifier = Modifier
+                                                .width(18.dp)
+                                        )
+
                                         Button(
                                             shape = RoundedCornerShape(15.dp),
                                             colors = ButtonDefaults.buttonColors(
@@ -338,7 +396,7 @@ fun BookDetailsPage(
                                                 isBorrowed = false
                                                 isShowBorrowConfirmation = false
                                                 decrementAvailableCopies = true
-                                                context.showNotification()
+                                                NotificationLibrary(context).showNotificationBorrowed(bookDetails!!.title, deadLineDateTime)
 
                                                 val borrowData = BorrowData(
                                                     studentId = studentID,
@@ -354,25 +412,9 @@ fun BookDetailsPage(
                                             },
                                         ) {
                                             Text(
-                                                text = "opo",
-                                                fontWeight = FontWeight(900),
-                                                fontSize = 30.sp
-                                            )
-                                        }
-                                        Button(
-                                            shape = RoundedCornerShape(15.dp),
-                                            colors = ButtonDefaults.buttonColors(
-                                                containerColor = Color(0xFF72AF7B),
-                                                contentColor = Color.White
-                                            ),
-                                            onClick = {
-                                                isShowBorrowConfirmation = false
-                                            },
-                                        ) {
-                                            Text(
-                                                text = "wag nalang pala",
-                                                fontWeight = FontWeight(900),
-                                                fontSize = 30.sp
+                                                text = "Confirm",
+                                                fontWeight = FontWeight(500),
+                                                fontSize = 20.sp
                                             )
                                         }
                                     }

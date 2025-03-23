@@ -16,13 +16,13 @@ import com.example.libtrack.authentication.Page1_SU
 import com.example.libtrack.authentication.Page2_FP
 import com.example.libtrack.authentication.Page2_SU
 import com.example.libtrack.authentication.Page3_FP
-import com.example.libtrack.pagesMain.BookDetailsPage
-import com.example.libtrack.pagesMain.HomePage
 import com.example.libtrack.errorHandling.NoConnectionPage
 import com.example.libtrack.errorHandling.SplashScreenPage
 import com.example.libtrack.pagesMain.AboutUsPage
+import com.example.libtrack.pagesMain.BookDetailsPage
 import com.example.libtrack.pagesMain.BooksPage
 import com.example.libtrack.pagesMain.HistoryPage
+import com.example.libtrack.pagesMain.HomePage
 import com.example.libtrack.pagesMain.PdfViewer
 import com.example.libtrack.pagesMain.PersonalInfoPage
 import com.example.libtrack.pagesMain.ServicesPage
@@ -36,19 +36,27 @@ fun Navigation() {
 
     NavHost(
         navController = navController,
-        startDestination = Pages.Splash_Screen
+        startDestination = "splash_screen_page"
     ) {
-        composable(Pages.Splash_Screen) {
-            SplashScreenPage(navController)
+        composable("splash_screen_page") {
+            SplashScreenPage(
+                navController = navController
+            )
         }
-        composable(Pages.Log_In, enterTransition = { slideInVertically { 2000000 } }) {
-            LogIn(navController)
+        composable("log_in_page", enterTransition = { slideInVertically { 2000000 } }) {
+            LogIn(
+                navController = navController
+            )
         }
-        composable(Pages.No_Connection_Page) {
-            NoConnectionPage(navController)
+        composable("no_connection_page") {
+            NoConnectionPage(
+                navHostController = navController
+            )
         }
         composable("sign_up_page1") {
-            Page1_SU(navController)
+            Page1_SU(
+                navHostController = navController
+            )
         }
         composable("sign_up_page2/{firstname}/{lastname}/{studentId}/{password}") { backStackEntry ->
             val firstname = backStackEntry.arguments?.getString("firstname") ?: ""
@@ -63,24 +71,24 @@ fun Navigation() {
                 password = password
             )
         }
-        composable("sign_up_complete") {
+        composable("sign_up_complete_page") {
             Complete_SU(navController)
         }
-        composable("sign_up_error") {
+        composable("sign_up_error_page") {
             Error_SU(navController)
         }
-        composable(Pages.Forgot_Password_Page1) {
+        composable("forgot_password_page1") {
             Page1_FP(navController)
         }
-        composable("${Pages.Forgot_Password_Page2}/{email}") { backStackEntry ->
+        composable("forgot_password_page2/{email}") { backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             Page2_FP(navController, email) // Pass the email
         }
-        composable(Pages.Forgot_Password_Page3+"/{email}") {backStackEntry ->
+        composable("forgot_password_page3/{email}") {backStackEntry ->
             val email = backStackEntry.arguments?.getString("email") ?: ""
             Page3_FP(navController, email)
         }
-        composable(Pages.Forgot_Password_Complete) {
+        composable("forgot_password_complete_page") {
             Complete_FP(navController)
         }
         composable("personal_info_page/{studentNumber}") {backStackEntry ->
@@ -105,31 +113,31 @@ fun Navigation() {
         composable("about_us_page") {
             AboutUsPage(navController)
         }
-        composable(Pages.Main_Page +"/{studentID}") { backStackEntry ->
+        composable("main_page/{studentID}") { backStackEntry ->
             val studentID = backStackEntry.arguments?.getString("studentID") ?: ""
             MainPage(
                 navController = navController,
                 studentID = studentID
             )
         }
-        composable("HomePage/{studentNumber}") { backStackEntry ->
+        composable("home_page/{studentID") { backStackEntry ->
             val studentID = backStackEntry.arguments?.getString("studentID") ?: ""
             HomePage(
                 studentID = studentID,
                 navController = navController
-            ){ bookId -> navController.navigate("BookDetailsPage/$bookId/$studentID") }
+            ){ bookId -> navController.navigate("book_details_page/$bookId/$studentID") }
         }
-        composable("BooksPage/{studentID}") {backStackEntry ->
+        composable("books_page/{studentID}") {backStackEntry ->
             val studentID = backStackEntry.arguments?.getString("studentID") ?: ""
             BooksPage(
                 studentID = studentID,
                 navController = navController,
                 onBookClick = { bookId ->
-                navController.navigate("BookDetailsPage/$bookId/$studentID")
+                navController.navigate("book_details_page/$bookId/$studentID")
                 }
             )
         }
-        composable(Pages.Book_Details_Page + "/{bookId}/{studentID}", arguments = listOf(navArgument("bookId") { type = NavType.IntType })) { backStackEntry ->
+        composable("book_details_page/{bookId}/{studentID}", arguments = listOf(navArgument("bookId") { type = NavType.IntType })) { backStackEntry ->
             val bookId = backStackEntry.arguments?.getInt("bookId") ?: 0
             val studentID = backStackEntry.arguments?.getString("studentID") ?: ""
             BookDetailsPage(
@@ -138,11 +146,10 @@ fun Navigation() {
                 navController = navController
             )
         }
-        composable("pdfViewer/{pdfUrl}") { backStackEntry ->
+        composable("pdf_viewer_page/{pdfUrl}") { backStackEntry ->
             val pdfUrl = backStackEntry.arguments?.getString("pdfUrl")?.let {
                 URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
             } ?: ""
-
             PdfViewer(pdfUrl)
         }
     }

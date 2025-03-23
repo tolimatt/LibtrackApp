@@ -16,12 +16,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -30,6 +35,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -39,13 +45,14 @@ import com.example.libtrack.errorHandling.historyImage
 import com.example.libtrack.errorHandling.personalInfoImage
 import com.example.libtrack.errorHandling.servicesImage
 import com.example.libtrack.errorHandling.staffImage
-import com.example.libtrack.navFunctions.Pages
 
 @Composable
 fun SettingsPage(
     studentID: String,
     navController: NavHostController
 ){
+
+    var isShowLogOutConfirmation by remember { mutableStateOf(false) }
 
     LazyColumn (
         verticalArrangement = Arrangement.Top,
@@ -132,7 +139,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable {
-                                navController.navigate(Pages.Forgot_Password_Page1)
+                                navController.navigate("forgot_password_page1")
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -401,7 +408,8 @@ fun SettingsPage(
 
             Button(
                 onClick = {
-                    navController.navigate(Pages.Log_In)
+                    isShowLogOutConfirmation = true
+
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp)
@@ -424,6 +432,63 @@ fun SettingsPage(
                         fontWeight = FontWeight(600),
                         fontFamily = FontFamily.Default
                     )
+                )
+            }
+
+            if (isShowLogOutConfirmation) {
+                AlertDialog(
+                    onDismissRequest = { isShowLogOutConfirmation = false },
+                    modifier = Modifier
+                        .size(width = 300.dp, height = 330.dp),
+                    title = {
+                        Column (
+                            modifier = Modifier
+                                .fillMaxWidth(),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center,
+                        ){
+                            Text(
+                                text = "Are you sure you want to Log Out?",
+                                fontWeight = FontWeight(800),
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    },
+                    text = {
+
+                        Column (
+                            verticalArrangement = Arrangement.Center,
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ){
+
+                            Row {
+
+                                Button(
+                                    onClick = {
+                                        isShowLogOutConfirmation = false
+                                    }
+                                ) {
+                                    Text(text = "No")
+                                }
+                                
+                                Button(
+                                    onClick = {
+                                        navController.navigate("log_in_page"){
+                                            popUpTo(0) {
+                                                inclusive = true
+                                            }
+                                        }
+                                        isShowLogOutConfirmation = false
+                                    }
+                                ) {
+                                    Text(text = "Yes")
+                                }
+                            }
+                        }
+                    },
+                    confirmButton = {
+                    }
                 )
             }
         }

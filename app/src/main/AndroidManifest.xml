@@ -16,6 +16,7 @@
 
 
     <application
+        android:name=".backend.Notification"
         android:networkSecurityConfig="@xml/server_address"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -29,7 +30,6 @@
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.LibTrack">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

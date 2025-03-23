@@ -8,7 +8,6 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavHostController
-import com.example.libtrack.navFunctions.Pages
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -53,8 +52,8 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                     when (status){
                         "success" -> { // Account exists, now logging in
                             Toast.makeText(context, "Login successful", Toast.LENGTH_SHORT).show()
-                            navController.navigate("MainPage/$studentID"){
-                                popUpTo(Pages.Log_In) {
+                            navController.navigate("main_page/$studentID"){
+                                popUpTo(0) {
                                     inclusive = true
                                 }
                             }

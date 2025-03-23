@@ -53,21 +53,14 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.libtrack.backend.Book
-import com.example.libtrack.backend.HOME_PAGE_URL_PATH
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.RetrofitBooks
-import com.example.libtrack.backend.SERVER_IP
 import com.example.libtrack.backend.UserDetails
 import com.example.libtrack.errorHandling.errorImage
-import com.example.libtrack.navFunctions.Pages
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Query
 
 @SuppressLint("SuspiciousIndentation")
 @Composable
@@ -136,7 +129,7 @@ fun HomePage(
 
             Button(
                 onClick = {
-                    navController.navigate(Pages.Splash_Screen)
+                    navController.navigate("splash_screen_page")
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -216,6 +209,7 @@ fun HomePage(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CircularProgressIndicator(
+                    strokeWidth = 8.dp,
                     modifier = Modifier.width(60.dp),
                     color = Color(0xFF72AF7B),
                     trackColor = Color.LightGray,
