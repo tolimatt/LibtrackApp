@@ -36,7 +36,7 @@ fun BarcodeDisplay(text: String) {
         bitmap = barcodeBitmap.asImageBitmap(),
         contentDescription = "Generated Barcode",
         modifier = Modifier
-            .size(250.dp),
+            .size(300.dp),
         contentScale = ContentScale.Fit
     )
 }

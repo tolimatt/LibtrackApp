@@ -58,23 +58,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.libtrack.R
-import com.example.libtrack.backend.ATTENDANCE_CHECKER_URL_PATH
 import com.example.libtrack.backend.AttendanceItem
 import com.example.libtrack.backend.AttendanceViewModel
-import com.example.libtrack.backend.BORROWED_BOOKS_URL_PATH
 import com.example.libtrack.backend.HistoryItem
 import com.example.libtrack.backend.HistoryViewModel
 import com.example.libtrack.backend.RetrofitAccountName
-import com.example.libtrack.backend.SERVER_IP
 import com.example.libtrack.backend.UserDetails
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import retrofit2.http.GET
-import retrofit2.http.Query
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -156,281 +149,284 @@ fun PersonalInfoPage(
     ) { paddingValues ->
 
         Column(
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.Start,
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
                 .padding(20.dp)
         ) {
 
-            Row {
+            Text(
+                text = "First Name",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
-                Column {
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                    Text(
-                        text = "First Name",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Text(
+                text = "$firstName",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Text(
-                        text = "$firstName",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Box(
+                modifier = Modifier
+                    .height(1.dp)
+                    .background(Color.LightGray)
+                    .fillMaxWidth()
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                    Box(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .width(130.dp)
-                            .background(Color.Black)
-                    )
+            Text(
+                text = "Last Name",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                    Text(
-                        text = "Last Name",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Text(
+                text = "$lastName",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Text(
-                        text = "$lastName",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Box(
+                modifier = Modifier
+                    .height(1.dp)
+                    .background(Color.LightGray)
+                    .fillMaxWidth()
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                    Box(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .width(130.dp)
-                            .background(Color.Black)
-                    )
+            Text(
+                text = "Student ID",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                    Text(
-                        text = "Student ID",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Text(
+                text = studentID,
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Text(
-                        text = studentID,
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Box(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                    Box(
-                        modifier = Modifier
-                            .height(1.dp)
-                            .width(130.dp)
-                            .background(Color.Black)
-                    )
+            Text(
+                text = "Contact Number",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                    Text(
-                        text = "Contact Number",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Text(
+                text = "0$contactNumber",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Text(
-                        text = "0$contactNumber",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Box(
+                modifier = Modifier
+                    .height(1.dp)
+                    .fillMaxWidth()
+                    .background(Color.LightGray)
+            )
 
-                }
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                Spacer(
-                    modifier = Modifier.width(20.dp)
-                )
+            Text(
+                text = "Year Level",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
-                Box(
-                    modifier = Modifier
-                        .height(600.dp)
-                        .width(1.dp)
-                        .background(Color.Black)
-                )
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                Spacer(
-                    modifier = Modifier.width(20.dp)
-                )
+            Text(
+                text = "$yearLevel",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                Column {
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Text(
-                        text = "Year Level",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Box(
+                modifier = Modifier
+                    .background(Color.LightGray)
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                    Text(
-                        text = "$yearLevel",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Text(
+                text = "Program",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Text(
+                text = "$program",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Black)
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Box(
+                modifier = Modifier
+                    .background(Color.LightGray)
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
 
-                    Text(
-                        text = "Program",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Text(
+                text = "Department",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600)
+            )
 
-                    Text(
-                        text = "$program",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
+            Text(
+                text = "$department",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Black)
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
+            Box(
+                modifier = Modifier
+                    .background(Color.LightGray)
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
 
-                    Text(
-                        text = "Department",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
+            Text(
+                text = "PHINMAED Email",
+                fontSize = 14.sp,
+                color = Color(0xFF5E6366),
+                fontWeight = FontWeight(600),
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
+            Spacer(
+                modifier = Modifier.height(6.dp)
+            )
 
-                    Text(
-                        text = "$department",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
+            Text(
+                text = "$phinmaEmail",
+                fontSize = 18.sp,
+                color = Color.Black,
+                fontWeight = FontWeight(600),
+                modifier = Modifier.offset(10.dp, 0.dp)
+            )
 
+            Spacer(
+                modifier = Modifier.height(2.dp)
+            )
 
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .background(Color.Black)
-                            .fillMaxWidth()
-                            .height(1.dp)
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(20.dp)
-                    )
-
-                    Text(
-                        text = "PHINMAED Email",
-                        fontSize = 15.sp,
-                        color = Color(0xFF5E6366),
-                        fontWeight = FontWeight(400)
-                    )
-
-                    Spacer(
-                        modifier = Modifier.height(5.dp)
-                    )
-
-                    Text(
-                        text = "$phinmaEmail",
-                        fontSize = 18.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight(600)
-                    )
-
-                }
-            }
+            Box(
+                modifier = Modifier
+                    .background(Color.LightGray)
+                    .fillMaxWidth()
+                    .height(1.dp)
+            )
         }
     }
 }
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -561,236 +557,329 @@ fun HistoryPage(studentID: String, navController: NavHostController){
 
             } else if (errorMessage != null) {
                 Text(text = errorMessage!!, color = Color.Red)
-            } else if (historyItems != null || attendanceItems!=null) {
+            } else {
 
                 if (isShowBorrowing){
 
-                    Spacer(
-                        modifier = Modifier.height(10.dp)
-                    )
+                    if (historyItems.isNullOrEmpty()){
 
-                    Text(
-                        text = "Currently Borrowing:",
-                        fontWeight = FontWeight(600),
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
-                    Spacer(
-                        modifier = Modifier.height(3.dp)
-                    )
+                        Text(
+                            text = "Currently Borrowing:",
+                            fontWeight = FontWeight(600),
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
 
-                    LazyColumn {
-                        items(historyItems!!) { item ->
+                        Spacer(
+                            modifier = Modifier.height(50.dp)
+                        )
 
-                            if(item.status != "Returned"){
+                        Text(
+                            text = "No History Found",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
 
-                                Card(
-                                    modifier = Modifier
-                                        .padding(10.dp)
-                                        .fillMaxWidth()
-                                ) {
+                    } else {
 
-                                    Column(
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
+
+                        Text(
+                            text = "Currently Borrowing:",
+                            fontWeight = FontWeight(600),
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(3.dp)
+                        )
+
+                        LazyColumn {
+                            items(historyItems!!) { item ->
+
+                                if(item.status != "Returned"){
+
+                                    Card(
                                         modifier = Modifier
-                                            .padding(16.dp)
-                                    ){
+                                            .padding(10.dp)
+                                            .fillMaxWidth()
+                                    ) {
 
-                                        Text(
-                                            text = "Title: ${item.title}",
-                                            fontWeight = FontWeight(600),
-                                            fontSize = 18.sp,
-                                            color = Color.Black
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Text(
-                                            text = "Book Code: ${item.bookCode}",
-                                            fontWeight = FontWeight(400),
-                                            fontSize = 13.sp,
-                                            color = Color(0xFF5E6366)
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Text(
-                                            text = "Borrowed on: ${item.borrowedDate}",
-                                            fontWeight = FontWeight(500),
-                                            fontSize = 16.sp,
-                                            color = Color.Black
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Text(
-                                            text = "Due Date: ${item.dueDate}",
-                                            fontWeight = FontWeight(500),
-                                            fontSize = 16.sp,
-                                            color = Color.Black
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Box(
+                                        Column(
                                             modifier = Modifier
-                                                .background(Color.Red.copy(alpha = 0.8f), shape = RoundedCornerShape(10.dp))
-                                                .padding( horizontal = 5.dp, vertical = 5.dp)
+                                                .padding(16.dp)
                                         ){
-                                            Text(
-                                                text = "Return book before Due Date",
-                                                fontWeight = FontWeight(700),
-                                                fontSize = 16.sp,
-                                                color = Color.White
-                                            )
-                                        }
 
+                                            Text(
+                                                text = "Title: ${item.title}",
+                                                fontWeight = FontWeight(600),
+                                                fontSize = 18.sp,
+                                                color = Color.Black
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Text(
+                                                text = "Book Code: ${item.bookCode}",
+                                                fontWeight = FontWeight(400),
+                                                fontSize = 13.sp,
+                                                color = Color(0xFF5E6366)
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Text(
+                                                text = "Borrowed on: ${item.borrowedDate}",
+                                                fontWeight = FontWeight(500),
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Text(
+                                                text = "Due Date: ${item.dueDate}",
+                                                fontWeight = FontWeight(500),
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(Color.Red.copy(alpha = 0.8f), shape = RoundedCornerShape(10.dp))
+                                                    .padding( horizontal = 5.dp, vertical = 5.dp)
+                                            ){
+                                                Text(
+                                                    text = "Return book before Due Date",
+                                                    fontWeight = FontWeight(700),
+                                                    fontSize = 16.sp,
+                                                    color = Color.White
+                                                )
+                                            }
+
+                                        }
                                     }
                                 }
                             }
                         }
                     }
+
                 } else if (isShowBorrowed){
 
-                    Spacer(
-                        modifier = Modifier.height(10.dp)
-                    )
+                    val returnedBooks = historyItems?.filter { it.status == "Returned" }
 
-                    Text(
-                        text = "Borrowed Books:",
-                        fontWeight = FontWeight(600),
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
+                    if (returnedBooks.isNullOrEmpty()) {
 
-                    Spacer(
-                        modifier = Modifier.height(3.dp)
-                    )
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
-                    LazyColumn {
-                        items(historyItems!!) { item ->
+                        Text(
+                            text = "Borrowed Books:",
+                            fontWeight = FontWeight(600),
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
 
-                            if(item.status == "Returned"){
+                        Spacer(
+                            modifier = Modifier.height(50.dp)
+                        )
 
-                                Card(
-                                    modifier = Modifier
-                                        .padding(10.dp)
-                                        .fillMaxWidth()
-                                ) {
+                        Text(
+                            text = "No History Found",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
 
-                                    Column(
+                    } else{
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
+
+                        Text(
+                            text = "Borrowed Books:",
+                            fontWeight = FontWeight(600),
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(3.dp)
+                        )
+
+                        LazyColumn {
+                            items(historyItems!!) { item ->
+
+                                if(item.status == "Returned"){
+
+                                    Card(
                                         modifier = Modifier
-                                            .padding(16.dp)
-                                    ){
+                                            .padding(10.dp)
+                                            .fillMaxWidth()
+                                    ) {
 
-                                        Text(
-                                            text = "Title: ${item.title}",
-                                            fontWeight = FontWeight(600),
-                                            fontSize = 18.sp,
-                                            color = Color.Black
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Text(
-                                            text = "Book Code: ${item.bookCode}",
-                                            fontWeight = FontWeight(400),
-                                            fontSize = 13.sp,
-                                            color = Color(0xFF5E6366)
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Text(
-                                            text = "Borrowed on: ${item.borrowedDate}",
-                                            fontWeight = FontWeight(500),
-                                            fontSize = 16.sp,
-                                            color = Color.Black
-                                        )
-
-                                        Spacer(
-                                            modifier = Modifier.height(8.dp)
-                                        )
-
-                                        Box(
+                                        Column(
                                             modifier = Modifier
-                                                .background(Color.Green.copy(alpha = 0.6f), shape = RoundedCornerShape(10.dp))
-                                                .padding( horizontal = 5.dp, vertical = 5.dp)
+                                                .padding(16.dp)
                                         ){
+
                                             Text(
-                                                text = "Book ${item.status}",
-                                                fontWeight = FontWeight(700),
-                                                fontSize = 16.sp,
-                                                color = Color.White
+                                                text = "Title: ${item.title}",
+                                                fontWeight = FontWeight(600),
+                                                fontSize = 18.sp,
+                                                color = Color.Black
                                             )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Text(
+                                                text = "Book Code: ${item.bookCode}",
+                                                fontWeight = FontWeight(400),
+                                                fontSize = 13.sp,
+                                                color = Color(0xFF5E6366)
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Text(
+                                                text = "Borrowed on: ${item.borrowedDate}",
+                                                fontWeight = FontWeight(500),
+                                                fontSize = 16.sp,
+                                                color = Color.Black
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.height(8.dp)
+                                            )
+
+                                            Box(
+                                                modifier = Modifier
+                                                    .background(Color.Green.copy(alpha = 0.6f), shape = RoundedCornerShape(10.dp))
+                                                    .padding( horizontal = 5.dp, vertical = 5.dp)
+                                            ){
+                                                Text(
+                                                    text = "Book ${item.status}",
+                                                    fontWeight = FontWeight(700),
+                                                    fontSize = 16.sp,
+                                                    color = Color.White
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
                     }
+
+
                 } else if (isShowAttendance){
 
-                    Spacer(
-                        modifier = Modifier.height(10.dp)
-                    )
+                    if (attendanceItems.isNullOrEmpty()){
 
-                    Text(
-                        text = "Attendance in Library",
-                        fontWeight = FontWeight(600),
-                        fontSize = 20.sp,
-                        color = Color.Black
-                    )
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
-                    Spacer(
-                        modifier = Modifier.height(3.dp)
-                    )
+                        Text(
+                            text = "Attendance in Library:",
+                            fontWeight = FontWeight(600),
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
 
-                    LazyColumn {
-                        items(attendanceItems!!) { item ->
+                        Spacer(
+                            modifier = Modifier.height(50.dp)
+                        )
 
-                            Card(
-                                modifier = Modifier
-                                    .padding(10.dp)
-                                    .fillMaxWidth()
-                            ) {
+                        Text(
+                            text = "No History Found",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp
+                        )
 
-                                Column(
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                ) {
+                    } else {
 
+                        Spacer(
+                            modifier = Modifier.height(10.dp)
+                        )
 
-                                    Text(
-                                        text = "Date: ${item.entryTime}",
-                                        fontWeight = FontWeight(600),
-                                        fontSize = 18.sp,
-                                        color = Color.Black
-                                    )
+                        Text(
+                            text = "Attendance in Library:",
+                            fontWeight = FontWeight(600),
+                            fontSize = 20.sp,
+                            color = Color.Black
+                        )
+
+                        Spacer(
+                            modifier = Modifier.height(3.dp)
+                        )
+
+                        LazyColumn {
+                            items(attendanceItems!!) { item ->
+
+                                if (item.day == "Monday" || item.day == "Tuesday" || item.day == "Wednesday" || item.day == "Thursday" || item.day == "Friday" || item.day == "Saturday"){
+
+                                    Card(
+                                        modifier = Modifier
+                                            .padding(10.dp)
+                                            .fillMaxWidth()
+                                    ) {
+
+                                        Column(
+                                            modifier = Modifier
+                                                .padding(16.dp)
+                                        ) {
+
+                                            Text(
+                                                text = "Date: ${item.entryTime}",
+                                                fontWeight = FontWeight(600),
+                                                fontSize = 18.sp,
+                                                color = Color.Black
+                                            )
+
+                                            Spacer(
+                                                modifier = Modifier.width(20.dp)
+                                            )
+
+                                            Text(
+                                                text = item.day,
+                                                fontWeight = FontWeight(600),
+                                                fontSize = 18.sp,
+                                                color = Color.DarkGray
+                                            )
+                                        }
+                                    }
+                                } else{
 
                                     Spacer(
-                                        modifier = Modifier.width(20.dp)
+                                        modifier = Modifier.height(30.dp)
                                     )
-
                                     Text(
-                                        text = item.day,
+                                        text = "No History Found",
                                         fontWeight = FontWeight(600),
-                                        fontSize = 18.sp,
-                                        color = Color.DarkGray
+                                        fontSize = 20.sp
                                     )
-
                                 }
                             }
                         }
@@ -799,22 +888,11 @@ fun HistoryPage(studentID: String, navController: NavHostController){
 
                 } else{
                     Text(" Error ")
-
-
                 }
-
-
-            } else {
-                    Text(
-                        text = "No history found."
-                    )
             }
         }
     }
 }
-
-
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -913,6 +991,7 @@ fun StaffTeamPage(navController: NavHostController){
                                 Spacer(
                                     modifier = Modifier.width(20.dp)
                                 )
+
                                 Column {
 
                                     Text(
@@ -939,19 +1018,247 @@ fun StaffTeamPage(navController: NavHostController){
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(700)
                                     )
-
                                 }
                             }
                         }
+                    }
 
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                    ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.placeholder1),
+                                    contentDescription = "Head",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "Head Librarian",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Charles Ugip",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
+
+                Spacer(
+                    modifier = Modifier.height(20.dp)
+                )
+
+                Text(
+                    text = "DEVELOPMENT TEAM",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight(700)
+                )
+
+                Column (
+                    modifier = Modifier
+                        .padding(15.dp)
+
+                ){
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                        ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.placeholder1),
+                                    contentDescription = "Head",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "Project Manager",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Charles Toliao",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(10.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                        ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.placeholder1),
+                                    contentDescription = "Head",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "Head Librarian",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Charles Ugip",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+
 
             }
         }
     }
-
-            }
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1055,7 +1362,6 @@ fun ServicesPage(navController: NavHostController){
 
                         )
 
-
                         Text(
                             modifier = Modifier
                                 .padding(13.dp),
@@ -1124,7 +1430,6 @@ fun ServicesPage(navController: NavHostController){
 
                         )
 
-
                         Text(
                             modifier = Modifier
                                 .padding(13.dp),
@@ -1160,7 +1465,6 @@ fun ServicesPage(navController: NavHostController){
                             fontWeight = FontWeight(500)
 
                         )
-
 
                         Text(
                             modifier = Modifier
@@ -1361,10 +1665,8 @@ fun ServicesPage(navController: NavHostController){
                             color = Color(0xFF5E6366),
                             fontWeight = FontWeight(400)
                         )
-
                     }
                 }
-
             }
         }
     }

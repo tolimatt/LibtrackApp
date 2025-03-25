@@ -52,13 +52,14 @@ fun verifyOTP(email: String, otp: String, context: Context, onSuccess: (Boolean)
                 onSuccess(true)
             } else {
                 Toast.makeText(context, response.getString("message"), Toast.LENGTH_SHORT).show()
+                onSuccess(false)
             }
         },
         { error ->
             Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            onSuccess(false)
         }
     )
-
     Volley.newRequestQueue(context).add(request)
 }
 
@@ -80,10 +81,12 @@ fun updatePassword(email: String, newPassword: String, context: Context, onSucce
                 onSuccess(true)
             } else {
                 Toast.makeText(context, response.getString("message"), Toast.LENGTH_SHORT).show()
+                onSuccess(false)
             }
         },
         { error ->
             Toast.makeText(context, "Error: ${error.message}", Toast.LENGTH_SHORT).show()
+            onSuccess(false)
         }
     )
 

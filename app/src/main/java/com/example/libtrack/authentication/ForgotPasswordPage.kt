@@ -22,6 +22,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -48,6 +49,8 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,6 +60,8 @@ import com.example.libtrack.backend.sendOTP
 import com.example.libtrack.backend.updatePassword
 import com.example.libtrack.backend.verifyOTP
 import com.example.libtrack.errorHandling.errorImage
+import com.example.libtrack.errorHandling.passwordVisibilityFalseImage
+import com.example.libtrack.errorHandling.passwordVisibilityTrueImage
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -72,6 +77,8 @@ fun Page1_FP(navController: NavHostController){
     var isRegisteredEmail by remember { mutableStateOf(true) }
 
     val schoolEmailFocusRequester = remember { FocusRequester() }
+
+    var isLoading by remember { mutableStateOf(false) }
 
     // Hide Keyboard
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -207,13 +214,15 @@ fun Page1_FP(navController: NavHostController){
                 onClick = {
 
                     if (fpSchoolEmailTS.contains(".up@phinmaed.com")){
+                        isLoading = true
                         sendOTP(
                             email = fpSchoolEmailTS,
-                            context = context){success ->
+                            context = context
+                        ){success ->
+                            isLoading = false
                             isRegisteredEmail = true
                             isEmailNotNull = true
                             if (success) {
-
                                 navController.navigate("forgot_password_page2/$fpSchoolEmailTS")
                             }
                         }
@@ -222,7 +231,6 @@ fun Page1_FP(navController: NavHostController){
                     } else{
                         isRegisteredEmail = false
                     }
-
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),
@@ -230,17 +238,25 @@ fun Page1_FP(navController: NavHostController){
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFF72AF7B),
                     contentColor = Color.White
-                )
+                ),
+                enabled = !isLoading
             ) {
-                Text(
-                    text = "Reset Password",
-                    style = TextStyle(
-                        color = Color.White,
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight(600),
-                        fontFamily = FontFamily.Default
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        color = Color.White
                     )
-                )
+                } else {
+                    Text(
+                        text = "Reset Password",
+                        style = TextStyle(
+                            color = Color.White,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight(600),
+                            fontFamily = FontFamily.Default
+                        )
+                    )
+                }
             }
         }
     }
@@ -253,6 +269,8 @@ fun Page2_FP(navController: NavHostController, email: String){
 
     val context = LocalContext.current
     var otp by remember { mutableStateOf("") }
+
+    var isCorrectOTP by remember { mutableStateOf(true) }
 
 
     Scaffold (
@@ -286,6 +304,10 @@ fun Page2_FP(navController: NavHostController, email: String){
                 )
             )
 
+            Spacer(
+                modifier = Modifier.height(5.dp)
+            )
+
             Text(
                 text = "We sent an Email to (email), Enter the 5 Digit Code mentioned on the Email",
                 style = TextStyle(
@@ -295,16 +317,99 @@ fun Page2_FP(navController: NavHostController, email: String){
                 textAlign = TextAlign.Center
             )
 
+            Spacer(
+                modifier = Modifier.height(25.dp)
+            )
+
+            Text(
+                modifier = Modifier
+                    .offset(
+                        (-123).dp, 0.dp),
+                text = "OTP CODE",
+                fontSize = 12.sp,
+                color = Color(0xFF727D83)
+            )
+
             TextField(
+                modifier = Modifier
+                    .border(
+                        width = 1.2.dp,
+                        color = if(!isCorrectOTP) Color.Red else Color(0xFFC1C1C1),
+                        shape = RoundedCornerShape(15.dp)
+                    )
+                    .width(350.dp)
+                    .height(55.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
+                ),
+                placeholder = {
+                    Text(
+                        text = "Enter the five digit code",
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
+                    )
+                },
+
+                singleLine = true,
                 value = otp,
                 onValueChange = {
                     if (it.length <= 5 && it.all { char -> char.isDigit() }) {
                         otp = it
                     }
                 },
-                label = { Text("5-Digit Code") },
-                singleLine = true,
-                isError = otp.length > 5
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Next
+                ),
+            )
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+            Row {
+
+                if (!isCorrectOTP){
+                    Image(
+                        painter = painterResource(id = errorImage),
+                        contentDescription = "Error Icon",
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else{
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    text =
+                    if(!isCorrectOTP){
+                        "Incorrect OTP."
+                    } else{
+                        ""
+                    },
+                    fontSize = 15.sp,
+                    color = Color.Red,
+                    style = TextStyle(
+                        fontWeight = FontWeight(700)
+                    ),
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.height(40.dp)
             )
 
             Button(
@@ -312,9 +417,12 @@ fun Page2_FP(navController: NavHostController, email: String){
                     verifyOTP(
                         email = email,
                         otp = otp,
-                        context = context){success ->
+                        context = context
+                    ){success ->
                         if (success){
                             navController.navigate("forgot_password_page3/$email")
+                        } else{
+                            isCorrectOTP = false
                         }
                     }
                 },
@@ -349,6 +457,10 @@ fun Page3_FP(navController: NavHostController, email: String){
     var newPassword by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    var isPasswordValid by remember { mutableStateOf(true) }
+    var isPasswordMatch by remember { mutableStateOf(true) }
+
+    var isPasswordVisible by remember { mutableStateOf(false) }
 
     Scaffold (
         modifier = Modifier.fillMaxSize(),
@@ -381,6 +493,10 @@ fun Page3_FP(navController: NavHostController, email: String){
                 )
             )
 
+            Spacer(
+                modifier = Modifier.height(5.dp)
+            )
+
             Text(
                 text = "Create a new Password. Ensure it Differs from your previous password",
                 style = TextStyle(
@@ -390,59 +506,181 @@ fun Page3_FP(navController: NavHostController, email: String){
                 textAlign = TextAlign.Center
             )
 
+            Spacer(
+                modifier = Modifier.height(25.dp)
+            )
+
             Text(
-                text = "NEW PASSWORD"
+                modifier = Modifier.offset(
+                    (-130).dp, 0.dp
+                ),
+                text = "PASSWORD",
+                fontSize = 12.sp,
+                color = Color(0xFF727D83)
             )
 
             TextField(
                 modifier = Modifier
                     .border(
                         width = 1.2.dp,
-                        color = Color(0xFF727D83),
-                        shape = RoundedCornerShape(12.dp)
+                        color = if(!isPasswordValid || !isPasswordMatch) Color.Red else Color(0xFFC1C1C1),
+                        shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
+                    .width(350.dp)
+                    .height(55.dp),
+                colors = TextFieldDefaults.colors(
+                    focusedContainerColor = Color.Transparent,
+                    unfocusedContainerColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
+                ),
+                placeholder = {
+                    Text(
+                        text = "Password",
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
+                    )
+                },
+                singleLine = true,
+                visualTransformation = if(isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                trailingIcon = {
+                    IconButton(onClick = { isPasswordVisible = !isPasswordVisible }) {
+                        Icon(
+                            painter = painterResource(id = if (isPasswordVisible) passwordVisibilityTrueImage else passwordVisibilityFalseImage),
+                            contentDescription = "Password Visibility Toggle"
+                        )
+                    }
+                },
                 value = newPassword,
                 onValueChange = { newPassword = it },
-                colors = TextFieldDefaults.colors(
-                    focusedContainerColor = Color.Transparent,
-                    unfocusedContainerColor = Color.Transparent,
-                    focusedIndicatorColor = Color.Transparent,
-                    unfocusedIndicatorColor = Color.Transparent
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Next
                 ),
             )
 
             Text(
-                text = "CONFIRM NEW PASSWORD"
+                modifier = Modifier.offset(
+                    (-40).dp, 0.dp
+                ),
+                text = "• Password must be at least 8 characters",
+                fontSize = 13.sp,
+                color = Color(0xFF727D83)
+            )
+
+            Spacer(
+                modifier = Modifier.height(15.dp)
+            )
+
+            Text(
+                modifier = Modifier.offset(
+                    (-104).dp, 0.dp
+                ),
+                text = "CONFIRM PASSWORD",
+                fontSize = 12.sp,
+                color = Color(0xFF727D83)
             )
 
             TextField(
                 modifier = Modifier
                     .border(
                         width = 1.2.dp,
-                        color = Color(0xFF727D83),
-                        shape = RoundedCornerShape(12.dp)
+                        color = if(!isPasswordMatch || !isPasswordValid) Color.Red else Color(0xFFC1C1C1),
+                        shape = RoundedCornerShape(15.dp)
                     )
-                    .width(350.dp),
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
+                    .width(350.dp)
+                    .height(55.dp),
                 colors = TextFieldDefaults.colors(
                     focusedContainerColor = Color.Transparent,
                     unfocusedContainerColor = Color.Transparent,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
+                textStyle = TextStyle(
+                    fontSize = 17.sp
+                ),
+                placeholder = {
+                    Text(
+                        text = "Confirm Password",
+                        fontWeight = FontWeight(400),
+                        color = Color.LightGray
+                    )
+                },
+
+                singleLine = true,
+                visualTransformation = PasswordVisualTransformation(),
+                value = confirmPassword,
+                onValueChange = { confirmPassword = it },
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                    imeAction = ImeAction.Done
+                ),
+            )
+
+            Spacer(
+                modifier = Modifier.height(10.dp)
+            )
+
+            Row {
+
+                if (!isPasswordValid || !isPasswordMatch){
+                    Image(
+                        painter = painterResource(id = errorImage),
+                        contentDescription = "Error Icon",
+                        modifier = Modifier.size(20.dp)
+                    )
+                } else{
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+                }
+
+                Spacer(
+                    modifier = Modifier.width(8.dp)
+                )
+
+                Text(
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically),
+                    text =
+                    if(!isPasswordValid){
+                        "Password must be at least 8 characters long."
+                    } else if(!isPasswordMatch){
+                        "Password does not match."
+                    }else {
+                        ""
+                    },
+                    fontSize = 15.sp,
+                    color = Color.Red,
+                    style = TextStyle(
+                        fontWeight = FontWeight(700)
+                    ),
+                )
+            }
+
+            Spacer(
+                modifier = Modifier.height(40.dp)
             )
 
             Button(
                 onClick = {
-                    if (newPassword == confirmPassword) {
+                    if (newPassword == confirmPassword && newPassword.length >= 8) {
                         updatePassword(email, newPassword, context) { success ->
                             if (success) {
-                                navController.navigate("forgot_password_complete_page")
+                                navController.navigate("forgot_password_complete_page"){
+                                    popUpTo(0){
+                                        inclusive = true
+                                    }
+                                }
                             }
                         }
+                    } else if (newPassword.length < 8){
+                        isPasswordValid = false
                     } else {
+                        isPasswordMatch = false
                         Toast.makeText(context, "Passwords do not match!", Toast.LENGTH_SHORT).show()
                     }
                 },
@@ -529,7 +767,11 @@ fun Complete_FP(navHostController: NavHostController){
             Button(
 
                 onClick = {
-                    navHostController.navigate("log_in_page")
+                    navHostController.navigate("log_in_page"){
+                        popUpTo(0) {
+                            inclusive = true
+                        }
+                    }
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),

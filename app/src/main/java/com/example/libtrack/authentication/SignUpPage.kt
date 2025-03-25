@@ -100,7 +100,7 @@ fun Page1_SU(navHostController: NavHostController){
     var passwordTS by rememberSaveable { mutableStateOf("") }
     var confirmPasswordTS by rememberSaveable { mutableStateOf("") }
 
-    val validStudentId = studentIdTS.contains("-") && studentIdTS.contains("-") && studentIdTS.contains("-")
+    val validStudentId = studentIdTS.contains("-") && studentIdTS.contains("-")
 
     // Completed all TFs
     val allCompletedPage1 = firstNameTS.isNotEmpty() &&

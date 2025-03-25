@@ -305,8 +305,8 @@ fun BooksPage(
                         modifier = Modifier
                             .padding(4.dp)
                             .shadow(
-                                elevation = 10.dp,
-                                shape = RoundedCornerShape(8.dp)
+                                elevation = 5.dp,
+                                shape = RoundedCornerShape(15.dp)
                             )
                     ) {
                         Text(filter)

@@ -439,7 +439,7 @@ fun SettingsPage(
                 AlertDialog(
                     onDismissRequest = { isShowLogOutConfirmation = false },
                     modifier = Modifier
-                        .size(width = 300.dp, height = 330.dp),
+                        .size(width = 300.dp, height = 190.dp),
                     title = {
                         Column (
                             modifier = Modifier
@@ -458,21 +458,42 @@ fun SettingsPage(
                     text = {
 
                         Column (
+                            modifier = Modifier
+                                .fillMaxWidth(),
                             verticalArrangement = Arrangement.Center,
                             horizontalAlignment = Alignment.CenterHorizontally
                         ){
 
-                            Row {
+                            Row{
 
                                 Button(
+                                    shape = RoundedCornerShape(15.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF72AF7B),
+                                        contentColor = Color.White
+                                    ),
                                     onClick = {
                                         isShowLogOutConfirmation = false
                                     }
                                 ) {
-                                    Text(text = "No")
+                                    Text(
+                                        text = "No",
+                                        fontWeight = FontWeight(500),
+                                        fontSize = 20.sp
+                                    )
                                 }
+
+                                Spacer(
+                                    modifier = Modifier
+                                        .width(20.dp)
+                                )
                                 
                                 Button(
+                                    shape = RoundedCornerShape(15.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color(0xFF72AF7B),
+                                        contentColor = Color.White
+                                    ),
                                     onClick = {
                                         navController.navigate("log_in_page"){
                                             popUpTo(0) {
@@ -482,7 +503,11 @@ fun SettingsPage(
                                         isShowLogOutConfirmation = false
                                     }
                                 ) {
-                                    Text(text = "Yes")
+                                    Text(
+                                        text = "Yes",
+                                        fontWeight = FontWeight(500),
+                                        fontSize = 20.sp
+                                    )
                                 }
                             }
                         }

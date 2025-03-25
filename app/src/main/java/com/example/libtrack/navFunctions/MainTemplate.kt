@@ -2,12 +2,14 @@ package com.example.libtrack.navFunctions
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -41,8 +43,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavHostController
 import com.example.libtrack.backend.BarcodeDisplay
 import com.example.libtrack.errorHandling.booksIconImage
@@ -90,6 +94,7 @@ fun MainPage(
                 actions = {
                     IconButton(onClick = {
                         isLoading = true
+                        isShowDialog = false
                     }) {
                         Icon(
                             painter = painterResource(id = codeGeneratorImage),
@@ -201,63 +206,77 @@ fun MainPage(
                     if (isShowDialog) {
                         isLoading = false
 
-                        AlertDialog(
-                            modifier = Modifier
-                                .size(300.dp, 520.dp),
-                            onDismissRequest = { isShowDialog = false },
-                            title = {
-                                Text(
-                                    text = "Library Access Barcode Ready!",
-                                    style = TextStyle(
-                                        color = Color.Black,
-                                        fontSize = 23.sp,
-                                        fontWeight = FontWeight(600)
+                        Dialog(
+                            onDismissRequest = { isShowDialog = false }
+                        ) {
+                            Card(
+                                modifier = Modifier
+                                    .size(400.dp,560.dp),
+                                shape = RoundedCornerShape(20.dp), // Rounded corners
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(16.dp),
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Spacer(
+                                        modifier = Modifier.height(10.dp)
                                     )
-                                )
-                            },
-                            text = {
-                                Column (
-                                    horizontalAlignment = Alignment.CenterHorizontally
-                                ){
-
                                     Text(
-                                        text =  "Welcome to the Library! Your barcode has been successfully generated. Use it to access library services and resources."
+                                        text = "Library Access Barcode Ready!",
+                                        style = TextStyle(
+                                            color = Color.Black,
+                                            fontSize = 23.sp,
+                                            fontWeight = FontWeight.Bold
+                                        ),
+                                        textAlign = TextAlign.Center
                                     )
 
                                     Spacer(
-                                        modifier = Modifier
-                                            .height(20.dp)
+                                        modifier = Modifier.height(20.dp)
                                     )
 
                                     Text(
-                                        text = studentID
+                                        text = "Welcome to the Library! Your barcode has been successfully generated. Use it to access library services and resources.",
+                                        style = TextStyle(
+                                            color = Color.Black,
+                                            fontSize = 15.sp,
+                                            fontWeight = FontWeight(500)
+                                        ),
+                                        textAlign = TextAlign.Center
                                     )
 
                                     Spacer(
-                                        modifier = Modifier
-                                            .height(5.dp)
+                                        modifier = Modifier.height(5.dp)
                                     )
 
                                     BarcodeDisplay(studentID)
 
-                                }
+                                    Text(
+                                        text = studentID,
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 16.sp,
+                                        modifier = Modifier
+                                            .offset(0.dp, (-20).dp)
+                                    )
 
-                            },
-                            confirmButton = {
-                                Button(
-                                    shape = RoundedCornerShape(15.dp),
-                                    colors = ButtonDefaults.buttonColors(
-                                        containerColor = Color(0xFF72AF7B),
-                                        contentColor = Color.White
-                                    ),
-                                    onClick = {
-                                        isShowDialog = false
-                                    },
-                                ) {
-                                    Text("Close")
+                                    Button(
+                                        shape = RoundedCornerShape(15.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF72AF7B),
+                                            contentColor = Color.White
+                                        ),
+                                        onClick = {
+                                            isShowDialog = false
+                                        }
+                                    ) {
+                                        Text("Close")
+                                    }
                                 }
                             }
-                        )
+                        }
                     }
                 }
             }
