@@ -31,6 +31,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -50,9 +51,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.libtrack.backend.Book
+import com.example.libtrack.backend.HistoryItem
+import com.example.libtrack.backend.HistoryViewModel
+import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.RetrofitBooks
 import com.example.libtrack.backend.UserDetails
@@ -76,9 +81,35 @@ fun HomePage(
     var department by remember { mutableStateOf<String?>("") }
     var validAccount by remember { mutableStateOf<String?>("") }
 
+    var historyItems by remember { mutableStateOf<List<HistoryItem>?>(null) }
+    val historyViewModel = remember{ HistoryViewModel() }
 
     var books by remember { mutableStateOf(listOf<Book>()) }
     var isLoading by remember { mutableStateOf(true) } // State for loading
+
+    var selectedPage by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(selectedPage) {
+        selectedPage?.let { page ->
+            navController.navigate("book_details_page/$page/$studentID")
+            selectedPage = null // Reset after navigation
+        }
+    }
+
+
+    LaunchedEffect(studentID) {
+        scope.launch {
+            try {
+                historyItems = historyViewModel.fetchStudentHistory(studentID)
+            } catch (e: Exception) {
+                Log.e("HomePage", "Error fetching history: ${e.message}")
+            }
+        }
+    }
+
+
+
+
 
     // Later
     if (validAccount == "0"){
@@ -216,6 +247,11 @@ fun HomePage(
                 )
             }
         } else {
+
+
+
+
+
             LazyColumn (
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
@@ -291,8 +327,8 @@ fun HomePage(
                             Column {
                                 Card (
                                     modifier = Modifier
-                                        .clickable {
-                                            onBookClick(book.id)
+                                        .clickable (enabled = selectedPage == null){
+                                            selectedPage = book.id
                                         }
                                         .padding(7.dp)
                                         .shadow(
@@ -373,12 +409,14 @@ fun HomePage(
                     LazyRow {
                         items (books.filter {book ->
                             when (department){
-                                "College of Allied Health and Sciences (CAHS)" -> book.category == "Medicine" || book.category == "Psychology" || book.category == "Anatomy"
-                                "College of Criminal Justice Education (CCJE)" -> book.category == "Crime" || book.category == "Law" || book.category == "Murder"
-                                "College of Engineering and Architecture (CEA)" -> book.category == "Architecture" || book.category == "Physics" || book.category == "Engineering"
-                                "College of Education and Liberal Arts (CELA)" -> book.category == "Politics" || book.category == "Dictionary" || book.category == "Education"
-                                "College of Information Technology Education (CITE)" -> book.category == "Technology" || book.category == "Databases" || book.category == "Internet"
-                                "College of Management and Accountancy (CMA)" -> book.category == "Entrepreneurship" || book.category == "Business" || book.category == "Management"
+                                /*College of Allied Health and Sciences*/"CAHS" -> book.category == "Medicine" || book.category == "Psychology" || book.category == "Anatomy"
+                                /*College of Criminal Justice Education*/"CCJE" -> book.category == "Crime" || book.category == "Law" || book.category == "Murder"
+                                /*College of Engineering and Architecture*/"CEA" -> book.category == "Architecture" || book.category == "Physics" || book.category == "Engineering"
+                                /*College of Education and Liberal Arts*/"CELA" -> book.category == "Politics" || book.category == "Dictionary" || book.category == "Education"
+                                /*College of Information Technology Education*/"CITE" -> book.category == "Technology" || book.category == "Databases" || book.category == "Internet"
+                                /*College of Management and Accountancy*/"CMA" -> book.category == "Entrepreneurship" || book.category == "Business" || book.category == "Management"
+                                /*Senior High School*/"SHS" -> book.category == "Business" || book.category == "Science" || book.category == "Technology"
+                                /*College of Law*/"COL" -> book.category == "Politics" || book.category == "Crime" || book.category == "Law"
                                 else -> {
                                     false
                                 }
@@ -388,8 +426,8 @@ fun HomePage(
                             Column {
                                 Card (
                                     modifier = Modifier
-                                        .clickable {
-                                            onBookClick(book.id)
+                                        .clickable (enabled = selectedPage == null){
+                                            selectedPage = book.id
                                         }
                                         .padding(7.dp)
                                         .shadow(
@@ -474,8 +512,8 @@ fun HomePage(
                             Column {
                                 Card (
                                     modifier = Modifier
-                                        .clickable {
-                                            onBookClick(book.id)
+                                        .clickable (enabled = selectedPage == null){
+                                            selectedPage = book.id
                                         }
                                         .padding(7.dp)
                                         .shadow(
@@ -558,8 +596,8 @@ fun HomePage(
                             Column {
                                 Card (
                                     modifier = Modifier
-                                        .clickable {
-                                            onBookClick(book.id)
+                                        .clickable (enabled = selectedPage == null){
+                                            selectedPage = book.id
                                         }
                                         .padding(7.dp)
                                         .shadow(

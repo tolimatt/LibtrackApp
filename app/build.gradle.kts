@@ -114,6 +114,8 @@ dependencies {
     // JSON Handling
     implementation (libs.json)
 
+    implementation(libs.androidx.work.runtime.ktx)
+
 
 }
 

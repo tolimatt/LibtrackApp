@@ -25,7 +25,6 @@ fun generateBarcode(text: String): Bitmap {
             bmp.setPixel(x, y, if (bitMatrix.get(x, y)) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
         }
     }
-
     return bmp
 }
 
@@ -36,7 +35,7 @@ fun BarcodeDisplay(text: String) {
         bitmap = barcodeBitmap.asImageBitmap(),
         contentDescription = "Generated Barcode",
         modifier = Modifier
-            .size(300.dp),
+            .size(330.dp),
         contentScale = ContentScale.Fit
     )
 }

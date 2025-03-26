@@ -3,6 +3,7 @@ package com.example.libtrack.navFunctions
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -114,7 +115,7 @@ fun MainPage(
         bottomBar = {
             NavigationBar(
                 modifier = Modifier
-                    .height(85.dp)
+                    .height(65.dp)
                     .background(Color.White)
             ) {
                 bottomNavItemList.forEachIndexed { index, bottomNavItem ->
@@ -145,7 +146,6 @@ fun MainPage(
         if (isLoading) {
             LaunchedEffect(Unit) {
                 delay(1000)
-                isLoading = false
                 isShowDialog = true
             }
         }
@@ -190,6 +190,7 @@ fun MainPage(
                         Box(
                             modifier = Modifier
                                 .fillMaxSize()
+                                .clickable (enabled = false){ }
                                 .background(Color.Black.copy(alpha = 0.2f)), // Semi-transparent background
                             contentAlignment = Alignment.Center  // Centers the content inside the Box
                         ) {

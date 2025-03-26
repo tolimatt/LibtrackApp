@@ -68,9 +68,11 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.libtrack.backend.SignupViewModel
 import com.example.libtrack.backend.checkStudentID
 import com.example.libtrack.backend.checkEmail
@@ -623,6 +625,12 @@ fun Page2_SU(
     val validSchoolEmail = schoolEmailTS.contains(".up@phinmaed.com")
     var contactNumbTS by rememberSaveable { mutableStateOf("") }
 
+    // Grade Level
+    val listGradeLevel = listOf(
+        "Grade 11",
+        "Grade 12"
+    )
+
     // Bachelor Degree
     val listYearLevelBD = listOf(
         "Freshman (1st Year)",
@@ -641,7 +649,8 @@ fun Page2_SU(
     )
 
     val listProgramCourse = listOf(
-        "Associate in Computer Technology",
+        "Accountancy, Business, and Management",
+        "Associate in Computer Technology", //shs
         "BA Political Science",
         "BS Accountancy",
         "BS Accounting Information System",
@@ -660,14 +669,19 @@ fun Page2_SU(
         "BS Medical Laboratory",
         "BS Nursing",
         "BS Pharmacy",
+        "BS Pharmacy",
         "BS Psychology",
-        "BS Tourism Management"
+        "BS Tourism Management",
+        "Humanities and Social Sciences", //shs
+        "Legal Studies",
+        "Science Technology Engineering Mathematics",
+        "Technical Vocational Livelihood"
     )
 
     var department: String
 
-    var selectedProgram by rememberSaveable { mutableStateOf("Select Program") }
-    var selectedYearLevel by rememberSaveable { mutableStateOf("Select Year Level") }
+    var selectedProgram by rememberSaveable { mutableStateOf("Select Program / Strand") }
+    var selectedYearLevel by rememberSaveable { mutableStateOf("Select Year Level / Grade") }
 
     var isYearLevelExpanded by remember { mutableStateOf(false) }
     var isProgramExpanded by remember { mutableStateOf(false) }
@@ -678,7 +692,7 @@ fun Page2_SU(
     val allCompletedPage2 = schoolEmailTS.isNotEmpty() &&
             contactNumbTS.isNotEmpty() &&
             listProgramCourse.contains(selectedProgram) &&
-            (listYearLevelBD.contains(selectedYearLevel) || listYearLevelU.contains(selectedYearLevel))
+            (listYearLevelBD.contains(selectedYearLevel) || listYearLevelU.contains(selectedYearLevel) || listGradeLevel.contains(selectedYearLevel))
             && isChecked
 
 
@@ -756,9 +770,9 @@ fun Page2_SU(
 
             Text(
                 modifier = Modifier.offset(
-                    (-135).dp, 0.dp
+                    (-107).dp, 0.dp
                 ),
-                text = "PROGRAM",
+                text = "PROGRAM / STRAND",
                 fontSize = 12.sp,
                 color = Color(0xFF727D83)
             )
@@ -820,9 +834,9 @@ fun Page2_SU(
 
             Text(
                 modifier = Modifier.offset(
-                    (-130).dp, 0.dp
+                    (-106).dp, 0.dp
                 ),
-                text = "YEAR LEVEL",
+                text = "YEAR LEVEL / GRADE",
                 fontSize = 12.sp,
                 color = Color(0xFF727D83)
             )
@@ -866,7 +880,7 @@ fun Page2_SU(
                     onDismissRequest = { isYearLevelExpanded = false },
                 ) {
                     when (selectedProgram){
-                        "BS Mechanical Engineering" -> {
+                        "BS Civil Engineering", "BS Computer Engineering", "BS Electrical Engineering", "BS Mechanical Engineering" -> {
                             listYearLevelU.forEach { item ->
                                 DropdownMenuItem(
                                     text = { Text(text = item) },
@@ -877,9 +891,20 @@ fun Page2_SU(
                                 )
                             }
                         }
-                        "Select Program" -> {
+                        "Accountancy, Business, and Management", "Humanities and Social Sciences", "Science Technology Engineering Mathematics","Technical Vocational Livelihood" -> {
+                            listGradeLevel.forEach { item ->
+                                DropdownMenuItem(
+                                    text = { Text(text = item) },
+                                    onClick = {
+                                        selectedYearLevel = item
+                                        isYearLevelExpanded = false
+                                    }
+                                )
+                            }
+                        }
+                        "Select Program / Strand" -> {
                             DropdownMenuItem(
-                                text = { Text(text = "Select a Program First", fontWeight = FontWeight(500)) },
+                                text = { Text(text = "Select a Program / Strand First", fontWeight = FontWeight(500)) },
                                 onClick = {}
                             )
                         }
@@ -1103,13 +1128,15 @@ fun Page2_SU(
             )
 
             department = when (selectedProgram){
-                "BS Medical Laboratory", "BS Nursing", "BS Pharmacy", "BS Psychology" -> "College of Allied Health and Sciences (CAHS)"
-                "BS Criminology" -> "College of Criminal Justice Education (CCJE)"
-                "BS Architecture", "BS Civil Engineering", "BS Computer Engineering", "BS Electrical Engineering", "BS Mechanical Engineering" -> "College of Engineering and Architecture (CEA)"
-                "BA Political Science", "BS Education" -> "College of Education and Liberal Arts (CELA)"
-                "Associate in Computer Technology", "BS Information Technology" -> "College of Information Technology Education (CITE)"
+                "BS Medical Laboratory", "BS Nursing", "BS Pharmacy", "BS Psychology" -> "CAHS"/*College of Allied Health and Sciences*/
+                "BS Criminology" -> "CCJE"/*College of Criminal Justice Education*/
+                "BS Architecture", "BS Civil Engineering", "BS Computer Engineering", "BS Electrical Engineering", "BS Mechanical Engineering" -> "CEA"/*College of Engineering and Architecture*/
+                        "BA Political Science", "BS Education" -> "CELA"/*College of Education and Liberal Arts*/
+                "Associate in Computer Technology", "BS Information Technology" -> " CITE"/*College of Information Technology Education*/
                 "BS Accountancy", "BS Accounting Information System", "BS Business Admin Financial Management", "BS Business Admin Marketing Management",
-                "BS Hospitality Management", "BS Management Accounting", "BS Tourism Management" -> "College of Management and Accountancy (CMA)"
+                "BS Hospitality Management", "BS Management Accounting", "BS Tourism Management" -> "CMA"/*College of Management and Accountancy*/
+                "Accountancy, Business, and Management", "Humanities and Social Sciences", "Science Technology Engineering Mathematics","Technical Vocational Livelihood" -> "SHS"
+                "Legal Studies" -> "COL"/*College of Law*/
                 else  -> "Not Selected"
             }
 

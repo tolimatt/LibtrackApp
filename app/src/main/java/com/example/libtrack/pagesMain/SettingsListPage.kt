@@ -62,6 +62,7 @@ import com.example.libtrack.backend.AttendanceItem
 import com.example.libtrack.backend.AttendanceViewModel
 import com.example.libtrack.backend.HistoryItem
 import com.example.libtrack.backend.HistoryViewModel
+import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.UserDetails
 import kotlinx.coroutines.launch
@@ -663,7 +664,7 @@ fun HistoryPage(studentID: String, navController: NavHostController){
 
                                             Box(
                                                 modifier = Modifier
-                                                    .background(Color.Red.copy(alpha = 0.8f), shape = RoundedCornerShape(10.dp))
+                                                    .background(Color.Red.copy(alpha = 0.4f), shape = RoundedCornerShape(10.dp))
                                                     .padding( horizontal = 5.dp, vertical = 5.dp)
                                             ){
                                                 Text(
@@ -775,7 +776,7 @@ fun HistoryPage(studentID: String, navController: NavHostController){
 
                                             Box(
                                                 modifier = Modifier
-                                                    .background(Color.Green.copy(alpha = 0.6f), shape = RoundedCornerShape(10.dp))
+                                                    .background(Color.Green.copy(alpha = 0.4f), shape = RoundedCornerShape(10.dp))
                                                     .padding( horizontal = 5.dp, vertical = 5.dp)
                                             ){
                                                 Text(
@@ -1110,7 +1111,6 @@ fun StaffTeamPage(navController: NavHostController){
                 Column (
                     modifier = Modifier
                         .padding(15.dp)
-
                 ){
 
                     Card(
@@ -1139,8 +1139,8 @@ fun StaffTeamPage(navController: NavHostController){
                                 )
 
                                 Image(
-                                    painter = painterResource(id = R.drawable.placeholder1),
-                                    contentDescription = "Head",
+                                    painter = painterResource(id = R.drawable.charles),
+                                    contentDescription = "Charles",
                                     modifier = Modifier
                                         .size(80.dp)
                                         .clip(CircleShape)
@@ -1182,7 +1182,7 @@ fun StaffTeamPage(navController: NavHostController){
                     }
 
                     Spacer(
-                        modifier = Modifier.height(10.dp)
+                        modifier = Modifier.height(20.dp)
                     )
 
                     Card(
@@ -1211,8 +1211,8 @@ fun StaffTeamPage(navController: NavHostController){
                                 )
 
                                 Image(
-                                    painter = painterResource(id = R.drawable.placeholder1),
-                                    contentDescription = "Head",
+                                    painter = painterResource(id = R.drawable.gabriel),
+                                    contentDescription = "gabriel",
                                     modifier = Modifier
                                         .size(80.dp)
                                         .clip(CircleShape)
@@ -1225,7 +1225,7 @@ fun StaffTeamPage(navController: NavHostController){
                                 Column {
 
                                     Text(
-                                        text = "Head Librarian",
+                                        text = "Web Engineer",
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(600)
@@ -1243,7 +1243,79 @@ fun StaffTeamPage(navController: NavHostController){
                                     )
 
                                     Text(
-                                        text = "Charles Ugip",
+                                        text = "Gabriel Esperanza",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                        ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.nick),
+                                    contentDescription = "nick",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "Mobile Engineer",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Joshua Velasco",
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(700)

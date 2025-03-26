@@ -66,6 +66,7 @@ import com.example.libtrack.backend.BorrowData
 import com.example.libtrack.backend.BorrowViewModel
 import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitBooks
+import com.example.libtrack.backend.scheduleNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -396,7 +397,10 @@ fun BookDetailsPage(
                                                 isBorrowed = false
                                                 isShowBorrowConfirmation = false
                                                 decrementAvailableCopies = true
+
+
                                                 NotificationLibrary(context).showNotificationBorrowed(bookDetails!!.title, deadLineDateTime)
+                                                scheduleNotification(context)
 
                                                 val borrowData = BorrowData(
                                                     studentId = studentID,

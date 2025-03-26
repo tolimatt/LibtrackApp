@@ -84,7 +84,6 @@ fun BooksPage(
     var searchBookTS by remember { mutableStateOf("") }
     var isLoading by remember { mutableStateOf(true) } // State for loading
 
-
     // Set of selected filters
     var selectedFilters by remember { mutableStateOf(setOf<String>()) }
 
@@ -112,6 +111,14 @@ fun BooksPage(
         "Biographies" to listOf("Biographies")
     )
 
+    var selectedPage by remember { mutableStateOf<Int?>(null) }
+
+    LaunchedEffect(selectedPage) {
+        selectedPage?.let { page ->
+            navController.navigate("book_details_page/$page/$studentID")
+            selectedPage = null // Reset after navigation
+        }
+    }
 
     // Update filtered books based on search AND active filters
     filteredBooks = books.filter { book ->
@@ -277,8 +284,7 @@ fun BooksPage(
                         books
                     } else {
                         books.filter { book ->
-                            book.title.contains(input, ignoreCase = true) ||
-                                    book.author.contains(input, ignoreCase = true)
+                            book.title.contains(input, ignoreCase = true) || book.author.contains(input, ignoreCase = true)
                         }
                     }
                 },
@@ -347,8 +353,8 @@ fun BooksPage(
                         ){
                             Card (
                                 modifier = Modifier
-                                    .clickable {
-                                        onBookClick(book.id)
+                                    .clickable (enabled = selectedPage == null){
+                                        selectedPage = book.id
                                     }
                                     .padding(7.dp)
                                     .shadow(
@@ -390,8 +396,8 @@ fun BooksPage(
 
                             Box(
                                 modifier = Modifier
-                                    .clickable {
-                                        onBookClick(book.id)
+                                    .clickable (enabled = selectedPage == null){
+                                        selectedPage = book.id
                                     }
                                     .width(120.dp)
                                     .background(Color.White.copy(alpha = 0.3f), shape = RoundedCornerShape(8.dp))

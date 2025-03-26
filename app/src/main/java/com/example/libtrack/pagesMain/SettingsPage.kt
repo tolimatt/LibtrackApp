@@ -23,6 +23,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,6 +54,15 @@ fun SettingsPage(
 ){
 
     var isShowLogOutConfirmation by remember { mutableStateOf(false) }
+
+    var selectedPage by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(selectedPage) {
+        selectedPage?.let { page ->
+            navController.navigate(page)
+            selectedPage = null // Reset after navigation
+        }
+    }
 
     LazyColumn (
         verticalArrangement = Arrangement.Top,
@@ -86,12 +96,11 @@ fun SettingsPage(
 
                     Card(
                         modifier = Modifier
-                            .clickable {
-                                navController.navigate("personal_info_page/$studentID")
+                            .clickable (enabled = selectedPage == null){
+                                selectedPage = "personal_info_page/$studentID"
                             }
                             .padding(4.dp)
-                            .fillMaxWidth()
-                        ,
+                            .fillMaxWidth(),
                         colors = CardDefaults.cardColors(
                             containerColor = Color.Transparent
                         )
@@ -138,8 +147,8 @@ fun SettingsPage(
 
                     Card(
                         modifier = Modifier
-                            .clickable {
-                                navController.navigate("forgot_password_page1")
+                            .clickable (enabled = selectedPage == null){
+                                selectedPage = "forgot_password_page1"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -189,8 +198,8 @@ fun SettingsPage(
 
                     Card(
                         modifier = Modifier
-                            .clickable {
-                                navController.navigate("history_page/$studentID")
+                            .clickable (enabled = selectedPage == null){
+                                selectedPage = "history_page/$studentID"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -255,8 +264,8 @@ fun SettingsPage(
 
                     Card(
                         modifier = Modifier
-                            .clickable {
-                                navController.navigate("staff_team_page")
+                            .clickable (enabled = selectedPage == null){
+                                selectedPage = "staff_team_page"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -306,8 +315,8 @@ fun SettingsPage(
 
                     Card(
                         modifier = Modifier
-                            .clickable {
-                                navController.navigate("services_page")
+                            .clickable (enabled = selectedPage == null){
+                                selectedPage = "services_page"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -357,9 +366,8 @@ fun SettingsPage(
 
                     Card(
                         modifier = Modifier
-                            .clickable {
-
-                                navController.navigate("about_us_page")
+                            .clickable (enabled = selectedPage == null){
+                                selectedPage = "about_us_page"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -409,7 +417,6 @@ fun SettingsPage(
             Button(
                 onClick = {
                     isShowLogOutConfirmation = true
-
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp)
