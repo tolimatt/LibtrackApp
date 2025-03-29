@@ -146,11 +146,12 @@ fun Navigation() {
                 navController = navController
             )
         }
-        composable("pdf_viewer_page/{pdfUrl}") { backStackEntry ->
+        composable("pdf_viewer_page/{pdfUrl}/{bookTitle}") { backStackEntry ->
+            val bookTitle = backStackEntry.arguments?.getString("bookTitle") ?: ""
             val pdfUrl = backStackEntry.arguments?.getString("pdfUrl")?.let {
                 URLDecoder.decode(it, StandardCharsets.UTF_8.toString())
             } ?: ""
-            PdfViewer(pdfUrl)
+            PdfViewer(bookTitle, pdfUrl,navController)
         }
     }
 }

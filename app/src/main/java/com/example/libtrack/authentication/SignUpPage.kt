@@ -68,14 +68,12 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
 import com.example.libtrack.backend.SignupViewModel
-import com.example.libtrack.backend.checkStudentID
 import com.example.libtrack.backend.checkEmail
+import com.example.libtrack.backend.checkStudentID
 import com.example.libtrack.errorHandling.errorImage
 import com.example.libtrack.errorHandling.passwordVisibilityFalseImage
 import com.example.libtrack.errorHandling.passwordVisibilityTrueImage
@@ -83,11 +81,6 @@ import com.example.libtrack.errorHandling.successImage
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.BufferedReader
-import java.io.InputStreamReader
-import java.net.HttpURLConnection
-import java.net.URL
-import java.net.URLEncoder
 
 // = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = PAGE 1 SIGN UP = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =
 
@@ -624,6 +617,7 @@ fun Page2_SU(
     var schoolEmailTS by rememberSaveable { mutableStateOf("") }
     val validSchoolEmail = schoolEmailTS.contains(".up@phinmaed.com")
     var contactNumbTS by rememberSaveable { mutableStateOf("") }
+    val validContactNumb = contactNumbTS.contains("09")
 
     // Grade Level
     val listGradeLevel = listOf(
@@ -650,7 +644,7 @@ fun Page2_SU(
 
     val listProgramCourse = listOf(
         "Accountancy, Business, and Management",
-        "Associate in Computer Technology", //shs
+        "Associate in Computer Technology",
         "BA Political Science",
         "BS Accountancy",
         "BS Accounting Information System",
@@ -672,7 +666,7 @@ fun Page2_SU(
         "BS Pharmacy",
         "BS Psychology",
         "BS Tourism Management",
-        "Humanities and Social Sciences", //shs
+        "Humanities and Social Sciences",
         "Legal Studies",
         "Science Technology Engineering Mathematics",
         "Technical Vocational Livelihood"
@@ -699,6 +693,7 @@ fun Page2_SU(
     // Error Handling / Booleans
     var isCompletePage2 by remember { mutableStateOf(true) }
     var isValidSchoolEmail by remember { mutableStateOf(true) }
+    var isValidContactNumber by remember { mutableStateOf(true) }
     var isNewEmail by remember { mutableStateOf(true) }
 
     // Focus Requester
@@ -997,7 +992,7 @@ fun Page2_SU(
                  modifier = Modifier
                      .border(
                          width = 1.2.dp,
-                         color =  if (!isCompletePage2) Color.Red else Color(0xFFC1C1C1),
+                         color =  if (!isCompletePage2 || !isValidContactNumber) Color.Red else Color(0xFFC1C1C1),
                          shape = RoundedCornerShape(15.dp)
                      )
                      .width(350.dp)
@@ -1084,7 +1079,7 @@ fun Page2_SU(
             )
 
             Row{
-                if (!isCompletePage2 || !isValidSchoolEmail){
+                if (!isCompletePage2 || !isValidSchoolEmail || !isNewEmail || !isValidContactNumber){
                     Image(
                         painter = painterResource(id = errorImage),
                         contentDescription = "Error Icon",
@@ -1108,6 +1103,8 @@ fun Page2_SU(
                         "Fill up all the requirements."
                     } else if (!isValidSchoolEmail){
                         "Enter a valid PHINMA Email"
+                    }else if (!isValidContactNumber){
+                        "Enter a valid Contact Number"
                     } else if (!isNewEmail){
                         "PHINMA Email Already has an Account."
                     } else {
@@ -1145,7 +1142,7 @@ fun Page2_SU(
 
             Button(
                 onClick = {
-                    if(allCompletedPage2 && validSchoolEmail){
+                    if(allCompletedPage2 && validSchoolEmail && validContactNumb && contactNumbTS.length == 11){
 
                         coroutineScope.launch(Dispatchers.IO) {
                             val dbResult = checkEmail(schoolEmailTS)
@@ -1173,9 +1170,15 @@ fun Page2_SU(
                     } else if (!allCompletedPage2){
                         isCompletePage2 = false
                         isValidSchoolEmail = true
+                        isValidContactNumber = true
+                    } else if (!validContactNumb){
+                        isCompletePage2 = true
+                        isValidSchoolEmail = true
+                        isValidContactNumber = false
                     } else { // Invalid SchoolEmail
                         isCompletePage2 = true
                         isValidSchoolEmail = false
+                        isValidContactNumber = true
                     }
                 },
                 modifier = Modifier

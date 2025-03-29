@@ -7,7 +7,9 @@ import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.os.ParcelFileDescriptor
 import android.util.Log
+import android.view.WindowManager
 import android.widget.Toast
+import androidx.activity.ComponentActivity
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -22,7 +24,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -39,6 +40,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,6 +59,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -66,7 +69,6 @@ import com.example.libtrack.backend.BorrowData
 import com.example.libtrack.backend.BorrowViewModel
 import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitBooks
-import com.example.libtrack.backend.scheduleNotification
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -275,7 +277,7 @@ fun BookDetailsPage(
                         onClick = {
                             Log.d("PDF_URL_VALUE", "PDF URL: ${bookDetails!!.pdfUrl}")
                             try {val encodedUrl = URLEncoder.encode(bookDetails!!.pdfUrl, StandardCharsets.UTF_8.toString())
-                                navController.navigate("pdf_viewer_page/$encodedUrl")
+                                navController.navigate("pdf_viewer_page/$encodedUrl/${bookDetails!!.title}")
                             } catch (e: ActivityNotFoundException) {
                                 Toast.makeText(context, "No PDF viewer app found.", Toast.LENGTH_SHORT).show()
                                 Log.e("PDF_ERROR", "No Activity found to open PDF", e)
@@ -400,7 +402,7 @@ fun BookDetailsPage(
 
 
                                                 NotificationLibrary(context).showNotificationBorrowed(bookDetails!!.title, deadLineDateTime)
-                                                scheduleNotification(context)
+                                                NotificationLibrary(context).showNotificationReturned(bookDetails!!.title, deadLineDateTime)
 
                                                 val borrowData = BorrowData(
                                                     studentId = studentID,
@@ -435,13 +437,30 @@ fun BookDetailsPage(
 }
 
 
+@SuppressLint("ContextCastToActivity")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PdfViewer(pdfUrl: String) {
+fun PdfViewer(bookTitle: String, pdfUrl: String, navController: NavHostController) {
     val context = LocalContext.current
     var pdfBitmapList by remember { mutableStateOf<List<Bitmap>?>(null) }
     var loading by remember { mutableStateOf(true) }
     var error by remember { mutableStateOf<String?>(null) }
     val coroutineScope = rememberCoroutineScope()
+
+    val activity = LocalContext.current as ComponentActivity
+
+    LaunchedEffect(Unit) {
+        activity.window.setFlags(
+            WindowManager.LayoutParams.FLAG_SECURE,
+            WindowManager.LayoutParams.FLAG_SECURE
+        )
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            activity.window.clearFlags(WindowManager.LayoutParams.FLAG_SECURE)
+        }
+    }
 
     LaunchedEffect(pdfUrl) {
         coroutineScope.launch(Dispatchers.IO) {
@@ -462,33 +481,60 @@ fun PdfViewer(pdfUrl: String) {
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (loading) {
-
-            CircularProgressIndicator(
-                modifier = Modifier.width(60.dp),
-                color = Color(0xFF72AF7B),
-                trackColor = Color.LightGray,
-            )
-
-        } else if (error != null) {
-            Text(text = error!!, color = Color.Red)
-        } else if (pdfBitmapList != null) {
-            pdfBitmapList?.forEach { bitmap ->
-                Image(
-                    bitmap = bitmap.asImageBitmap(),
-                    contentDescription = "PDF Page",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(600.dp),
-                    contentScale = ContentScale.Fit
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = bookTitle,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis, // for dot dot dot
+                        fontWeight = FontWeight(600)
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = Color.White)
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color(0xFF1E5128),
+                    titleContentColor = Color.White
                 )
+            )
+        }
+    ) { paddingValues ->
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (loading) {
+
+                CircularProgressIndicator(
+                    modifier = Modifier.width(60.dp),
+                    color = Color(0xFF72AF7B),
+                    trackColor = Color.LightGray,
+                )
+
+            } else if (error != null) {
+                Text(text = error!!, color = Color.Red)
+            } else if (pdfBitmapList != null) {
+                pdfBitmapList?.forEach { bitmap ->
+                    Image(
+                        bitmap = bitmap.asImageBitmap(),
+                        contentDescription = "PDF Page",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(600.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
             }
         }
     }
@@ -530,27 +576,33 @@ private suspend fun downloadPdf(pdfUrl: String, cacheDir: File): File? =
     }
 
 
-private suspend fun renderPdf(pdfFile: File): List<Bitmap> =
-    withContext(Dispatchers.IO) {
-        val bitmaps = mutableListOf<Bitmap>()
-        try {
-            val parcelFileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
-            val pdfRenderer = PdfRenderer(parcelFileDescriptor)
-            for (i in 0 until pdfRenderer.pageCount) {
-                val page = pdfRenderer.openPage(i)
-                val bitmap = Bitmap.createBitmap(
-                    page.width,
-                    page.height,
-                    Bitmap.Config.ARGB_8888
-                )
-                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                bitmaps.add(bitmap)
-                page.close()
-            }
-            pdfRenderer.close()
-            parcelFileDescriptor.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
+private suspend fun renderPdf(pdfFile: File): List<Bitmap> = withContext(Dispatchers.IO) {
+
+    val bitmaps = mutableListOf<Bitmap>()
+
+    try {
+
+        val parcelFileDescriptor = ParcelFileDescriptor.open(pdfFile, ParcelFileDescriptor.MODE_READ_ONLY)
+        val pdfRenderer = PdfRenderer(parcelFileDescriptor)
+
+        for (i in 0 until pdfRenderer.pageCount) {
+
+            val page = pdfRenderer.openPage(i)
+            val bitmap = Bitmap.createBitmap(
+                page.width,
+                page.height,
+                Bitmap.Config.ARGB_8888
+            )
+            page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+            bitmaps.add(bitmap)
+            page.close()
         }
-        return@withContext bitmaps
+
+        pdfRenderer.close()
+        parcelFileDescriptor.close()
+
+    } catch (e: Exception) {
+        e.printStackTrace()
     }
+    return@withContext bitmaps
+}

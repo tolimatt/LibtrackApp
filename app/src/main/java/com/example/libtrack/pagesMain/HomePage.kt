@@ -31,7 +31,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -51,13 +50,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.libtrack.backend.Book
 import com.example.libtrack.backend.HistoryItem
 import com.example.libtrack.backend.HistoryViewModel
-import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.RetrofitBooks
 import com.example.libtrack.backend.UserDetails

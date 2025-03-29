@@ -62,7 +62,6 @@ import com.example.libtrack.backend.AttendanceItem
 import com.example.libtrack.backend.AttendanceViewModel
 import com.example.libtrack.backend.HistoryItem
 import com.example.libtrack.backend.HistoryViewModel
-import com.example.libtrack.backend.NotificationLibrary
 import com.example.libtrack.backend.RetrofitAccountName
 import com.example.libtrack.backend.UserDetails
 import kotlinx.coroutines.launch
@@ -982,7 +981,7 @@ fun StaffTeamPage(navController: NavHostController){
                                 )
 
                                 Image(
-                                    painter = painterResource(id = R.drawable.placeholder1),
+                                    painter = painterResource(id = R.drawable.placeholder),
                                     contentDescription = "Head",
                                     modifier = Modifier
                                         .size(80.dp)
@@ -1014,7 +1013,7 @@ fun StaffTeamPage(navController: NavHostController){
                                     )
 
                                     Text(
-                                        text = "Charles Ugip",
+                                        text = "Person 1",
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(700)
@@ -1025,7 +1024,7 @@ fun StaffTeamPage(navController: NavHostController){
                     }
 
                     Spacer(
-                        modifier = Modifier.height(10.dp)
+                        modifier = Modifier.height(20.dp)
                     )
 
                     Card(
@@ -1054,7 +1053,7 @@ fun StaffTeamPage(navController: NavHostController){
                                 )
 
                                 Image(
-                                    painter = painterResource(id = R.drawable.placeholder1),
+                                    painter = painterResource(id = R.drawable.placeholder),
                                     contentDescription = "Head",
                                     modifier = Modifier
                                         .size(80.dp)
@@ -1068,7 +1067,7 @@ fun StaffTeamPage(navController: NavHostController){
                                 Column {
 
                                     Text(
-                                        text = "Head Librarian",
+                                        text = "Librarian",
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(600)
@@ -1086,7 +1085,79 @@ fun StaffTeamPage(navController: NavHostController){
                                     )
 
                                     Text(
-                                        text = "Charles Ugip",
+                                        text = "Person 2",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                    ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.placeholder),
+                                    contentDescription = "Head",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "Librarian Assistant",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Person 3",
                                         color = Color.White,
                                         fontSize = 18.sp,
                                         fontWeight = FontWeight(700)
@@ -1324,9 +1395,154 @@ fun StaffTeamPage(navController: NavHostController){
                             }
                         }
                     }
+
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                        ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.dayanara),
+                                    contentDescription = "dayanara",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "Data Organizer",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Dayanara Lopez",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
+
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        colors = cardColors(
+                            containerColor = Color(0xFF72AF7B)
+                        ),
+                        elevation = cardElevation(
+                            defaultElevation = 10.dp
+                        ),
+
+                        ) {
+
+                        Column {
+
+                            Row (
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(15.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ){
+
+                                Spacer(
+                                    modifier = Modifier.width(10.dp)
+                                )
+
+                                Image(
+                                    painter = painterResource(id = R.drawable.elijah),
+                                    contentDescription = "elijah",
+                                    modifier = Modifier
+                                        .size(80.dp)
+                                        .clip(CircleShape)
+                                )
+
+                                Spacer(
+                                    modifier = Modifier.width(20.dp)
+                                )
+
+                                Column {
+
+                                    Text(
+                                        text = "UI/UX Designer",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(600)
+                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .height(1.dp)
+                                            .width(150.dp)
+                                            .background(Color.White)
+                                    )
+
+                                    Spacer(
+                                        modifier = Modifier.height(5.dp)
+                                    )
+
+                                    Text(
+                                        text = "Elijah Vinluan",
+                                        color = Color.White,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight(700)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                    Spacer(
+                        modifier = Modifier.height(20.dp)
+                    )
                 }
-
-
             }
         }
     }
