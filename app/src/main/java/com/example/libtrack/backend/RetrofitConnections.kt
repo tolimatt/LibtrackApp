@@ -31,7 +31,7 @@ const val SEND_OTP_URL_PATH = "phpmailer/mailer/okay.php"
 // PHP Mailer Verify OTP
 const val VERIFY_OTP_URL_PATH = "phpmailer/mailer/nice.php"
 
-// Forgot Password Change Password
+// Forgot Password
 const val UPDATE_PASSWORD_URL_PATH = "hello/tests_also.php"
 
 // Attendance History
@@ -45,5 +45,3 @@ const val CHECK_STUDENT_URL_PATH = "libTrack/check.php"
 
 // Verify Email
 const val CHECK_EMAIL_URL_PATH = "libTrack/kpo.php"
-
-

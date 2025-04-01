@@ -115,10 +115,11 @@ fun BooksPage(
 
     LaunchedEffect(selectedPage) {
         selectedPage?.let { page ->
-            navController.navigate("book_details_page/$page/$studentID")
+            navController.navigate("loading_page/$page/$studentID")
             selectedPage = null // Reset after navigation
         }
     }
+
 
     // Update filtered books based on search AND active filters
     filteredBooks = books.filter { book ->

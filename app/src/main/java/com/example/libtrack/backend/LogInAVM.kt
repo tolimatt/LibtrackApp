@@ -22,6 +22,7 @@ import retrofit2.http.Body
 import retrofit2.http.POST
 import java.io.IOException
 
+// Log In View Model
 class LoginViewModel(application: Application) : AndroidViewModel(application) {
 
     @SuppressLint("StaticFieldLeak")
@@ -63,7 +64,7 @@ class LoginViewModel(application: Application) : AndroidViewModel(application) {
                             errorMessage.value = "account_not_found"
                             Toast.makeText(context, "Account not found.", Toast.LENGTH_LONG).show()
                         }
-                        else -> { // Account exists, but wrong password
+                        else -> { // Account exists, but wrong password | show account not found for privacy reasons
                             errorMessage.value = "Login failed. Please try again."
                             Toast.makeText(context, "Account not found", Toast.LENGTH_LONG).show()
                         }

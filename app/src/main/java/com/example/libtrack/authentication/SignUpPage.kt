@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -86,7 +87,10 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Page1_SU(navHostController: NavHostController){
+fun Page1_SU(navController: NavHostController){
+
+    var lastClickTime by remember { mutableLongStateOf(0L) } // Track last click time
+
 
     // Text Fields / Text State / Page1_SU
     var firstNameTS by rememberSaveable { mutableStateOf("") }
@@ -135,8 +139,17 @@ fun Page1_SU(navHostController: NavHostController){
                     Text(text = "")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navHostController.navigate("log_in_page") }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
                     }
                 }
             )
@@ -546,7 +559,7 @@ fun Page1_SU(navHostController: NavHostController){
                                 if (dbResult) {
                                     isNewStudentId = false
                                 } else {
-                                    navHostController.navigate("sign_up_page2/$firstname/$lastname/$studentID/$password") // Use '/' to separate arguments
+                                    navController.navigate("sign_up_page2/$firstname/$lastname/$studentID/$password") // Use '/' to separate arguments
                                     isCompletePage1 = true
                                     isPasswordMatch = true
                                     isPasswordLength = true
@@ -1171,7 +1184,7 @@ fun Page2_SU(
                         isCompletePage2 = false
                         isValidSchoolEmail = true
                         isValidContactNumber = true
-                    } else if (!validContactNumb){
+                    } else if (!validContactNumb || contactNumbTS.length != 11){
                         isCompletePage2 = true
                         isValidSchoolEmail = true
                         isValidContactNumber = false

@@ -88,7 +88,7 @@ fun HomePage(
 
     LaunchedEffect(selectedPage) {
         selectedPage?.let { page ->
-            navController.navigate("book_details_page/$page/$studentID")
+            navController.navigate("loading_page/$page/$studentID")
             selectedPage = null // Reset after navigation
         }
     }
@@ -105,10 +105,6 @@ fun HomePage(
     }
 
 
-
-
-
-    // Later
     if (validAccount == "0"){
 
         Column (
@@ -245,10 +241,6 @@ fun HomePage(
             }
         } else {
 
-
-
-
-
             LazyColumn (
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.Start,
@@ -268,7 +260,7 @@ fun HomePage(
                             text = "Hello $firstName!",
                             style = TextStyle(
                                 color = Color.Black,
-                                fontSize = 25.sp,
+                                fontSize = 26.sp,
                                 fontWeight = FontWeight(800)
                             )
                         )
@@ -294,7 +286,7 @@ fun HomePage(
                             .offset(3.dp, 0.dp),
                         text = "Let's start reading!",
                         style = TextStyle(
-                            fontSize = 15.sp,
+                            fontSize = 18.sp,
                             color = Color(0xFF727D83),
                             fontWeight = FontWeight(600)
                         )

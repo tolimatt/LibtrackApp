@@ -19,6 +19,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.Query
 
+// Borrow View Model
 class BorrowViewModel(application: Application) : AndroidViewModel(application) {
 
     @SuppressLint("StaticFieldLeak")
@@ -33,7 +34,6 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
         _errorMessage.value = null
         _borrowStatus.value = null
 
-        // Make network request asynchronously
         apiService.insertBorrowData(borrowRequest).enqueue(object : Callback<ApiResponseBorrow> {
             override fun onResponse(call: Call<ApiResponseBorrow>, response: Response<ApiResponseBorrow>) {
                 if (response.isSuccessful) {
@@ -55,16 +55,16 @@ class BorrowViewModel(application: Application) : AndroidViewModel(application) 
                             Toast.makeText(context,"You can only borrow 3 books at a time", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "limit"
                         }
-                        "returned" -> { // Book Not Found
-                            Toast.makeText(context,"OK", Toast.LENGTH_SHORT).show()
+                        "returned" -> { // Book Returned, Can be Borrowed Again
+                            Toast.makeText(context,"", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "not_found"
                         }
-                        else -> {
+                        else -> { // For Error Handling
                             Toast.makeText(context,"Error", Toast.LENGTH_SHORT).show()
                             _borrowStatus.value = "error"
                         }
                     }
-                } else {
+                } else { // For Error Handling
                     _errorMessage.value = response.body()?.error ?: "Unknown error"
                 }
             }
@@ -114,7 +114,7 @@ interface BorrowApiService {
     @POST(BOOK_BORROW_URL_PATH)
     fun insertBorrowData(@Body borrowData: BorrowData): Call<ApiResponseBorrow>
 
-    @GET(STATUS_BORROW_URL_PATH) // Adjust based on your API endpoint
+    @GET(STATUS_BORROW_URL_PATH)
     fun checkIfBorrowed(
         @Query("studentId") studentId: String,
         @Query("bookCode") bookCode: String
@@ -134,7 +134,7 @@ object RetrofitBorrow {
         Retrofit.Builder()
             .baseUrl(SERVER_IP)
             .addConverterFactory(GsonConverterFactory.create())
-            .client(client) // Add the OkHttpClient
+            .client(client)
             .build()
             .create(BorrowApiService::class.java)
     }

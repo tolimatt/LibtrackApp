@@ -97,7 +97,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable (enabled = selectedPage == null){
-                                selectedPage = "personal_info_page/$studentID"
+                                selectedPage = "personal_info_loading_page/$studentID"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -148,7 +148,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable (enabled = selectedPage == null){
-                                selectedPage = "forgot_password_page1"
+                                selectedPage = "forgot_password_loading_page1"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -199,7 +199,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable (enabled = selectedPage == null){
-                                selectedPage = "history_page/$studentID"
+                                selectedPage = "history_loading_page/$studentID"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -265,7 +265,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable (enabled = selectedPage == null){
-                                selectedPage = "staff_team_page"
+                                selectedPage = "staff_team_loading_page"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -316,7 +316,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable (enabled = selectedPage == null){
-                                selectedPage = "services_page"
+                                selectedPage = "services_loading_page"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),
@@ -367,7 +367,7 @@ fun SettingsPage(
                     Card(
                         modifier = Modifier
                             .clickable (enabled = selectedPage == null){
-                                selectedPage = "about_us_page"
+                                selectedPage = "about_us_loading_page"
                             }
                             .padding(4.dp)
                             .fillMaxWidth(),

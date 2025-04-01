@@ -39,6 +39,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -76,6 +77,10 @@ fun PersonalInfoPage(
     studentID: String,
     navController: NavHostController
 ){
+
+    var lastClickTime by remember { mutableLongStateOf(0L) } // Track last click time
+
+
     val scope = rememberCoroutineScope()
 
     val context = LocalContext.current
@@ -140,8 +145,17 @@ fun PersonalInfoPage(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -432,6 +446,9 @@ fun PersonalInfoPage(
 @Composable
 fun HistoryPage(studentID: String, navController: NavHostController){
 
+    var lastClickTime by remember { mutableStateOf(0L) } // Track last click time
+
+
     val scope = rememberCoroutineScope()
     var isLoading by remember { mutableStateOf(true) }
     var errorMessage by remember { mutableStateOf<String?>(null) }
@@ -472,8 +489,17 @@ fun HistoryPage(studentID: String, navController: NavHostController){
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -898,6 +924,9 @@ fun HistoryPage(studentID: String, navController: NavHostController){
 @Composable
 fun StaffTeamPage(navController: NavHostController){
 
+    var lastClickTime by remember { mutableStateOf(0L) } // Track last click time
+
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -909,8 +938,17 @@ fun StaffTeamPage(navController: NavHostController){
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -1552,6 +1590,7 @@ fun StaffTeamPage(navController: NavHostController){
 @Composable
 fun ServicesPage(navController: NavHostController){
 
+    var lastClickTime by remember { mutableStateOf(0L) } // Track last click time
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -1564,8 +1603,17 @@ fun ServicesPage(navController: NavHostController){
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )
@@ -1964,6 +2012,8 @@ fun ServicesPage(navController: NavHostController){
 @Composable
 fun AboutUsPage(navController: NavHostController){
 
+    var lastClickTime by remember { mutableLongStateOf(0L) } // Track last click time
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -1975,8 +2025,17 @@ fun AboutUsPage(navController: NavHostController){
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
                     }
                 }
             )

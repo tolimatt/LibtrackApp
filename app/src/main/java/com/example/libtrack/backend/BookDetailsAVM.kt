@@ -24,7 +24,7 @@ interface ApiServiceBooks {
     suspend fun getBookDetails(@Query("id") id: Int): BookDetails
 }
 
-// Book Images
+// Displaying of Books
 data class Book(
     val id: Int,
     val title: String,
@@ -33,7 +33,7 @@ data class Book(
     val category: String
 )
 
-// Book List
+// Displaying of Book Details
 data class BookDetails(
     val id: Int,
     val title: String,

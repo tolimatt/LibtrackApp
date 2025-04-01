@@ -29,7 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 
 @Composable
-fun NoConnectionPage(navHostController: NavHostController) {
+fun NoConnectionPage(navController: NavHostController) {
 
     Scaffold (
         modifier = Modifier.fillMaxSize()
@@ -82,7 +82,7 @@ fun NoConnectionPage(navHostController: NavHostController) {
 
             Button(
                 onClick = {
-                    navHostController.navigate("splash_screen_page")
+                    navController.navigate("splash_screen_page")
                 },
                 modifier = Modifier
                     .size(width = 290.dp, height = 43.dp),

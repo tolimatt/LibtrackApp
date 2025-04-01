@@ -11,6 +11,7 @@ interface ApiService {
     fun getFirstName(@Query("student_id") studentId: String): Call<UserDetails>
 }
 
+// Get the Info of the user according to the student ID
 data class UserDetails(
     val firstName: String,
     val lastName: String,

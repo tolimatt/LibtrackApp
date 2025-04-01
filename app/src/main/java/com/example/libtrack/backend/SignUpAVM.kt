@@ -27,12 +27,12 @@ import java.net.HttpURLConnection
 import java.net.URL
 import java.net.URLEncoder
 
-
+// Check and get if the student ID is already on the database
 suspend fun checkStudentID(inputText: String): Boolean {
     return withContext(Dispatchers.IO) {
         try {
             val encodedText = URLEncoder.encode(inputText, "UTF-8")
-            val url = URL(SERVER_IP+CHECK_STUDENT_URL_PATH+"?text=$encodedText") // Replace with your PHP script URL
+            val url = URL(SERVER_IP+CHECK_STUDENT_URL_PATH+"?text=$encodedText")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
 
@@ -45,10 +45,10 @@ suspend fun checkStudentID(inputText: String): Boolean {
                     response.append(line)
                 }
                 reader.close()
-                // Assuming your PHP script returns "true" or "false" as a string.
+                // The PHP will return true or false depending if the student ID is already inside the database / is already registered
                 return@withContext response.toString().trim().equals("true", ignoreCase = true)
             } else {
-                return@withContext false // Or handle other response codes as needed
+                return@withContext false // Return false if not
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -58,11 +58,12 @@ suspend fun checkStudentID(inputText: String): Boolean {
 }
 
 
+// Check and Get if the school email is already on the database
 suspend fun checkEmail(inputText: String): Boolean {
     return withContext(Dispatchers.IO) {
         try {
             val encodedText = URLEncoder.encode(inputText, "UTF-8")
-            val url = URL(SERVER_IP+ CHECK_EMAIL_URL_PATH+"?text=$encodedText") // Replace with your PHP script URL
+            val url = URL(SERVER_IP+ CHECK_EMAIL_URL_PATH+"?text=$encodedText")
             val connection = url.openConnection() as HttpURLConnection
             connection.requestMethod = "GET"
 
@@ -75,10 +76,10 @@ suspend fun checkEmail(inputText: String): Boolean {
                     response.append(line)
                 }
                 reader.close()
-                // Assuming your PHP script returns "true" or "false" as a string.
+                // The PHP will return true or false depending if the student ID is already inside the database / is already registered
                 return@withContext response.toString().trim().equals("true", ignoreCase = true)
             } else {
-                return@withContext false // Or handle other response codes as needed
+                return@withContext false // Return false if not
             }
         } catch (e: Exception) {
             e.printStackTrace()
@@ -88,6 +89,7 @@ suspend fun checkEmail(inputText: String): Boolean {
 }
 
 
+// Sign Up View Model
 class SignupViewModel(application: Application) : AndroidViewModel(application) {
 
     @SuppressLint("StaticFieldLeak")
@@ -132,7 +134,7 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
                     signupStatus.value = status
 
                     if (status == "success"){
-                        navController.navigate("sign_up_complete_page"){
+                        navController.navigate("sign_up_complete_page"){ // Register is complete and successful
                             popUpTo("sign_up_page2") {
                                 inclusive = true
                             }
@@ -147,7 +149,7 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
                     Log.d("Server Response", status)
                 } else {
                     // Handle error responses
-                    if (response.code() == 409) { // Check for 409 Conflict
+                    if (response.code() == 409) { // Error Handling Just in case
 
                         errorMessage.value = "Student ID already exists. Please log in."
 
@@ -171,7 +173,7 @@ class SignupViewModel(application: Application) : AndroidViewModel(application) 
                 signupStatus.value = "Network Error: ${e.message}" // Update status
                 Log.e("Network Error", e.message.toString())
             } catch (e: Exception) {
-                signupStatus.value = "Request failed: ${e.message}" // Update status
+                signupStatus.value = "Request failed: ${e.message}" // Alse Update status
                 Log.e("Request Errors", e.message.toString())
             }
         }

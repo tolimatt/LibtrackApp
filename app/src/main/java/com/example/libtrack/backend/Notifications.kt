@@ -5,11 +5,15 @@ import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
-import androidx.work.*
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.Worker
+import androidx.work.WorkerParameters
+import androidx.work.workDataOf
 import com.example.libtrack.errorHandling.logoImage
 import java.util.concurrent.TimeUnit
 
-// ✅ Create Notification Channels (Call this in Application class or before scheduling notifications)
+// Create Notification Channels (Call this in Application class or before scheduling notifications)
 fun createNotificationChannels(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val channel = NotificationChannel(
@@ -25,7 +29,7 @@ fun createNotificationChannels(context: Context) {
     }
 }
 
-// ✅ Worker for Borrowed Book Notification
+// Worker for Borrowed Book Notification
 class NotificationWorkerBorrowed(
     context: Context,
     workerParams: WorkerParameters
@@ -41,7 +45,7 @@ class NotificationWorkerBorrowed(
         val notification = NotificationCompat.Builder(context, "download_channel")
             .setContentTitle("Book Borrowed Successfully")
             .setContentText("Borrowed: $title")
-            .setSmallIcon(logoImage) // ✅ Replace with a valid drawable
+            .setSmallIcon(logoImage)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setStyle(
                 NotificationCompat.BigTextStyle()
@@ -56,7 +60,7 @@ class NotificationWorkerBorrowed(
     }
 }
 
-// ✅ Worker for Return Reminder Notification
+// Worker for Return Reminder Notification
 class NotificationWorkerReturned(
     context: Context,
     workerParams: WorkerParameters
@@ -72,7 +76,7 @@ class NotificationWorkerReturned(
         val notification = NotificationCompat.Builder(context, "download_channel")
             .setContentTitle("Return Reminder: $title")
             .setContentText("Return \"$title\" by $dueDate")
-            .setSmallIcon(logoImage) // ✅ Replace with a valid drawable
+            .setSmallIcon(logoImage)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setStyle(
                 NotificationCompat.BigTextStyle()
@@ -87,11 +91,11 @@ class NotificationWorkerReturned(
     }
 }
 
-// ✅ Notification Library (Schedules Notifications)
+// Notification Library (Schedules Notifications)
 class NotificationLibrary(private val context: Context) {
 
     fun showNotificationBorrowed(title: String, dueDate: String) {
-        createNotificationChannels(context) // ✅ Ensure channels exist before scheduling notifications
+        createNotificationChannels(context)
 
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorkerBorrowed>()
             .setInitialDelay(1, TimeUnit.SECONDS)
@@ -106,7 +110,7 @@ class NotificationLibrary(private val context: Context) {
     }
 
     fun showNotificationReturned(title: String, dueDate: String) {
-        createNotificationChannels(context) // ✅ Ensure channels exist before scheduling notifications
+        createNotificationChannels(context)
 
         val workRequest = OneTimeWorkRequestBuilder<NotificationWorkerReturned>()
             .setInitialDelay(6, TimeUnit.DAYS)

@@ -32,6 +32,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -68,6 +69,8 @@ import com.example.libtrack.errorHandling.passwordVisibilityTrueImage
 @Composable
 fun Page1_FP(navController: NavHostController){
 
+    var lastClickTime by remember { mutableLongStateOf(0L) } // Track last click time
+
 
     val context = LocalContext.current
 
@@ -92,8 +95,17 @@ fun Page1_FP(navController: NavHostController){
                     Text(text = "")
                 },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(imageVector = Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    IconButton(onClick = {
+                        val currentTime = System.currentTimeMillis()
+                        if (currentTime - lastClickTime > 500) { // 500ms debounce
+                            lastClickTime = currentTime
+                            navController.popBackStack() // Navigate back
+                        }
+                    }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                        )
                     }
                 }
             )
